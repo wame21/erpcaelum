@@ -21,44 +21,64 @@ type CarritoCtx = {
 };
 
 const Ctx = createContext<CarritoCtx | null>(null);
-const KEY = "caelum_carrito";
+const KEY_BASE = "caelum_carrito";
+const keyPara = (userId: string | null) => (userId ? `${KEY_BASE}_${userId}` : `${KEY_BASE}_anon`);
+
+function leer(key: string): ItemCarrito[] {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as ItemCarrito[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 export function CarritoProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ItemCarrito[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
 
+  // Carga inicial + sincronización por usuario
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setItems(JSON.parse(raw) as ItemCarrito[]);
-    } catch {
-      /* ignore */
-    }
-    setListo(true);
+    let activo = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!activo) return;
+      const uid = data.session?.user.id ?? null;
+      setUserId(uid);
+      setItems(leer(keyPara(uid)));
+      setListo(true);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      const uid = session?.user.id ?? null;
+      if (event === "SIGNED_OUT") {
+        // Se conserva el carrito guardado de la cuenta; sólo se limpia la vista actual
+        setUserId(null);
+        setItems(leer(keyPara(null)));
+        return;
+      }
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "USER_UPDATED") {
+        setUserId(uid);
+        setItems(leer(keyPara(uid)));
+      }
+    });
+
+    return () => {
+      activo = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
     if (!listo) return;
     try {
-      localStorage.setItem(KEY, JSON.stringify(items));
+      localStorage.setItem(keyPara(userId), JSON.stringify(items));
     } catch {
       /* ignore */
     }
-  }, [items, listo]);
+  }, [items, userId, listo]);
 
-  useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        setItems([]);
-        try {
-          localStorage.removeItem(KEY);
-        } catch {
-          /* ignore */
-        }
-      }
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
 
   const value = useMemo<CarritoCtx>(
     () => ({
