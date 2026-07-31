@@ -9,12 +9,13 @@ const navLink =
   "text-muted-foreground transition-colors duration-300 hover:text-foreground whitespace-nowrap";
 
 export function SiteHeader() {
-  const { cantidadTotal } = useCarrito();
+  const { cantidadTotal, vaciar } = useCarrito();
   const { user } = useSesion();
   const navigate = useNavigate();
 
   async function salir() {
     await supabase.auth.signOut();
+    vaciar();
     navigate({ to: "/", replace: true });
   }
 
