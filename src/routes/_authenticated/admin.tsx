@@ -95,11 +95,17 @@ function AdminPage() {
     queryKey: ["admin", "productos"],
     queryFn: () => fetchProductos(),
     retry: false,
+    throwOnError: false,
   });
+
+  const esAdmin = productos.isSuccess;
+
   const codigos = useQuery({
     queryKey: ["admin", "codigos"],
     queryFn: () => fetchCodigos(),
     retry: false,
+    throwOnError: false,
+    enabled: esAdmin,
   });
 
   const mGuardar = useMutation({
@@ -118,8 +124,7 @@ function AdminPage() {
     onError: (e: Error) => setError(e.message),
   });
 
-  const noAutorizado =
-    productos.isError && /autoriz/i.test((productos.error as Error)?.message ?? "");
+  const noAutorizado = productos.isError;
 
   async function subirImagen(file: File) {
     setSubiendo(true);
