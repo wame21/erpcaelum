@@ -55,6 +55,7 @@ export type Database = {
           medida: string | null
           nombre: string
           peso_gramos: number
+          sku: string
           updated_at: string
         }
         Insert: {
@@ -70,6 +71,7 @@ export type Database = {
           medida?: string | null
           nombre: string
           peso_gramos?: number
+          sku?: string
           updated_at?: string
         }
         Update: {
@@ -85,6 +87,7 @@ export type Database = {
           medida?: string | null
           nombre?: string
           peso_gramos?: number
+          sku?: string
           updated_at?: string
         }
         Relationships: [
