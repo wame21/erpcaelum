@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 type ProductoPayload = {
-  id?: string;
+  id?: string | undefined;
   nombre: string;
   descripcion: string | null;
   categoria: "cadenas" | "pulsos";
