@@ -1,7 +1,23 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+
 import logo from "@/assets/caelum-logo.png.asset.json";
+import { useCarrito } from "@/lib/carrito";
+import { useSesion } from "@/hooks/use-sesion";
+import { supabase } from "@/integrations/supabase/client";
+
+const navLink =
+  "text-muted-foreground transition-colors duration-300 hover:text-foreground whitespace-nowrap";
 
 export function SiteHeader() {
+  const { cantidadTotal } = useCarrito();
+  const { user } = useSesion();
+  const navigate = useNavigate();
+
+  async function salir() {
+    await supabase.auth.signOut();
+    navigate({ to: "/", replace: true });
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-hairline bg-ink/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 py-6 sm:py-8">
@@ -17,20 +33,24 @@ export function SiteHeader() {
             Silentium est potentia
           </span>
         </Link>
-        <nav className="mt-1 flex items-center gap-6 text-[0.7rem] tracking-[0.28em] uppercase sm:gap-10 sm:text-xs">
-          <Link
-            to="/catalogo/$categoria"
-            params={{ categoria: "cadenas" }}
-            className="text-muted-foreground transition-colors duration-300 hover:text-foreground"
-          >
+        <nav className="mt-1 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[0.65rem] tracking-[0.24em] uppercase sm:gap-x-8 sm:text-xs sm:tracking-[0.28em]">
+          <Link to="/catalogo/$categoria" params={{ categoria: "cadenas" }} className={navLink}>
             Cadenas
           </Link>
-          <Link
-            to="/catalogo/$categoria"
-            params={{ categoria: "pulsos" }}
-            className="text-muted-foreground transition-colors duration-300 hover:text-foreground"
-          >
+          <Link to="/catalogo/$categoria" params={{ categoria: "pulsos" }} className={navLink}>
             Pulsos
+          </Link>
+          {user ? (
+            <button type="button" onClick={salir} className={navLink}>
+              Salir
+            </button>
+          ) : (
+            <Link to="/acceso" className={navLink}>
+              Iniciar sesión
+            </Link>
+          )}
+          <Link to="/carrito" className={navLink}>
+            Carrito{cantidadTotal > 0 ? ` (${cantidadTotal})` : ""}
           </Link>
         </nav>
       </div>
