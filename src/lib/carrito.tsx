@@ -44,6 +44,20 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
     }
   }, [items, listo]);
 
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        setItems([]);
+        try {
+          localStorage.removeItem(KEY);
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
   const value = useMemo<CarritoCtx>(
     () => ({
       items,
