@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
+
 export type ItemCarrito = {
   id: string;
   sku: string;
