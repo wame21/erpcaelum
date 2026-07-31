@@ -6,8 +6,6 @@ import { useCarrito } from "@/lib/carrito";
 import { useSesion } from "@/hooks/use-sesion";
 import { supabase } from "@/integrations/supabase/client";
 
-const navLink =
-  "text-muted-foreground transition-colors duration-300 hover:text-foreground whitespace-nowrap";
 const categoryLink =
   "text-foreground/90 font-medium tracking-[0.22em] uppercase transition-colors duration-300 hover:text-primary relative after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full";
 const iconButton =
