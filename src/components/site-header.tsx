@@ -11,7 +11,7 @@ const navLink =
 const categoryLink =
   "text-foreground/90 font-medium tracking-[0.22em] uppercase transition-colors duration-300 hover:text-primary relative after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full";
 const iconButton =
-  "text-muted-foreground transition-colors duration-300 hover:text-foreground p-1";}
+  "text-muted-foreground transition-colors duration-300 hover:text-foreground p-1";
 
 export function SiteHeader() {
   const { cantidadTotal, vaciar } = useCarrito();
