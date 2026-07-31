@@ -6,6 +6,19 @@ const mxn = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 0,
 });
 
+const WHATSAPP = "5216871526276";
+
+function enlaceWhatsApp(producto: Producto) {
+  const detalles = [producto.medida, producto.grosor, `${producto.peso_gramos} g`]
+    .filter(Boolean)
+    .join(" · ");
+  const mensaje =
+    `Hola CAELUM, me interesa la pieza ${producto.sku} — ${producto.nombre}` +
+    (detalles ? ` (${detalles})` : "") +
+    `. Precio: ${mxn.format(producto.precio_final)}. ¿Sigue disponible?`;
+  return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
+}
+
 export function ProductoCard({ producto }: { producto: Producto }) {
   return (
     <article className="group border border-hairline bg-surface transition-colors duration-500 hover:border-silver/40">
