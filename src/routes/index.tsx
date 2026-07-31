@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/reveal";
 import { ProductoCard } from "@/components/producto-card";
-import { DatosBancarios } from "@/components/datos-bancarios";
+
 import { listarProductos } from "@/lib/productos.functions";
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";

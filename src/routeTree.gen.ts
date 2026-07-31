@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AccesoRouteImport } from './routes/acceso'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CarritoRouteImport } from './routes/carrito'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CatalogoCategoriaRouteImport } from './routes/catalogo.$categoria'
 
@@ -35,6 +36,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CarritoRoute = CarritoRouteImport.update({
+  id: '/carrito',
+  path: '/carrito',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -50,6 +56,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/acceso': typeof AccesoRoute
   '/auth': typeof AuthRoute
+  '/carrito': typeof CarritoRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
 }
@@ -57,6 +64,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/acceso': typeof AccesoRoute
   '/auth': typeof AuthRoute
+  '/carrito': typeof CarritoRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
 }
@@ -66,20 +74,23 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/acceso': typeof AccesoRoute
   '/auth': typeof AuthRoute
+  '/carrito': typeof CarritoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/acceso' | '/auth' | '/admin' | '/catalogo/$categoria'
+  fullPaths:
+    '/' | '/acceso' | '/auth' | '/carrito' | '/admin' | '/catalogo/$categoria'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/acceso' | '/auth' | '/admin' | '/catalogo/$categoria'
+  to: '/' | '/acceso' | '/auth' | '/carrito' | '/admin' | '/catalogo/$categoria'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/acceso'
     | '/auth'
+    | '/carrito'
     | '/_authenticated/admin'
     | '/catalogo/$categoria'
   fileRoutesById: FileRoutesById
@@ -89,6 +100,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AccesoRoute: typeof AccesoRoute
   AuthRoute: typeof AuthRoute
+  CarritoRoute: typeof CarritoRoute
   CatalogoCategoriaRoute: typeof CatalogoCategoriaRoute
 }
 
@@ -120,6 +132,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carrito': {
+      id: '/carrito'
+      path: '/carrito'
+      fullPath: '/carrito'
+      preLoaderRoute: typeof CarritoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -155,6 +174,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AccesoRoute: AccesoRoute,
   AuthRoute: AuthRoute,
+  CarritoRoute: CarritoRoute,
   CatalogoCategoriaRoute: CatalogoCategoriaRoute,
 }
 export const routeTree = rootRouteImport
