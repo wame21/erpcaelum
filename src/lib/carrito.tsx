@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
+
 export type ItemCarrito = {
   id: string;
   sku: string;
@@ -43,6 +45,20 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
   }, [items, listo]);
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        setItems([]);
+        try {
+          localStorage.removeItem(KEY);
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const value = useMemo<CarritoCtx>(
     () => ({
