@@ -5,6 +5,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 export type Producto = {
   id: string;
+  sku: string;
   nombre: string;
   descripcion: string | null;
   categoria: "cadenas" | "pulsos";
