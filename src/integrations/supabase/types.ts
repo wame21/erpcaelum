@@ -124,7 +124,6 @@ export type Database = {
         Row: {
           activo: boolean | null
           categoria: Database["public"]["Enums"]["categoria_joya"] | null
-          codigo_proveedor: string | null
           created_at: string | null
           descripcion: string | null
           destacado: boolean | null
@@ -135,18 +134,9 @@ export type Database = {
           nombre: string | null
           peso_gramos: number | null
           precio_final: number | null
-          precio_venta_por_gramo: number | null
           updated_at: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "productos_codigo_proveedor_fkey"
-            columns: ["codigo_proveedor"]
-            isOneToOne: false
-            referencedRelation: "codigos_proveedor"
-            referencedColumns: ["codigo"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {
