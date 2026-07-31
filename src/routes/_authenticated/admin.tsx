@@ -95,11 +95,17 @@ function AdminPage() {
     queryKey: ["admin", "productos"],
     queryFn: () => fetchProductos(),
     retry: false,
+    throwOnError: false,
   });
+
+  const esAdmin = productos.isSuccess;
+
   const codigos = useQuery({
     queryKey: ["admin", "codigos"],
     queryFn: () => fetchCodigos(),
     retry: false,
+    throwOnError: false,
+    enabled: esAdmin,
   });
 
   const mGuardar = useMutation({
