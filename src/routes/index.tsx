@@ -123,28 +123,6 @@ function Index() {
           </div>
         </section>
 
-        {/* Inventario */}
-        {productos.length > 0 && (
-          <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28">
-            <Reveal>
-              <div className="flex items-center gap-5">
-                <span className="h-px flex-1 bg-hairline" />
-                <h2 className="font-display text-xl tracking-[0.24em] uppercase sm:text-3xl">
-                  Inventario
-                </h2>
-                <span className="h-px flex-1 bg-hairline" />
-              </div>
-            </Reveal>
-            <div className="mt-10 grid grid-cols-2 gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
-              {productos.map((p, i) => (
-                <Reveal key={p.id} delay={(i % 3) * 100}>
-                  <ProductoCard producto={p} />
-                </Reveal>
-              ))}
-            </div>
-          </section>
-        )}
-
       </main>
 
       <SiteFooter />
