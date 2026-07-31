@@ -87,6 +87,7 @@ function AdminPage() {
   const [form, setForm] = useState<FormState>(vacio);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [busqueda, setBusqueda] = useState("");
 
   const productos = useQuery({
     queryKey: ["admin", "productos"],
