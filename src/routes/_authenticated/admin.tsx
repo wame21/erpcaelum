@@ -452,7 +452,10 @@ function AdminPage() {
                 ))}
               </div>
             </section>
+
+            <AdminPedidos />
           </>
+
         )}
       </main>
     </div>
