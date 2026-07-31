@@ -42,12 +42,18 @@ const productoSchema = z.object({
 });
 
 async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
+  // La comprobación se hace leyendo user_roles como el propio usuario (RLS lo
+  // limita a sus propias filas); la función has_role ya no es invocable por
+  // clientes autenticados.
+  const { data, error } = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId)
+    .eq("role", "admin")
+    .maybeSingle();
   if (error || !data) throw new Error("No autorizado");
 }
+
 
 export const listarProductosAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
