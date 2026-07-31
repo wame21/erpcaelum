@@ -49,9 +49,9 @@ export function SiteHeader() {
               <LogOut size={18} strokeWidth={1.5} />
             </button>
           ) : (
-            <Link to="/acceso" className={iconButton} aria-label="Iniciar sesión">
-              <LogIn size={18} strokeWidth={1.5} />
-            </Link>
+          <Link to="/acceso" className={iconButton} aria-label="Iniciar sesión">
+            <User size={18} strokeWidth={1.5} />
+          </Link>
           )}
           <Link to="/carrito" className={iconButton} aria-label="Carrito">
             <div className="relative">
