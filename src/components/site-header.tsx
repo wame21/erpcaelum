@@ -39,24 +39,31 @@ export function SiteHeader() {
             Silentium est potentia
           </span>
         </Link>
-        <nav className="mt-1 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[0.65rem] tracking-[0.24em] uppercase sm:gap-x-8 sm:text-xs sm:tracking-[0.28em]">
-          <Link to="/catalogo/$categoria" params={{ categoria: "cadenas" }} className={navLink}>
+        <nav className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[0.65rem] tracking-[0.24em] uppercase sm:gap-x-6 sm:text-xs sm:tracking-[0.28em]">
+          <Link to="/catalogo/$categoria" params={{ categoria: "cadenas" }} className={categoryLink}>
             Cadenas
           </Link>
-          <Link to="/catalogo/$categoria" params={{ categoria: "pulsos" }} className={navLink}>
+          <Link to="/catalogo/$categoria" params={{ categoria: "pulsos" }} className={categoryLink}>
             Pulsos
           </Link>
           {user ? (
-            <button type="button" onClick={salir} className={navLink}>
-              Salir
+            <button type="button" onClick={salir} className={iconButton} aria-label="Salir">
+              <LogOut size={18} strokeWidth={1.5} />
             </button>
           ) : (
-            <Link to="/acceso" className={navLink}>
-              Iniciar sesión
+            <Link to="/acceso" className={iconButton} aria-label="Iniciar sesión">
+              <LogIn size={18} strokeWidth={1.5} />
             </Link>
           )}
-          <Link to="/carrito" className={navLink}>
-            Carrito{cantidadTotal > 0 ? ` (${cantidadTotal})` : ""}
+          <Link to="/carrito" className={iconButton} aria-label="Carrito">
+            <div className="relative">
+              <ShoppingBag size={18} strokeWidth={1.5} />
+              {cantidadTotal > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[0.55rem] font-medium text-primary-foreground">
+                  {cantidadTotal}
+                </span>
+              )}
+            </div>
           </Link>
         </nav>
       </div>
