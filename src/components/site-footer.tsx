@@ -7,8 +7,6 @@ export function SiteFooter() {
         </h2>
         <p className="mt-5 text-[0.65rem] leading-relaxed tracking-[0.24em] text-muted-foreground uppercase sm:text-[0.7rem]">
           Entregas personales en Guasave, Sin.
-          <br />
-          Envíos seguros a todo México.
         </p>
         <div className="mx-auto mt-8 h-px w-16 bg-hairline" />
         <p className="mt-8 font-display text-[0.7rem] tracking-[0.4em] text-muted-foreground uppercase">
