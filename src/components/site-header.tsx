@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogIn, LogOut, ShoppingBag } from "lucide-react";
+import { LogOut, ShoppingBag, User } from "lucide-react";
 
 import logo from "@/assets/caelum-logo.png.asset.json";
 import { useCarrito } from "@/lib/carrito";
