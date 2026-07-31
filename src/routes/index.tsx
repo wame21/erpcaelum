@@ -1,21 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/reveal";
-import { ProductoCard } from "@/components/producto-card";
 
-import { listarProductos } from "@/lib/productos.functions";
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
 import catCadenas from "@/assets/cat-cadenas.jpg";
 import catPulsos from "@/assets/cat-pulsos.jpg";
-
-const destacadosQuery = queryOptions({
-  queryKey: ["productos", "destacados"],
-  queryFn: () => listarProductos({ data: { limite: 8 } }),
-});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,12 +28,11 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(destacadosQuery),
   component: Index,
 });
 
 function Index() {
-  const { data: productos } = useSuspenseQuery(destacadosQuery);
+
 
   return (
     <div className="min-h-screen bg-background">
