@@ -14,16 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      codigos_proveedor: {
+        Row: {
+          codigo: string
+          costo_por_gramo: number
+          created_at: string
+          descripcion: string | null
+          precio_venta_por_gramo: number
+          updated_at: string
+        }
+        Insert: {
+          codigo: string
+          costo_por_gramo?: number
+          created_at?: string
+          descripcion?: string | null
+          precio_venta_por_gramo?: number
+          updated_at?: string
+        }
+        Update: {
+          codigo?: string
+          costo_por_gramo?: number
+          created_at?: string
+          descripcion?: string | null
+          precio_venta_por_gramo?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      productos: {
+        Row: {
+          activo: boolean
+          categoria: Database["public"]["Enums"]["categoria_joya"]
+          codigo_proveedor: string
+          created_at: string
+          descripcion: string | null
+          destacado: boolean
+          grosor: string | null
+          id: string
+          imagen_path: string | null
+          medida: string | null
+          nombre: string
+          peso_gramos: number
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          categoria: Database["public"]["Enums"]["categoria_joya"]
+          codigo_proveedor: string
+          created_at?: string
+          descripcion?: string | null
+          destacado?: boolean
+          grosor?: string | null
+          id?: string
+          imagen_path?: string | null
+          medida?: string | null
+          nombre: string
+          peso_gramos?: number
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          categoria?: Database["public"]["Enums"]["categoria_joya"]
+          codigo_proveedor?: string
+          created_at?: string
+          descripcion?: string | null
+          destacado?: boolean
+          grosor?: string | null
+          id?: string
+          imagen_path?: string | null
+          medida?: string | null
+          nombre?: string
+          peso_gramos?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "productos_codigo_proveedor_fkey"
+            columns: ["codigo_proveedor"]
+            isOneToOne: false
+            referencedRelation: "codigos_proveedor"
+            referencedColumns: ["codigo"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      productos_con_precio: {
+        Row: {
+          activo: boolean | null
+          categoria: Database["public"]["Enums"]["categoria_joya"] | null
+          codigo_proveedor: string | null
+          created_at: string | null
+          descripcion: string | null
+          destacado: boolean | null
+          grosor: string | null
+          id: string | null
+          imagen_path: string | null
+          medida: string | null
+          nombre: string | null
+          peso_gramos: number | null
+          precio_final: number | null
+          precio_venta_por_gramo: number | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "productos_codigo_proveedor_fkey"
+            columns: ["codigo_proveedor"]
+            isOneToOne: false
+            referencedRelation: "codigos_proveedor"
+            referencedColumns: ["codigo"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      categoria_joya: "cadenas" | "pulsos"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +287,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      categoria_joya: ["cadenas", "pulsos"],
+    },
   },
 } as const
