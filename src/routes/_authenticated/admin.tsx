@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { SiteHeader } from "@/components/site-header";
+import { AdminPedidos } from "@/components/admin-pedidos";
+
 import { supabase } from "@/integrations/supabase/client";
 import {
   cambiarEstadoProducto,
@@ -452,7 +454,10 @@ function AdminPage() {
                 ))}
               </div>
             </section>
+
+            <AdminPedidos />
           </>
+
         )}
       </main>
     </div>

@@ -41,6 +41,130 @@ export type Database = {
         }
         Relationships: []
       }
+      pedido_items: {
+        Row: {
+          cantidad: number
+          created_at: string
+          id: string
+          nombre: string
+          pedido_id: string
+          precio_unitario: number
+          producto_id: string | null
+          sku: string | null
+        }
+        Insert: {
+          cantidad?: number
+          created_at?: string
+          id?: string
+          nombre: string
+          pedido_id: string
+          precio_unitario?: number
+          producto_id?: string | null
+          sku?: string | null
+        }
+        Update: {
+          cantidad?: number
+          created_at?: string
+          id?: string
+          nombre?: string
+          pedido_id?: string
+          precio_unitario?: number
+          producto_id?: string | null
+          sku?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedido_items_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedido_items_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedido_items_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos_con_precio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pedidos: {
+        Row: {
+          comprobante_path: string | null
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_pedido"]
+          id: string
+          monto_a_pagar: number
+          nombre: string
+          notas: string | null
+          porcentaje_pago: number
+          telefono: string
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comprobante_path?: string | null
+          created_at?: string
+          estado?: Database["public"]["Enums"]["estado_pedido"]
+          id?: string
+          monto_a_pagar?: number
+          nombre: string
+          notas?: string | null
+          porcentaje_pago?: number
+          telefono: string
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comprobante_path?: string | null
+          created_at?: string
+          estado?: Database["public"]["Enums"]["estado_pedido"]
+          id?: string
+          monto_a_pagar?: number
+          nombre?: string
+          notas?: string | null
+          porcentaje_pago?: number
+          telefono?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      perfiles: {
+        Row: {
+          created_at: string
+          nombre: string | null
+          telefono: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          nombre?: string | null
+          telefono?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          nombre?: string | null
+          telefono?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       productos: {
         Row: {
           activo: boolean
@@ -154,6 +278,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       categoria_joya: "cadenas" | "pulsos"
+      estado_pedido: "en_progreso" | "confirmado" | "cancelado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -283,6 +408,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       categoria_joya: ["cadenas", "pulsos"],
+      estado_pedido: ["en_progreso", "confirmado", "cancelado"],
     },
   },
 } as const

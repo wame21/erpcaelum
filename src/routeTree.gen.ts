@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AccesoRouteImport } from './routes/acceso'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CarritoRouteImport } from './routes/carrito'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CatalogoCategoriaRouteImport } from './routes/catalogo.$categoria'
 
@@ -24,9 +26,19 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccesoRoute = AccesoRouteImport.update({
+  id: '/acceso',
+  path: '/acceso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarritoRoute = CarritoRouteImport.update({
+  id: '/carrito',
+  path: '/carrito',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -42,13 +54,17 @@ const CatalogoCategoriaRoute = CatalogoCategoriaRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acceso': typeof AccesoRoute
   '/auth': typeof AuthRoute
+  '/carrito': typeof CarritoRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acceso': typeof AccesoRoute
   '/auth': typeof AuthRoute
+  '/carrito': typeof CarritoRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
 }
@@ -56,20 +72,25 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/acceso': typeof AccesoRoute
   '/auth': typeof AuthRoute
+  '/carrito': typeof CarritoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/admin' | '/catalogo/$categoria'
+  fullPaths:
+    '/' | '/acceso' | '/auth' | '/carrito' | '/admin' | '/catalogo/$categoria'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/admin' | '/catalogo/$categoria'
+  to: '/' | '/acceso' | '/auth' | '/carrito' | '/admin' | '/catalogo/$categoria'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/acceso'
     | '/auth'
+    | '/carrito'
     | '/_authenticated/admin'
     | '/catalogo/$categoria'
   fileRoutesById: FileRoutesById
@@ -77,7 +98,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AccesoRoute: typeof AccesoRoute
   AuthRoute: typeof AuthRoute
+  CarritoRoute: typeof CarritoRoute
   CatalogoCategoriaRoute: typeof CatalogoCategoriaRoute
 }
 
@@ -97,11 +120,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/acceso': {
+      id: '/acceso'
+      path: '/acceso'
+      fullPath: '/acceso'
+      preLoaderRoute: typeof AccesoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carrito': {
+      id: '/carrito'
+      path: '/carrito'
+      fullPath: '/carrito'
+      preLoaderRoute: typeof CarritoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -135,19 +172,11 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AccesoRoute: AccesoRoute,
   AuthRoute: AuthRoute,
+  CarritoRoute: CarritoRoute,
   CatalogoCategoriaRoute: CatalogoCategoriaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
