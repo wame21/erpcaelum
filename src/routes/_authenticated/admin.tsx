@@ -30,6 +30,20 @@ export const Route = createFileRoute("/_authenticated/admin")({
   }),
   component: AdminPage,
 });
+type ProductoPayload = {
+  id?: string;
+  nombre: string;
+  descripcion: string | null;
+  categoria: "cadenas" | "pulsos";
+  codigo_proveedor: string;
+  medida: string | null;
+  grosor: string | null;
+  peso_gramos: number;
+  destacado: boolean;
+  activo: boolean;
+  imagen_path: string | null;
+};
+
 
 type FormState = {
   id?: string;
