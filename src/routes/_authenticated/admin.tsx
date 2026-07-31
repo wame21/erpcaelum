@@ -429,11 +429,6 @@ function AdminPage() {
                         {p.grosor ? ` · ${p.grosor}` : ""}
                       </p>
                     </div>
-
-                        {p.medida ? ` · ${p.medida}` : ""}
-                        {p.grosor ? ` · ${p.grosor}` : ""}
-                      </p>
-                    </div>
                     <span
                       className={`text-[0.6rem] tracking-[0.2em] uppercase ${
                         p.activo ? "text-foreground" : "text-muted-foreground"
