@@ -7,6 +7,7 @@ const BUCKET = "caelum_imagenes";
 
 export type AdminProducto = {
   id: string;
+  sku: string;
   nombre: string;
   descripcion: string | null;
   categoria: "cadenas" | "pulsos";
