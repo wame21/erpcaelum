@@ -7,6 +7,7 @@ const BUCKET = "caelum_imagenes";
 
 export type AdminProducto = {
   id: string;
+  sku: string;
   nombre: string;
   descripcion: string | null;
   categoria: "cadenas" | "pulsos";
@@ -64,7 +65,7 @@ export const listarProductosAdmin = createServerFn({ method: "GET" })
     const { data: rows, error } = await supabase
       .from("productos")
       .select(
-        "id, nombre, descripcion, categoria, codigo_proveedor, medida, grosor, peso_gramos, activo, destacado, imagen_path",
+        "id, sku, nombre, descripcion, categoria, codigo_proveedor, medida, grosor, peso_gramos, activo, destacado, imagen_path",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);

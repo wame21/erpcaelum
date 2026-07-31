@@ -87,6 +87,7 @@ function AdminPage() {
   const [form, setForm] = useState<FormState>(vacio);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [busqueda, setBusqueda] = useState("");
 
   const productos = useQuery({
     queryKey: ["admin", "productos"],
@@ -181,6 +182,17 @@ function AdminPage() {
   const precioEstimado = codigoSel
     ? codigoSel.precio_venta_por_gramo * Number(form.peso_gramos || 0)
     : null;
+
+  const q = busqueda.trim().toLowerCase();
+  const listaFiltrada = (productos.data ?? []).filter((p) =>
+    q
+      ? [p.sku, p.nombre, p.codigo_proveedor, p.categoria, p.medida, p.grosor]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(q))
+      : true,
+  );
+
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -372,17 +384,31 @@ function AdminPage() {
             </form>
 
             <section className="mt-14">
-              <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
-                Piezas registradas
-              </h2>
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
+                  Piezas registradas
+                </h2>
+                <p className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase">
+                  {listaFiltrada.length} de {productos.data?.length ?? 0}
+                </p>
+              </div>
+              <input
+                type="search"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar por SKU, nombre, código, medida…"
+                className={`${field} mt-4`}
+              />
               <div className="mt-6 divide-y divide-hairline border-y border-hairline">
                 {productos.isLoading && (
                   <p className="py-6 text-sm text-muted-foreground">Cargando…</p>
                 )}
-                {productos.data?.length === 0 && (
-                  <p className="py-6 text-sm text-muted-foreground">Aún no hay piezas.</p>
+                {!productos.isLoading && listaFiltrada.length === 0 && (
+                  <p className="py-6 text-sm text-muted-foreground">
+                    {q ? "Sin resultados para esa búsqueda." : "Aún no hay piezas."}
+                  </p>
                 )}
-                {productos.data?.map((p) => (
+                {listaFiltrada.map((p) => (
                   <div key={p.id} className="flex items-center gap-4 py-4">
                     <div className="h-16 w-16 shrink-0 overflow-hidden border border-hairline bg-surface">
                       {p.imagen_url && (
@@ -394,7 +420,9 @@ function AdminPage() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm">{p.nombre}</p>
+                      <p className="truncate text-sm">
+                        <span className="text-muted-foreground">{p.sku}</span> · {p.nombre}
+                      </p>
                       <p className="mt-1 text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
                         {p.categoria} · {p.codigo_proveedor} · {p.peso_gramos} g
                         {p.medida ? ` · ${p.medida}` : ""}
