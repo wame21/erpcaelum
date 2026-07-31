@@ -86,7 +86,7 @@ function AdminPage() {
   });
 
   const mGuardar = useMutation({
-    mutationFn: (data: Parameters<typeof guardar>[0]["data"]) => guardar({ data }),
+    mutationFn: (data: ProductoPayload) => guardar({ data } as never),
     onSuccess: () => {
       setForm(vacio);
       setError(null);
