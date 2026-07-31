@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { LogIn, LogOut, ShoppingBag, User } from "lucide-react";
 
 import logo from "@/assets/caelum-logo.png.asset.json";
 import { useCarrito } from "@/lib/carrito";
@@ -7,6 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 const navLink =
   "text-muted-foreground transition-colors duration-300 hover:text-foreground whitespace-nowrap";
+const categoryLink =
+  "text-foreground/90 font-medium tracking-[0.22em] uppercase transition-colors duration-300 hover:text-primary relative after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full";
+const iconButton =
+  "text-muted-foreground transition-colors duration-300 hover:text-foreground p-1";}
 
 export function SiteHeader() {
   const { cantidadTotal, vaciar } = useCarrito();
