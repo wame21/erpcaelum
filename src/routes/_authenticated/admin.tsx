@@ -124,8 +124,7 @@ function AdminPage() {
     onError: (e: Error) => setError(e.message),
   });
 
-  const noAutorizado =
-    productos.isError && /autoriz/i.test((productos.error as Error)?.message ?? "");
+  const noAutorizado = productos.isError;
 
   async function subirImagen(file: File) {
     setSubiendo(true);
