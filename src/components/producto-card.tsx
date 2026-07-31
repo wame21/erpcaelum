@@ -1,25 +1,26 @@
+import { useState } from "react";
+
 import type { Producto } from "@/lib/productos.functions";
-
-const mxn = new Intl.NumberFormat("es-MX", {
-  style: "currency",
-  currency: "MXN",
-  maximumFractionDigits: 0,
-});
-
-const WHATSAPP = "5216871526276";
-
-function enlaceWhatsApp(producto: Producto) {
-  const detalles = [producto.medida, producto.grosor, `${producto.peso_gramos} g`]
-    .filter(Boolean)
-    .join(" · ");
-  const mensaje =
-    `Hola CAELUM, me interesa la pieza ${producto.sku} — ${producto.nombre}` +
-    (detalles ? ` (${detalles})` : "") +
-    `. Precio: ${mxn.format(producto.precio_final)}. ¿Sigue disponible?`;
-  return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
-}
+import { useCarrito } from "@/lib/carrito";
+import { mxn } from "@/lib/banco";
 
 export function ProductoCard({ producto }: { producto: Producto }) {
+  const { agregar, items } = useCarrito();
+  const [agregado, setAgregado] = useState(false);
+  const yaEsta = items.some((i) => i.id === producto.id);
+
+  function onAgregar() {
+    agregar({
+      id: producto.id,
+      sku: producto.sku,
+      nombre: producto.nombre,
+      precio_final: producto.precio_final,
+      imagen_url: producto.imagen_url,
+    });
+    setAgregado(true);
+    setTimeout(() => setAgregado(false), 2000);
+  }
+
   return (
     <article className="group border border-hairline bg-surface transition-colors duration-500 hover:border-silver/40">
       <div className="aspect-square overflow-hidden bg-ink">
@@ -51,16 +52,15 @@ export function ProductoCard({ producto }: { producto: Producto }) {
         <p className="pt-1 text-sm tracking-[0.1em] text-silver">
           {mxn.format(producto.precio_final)}
         </p>
-        <a
-          href={enlaceWhatsApp(producto)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 block border border-hairline px-6 py-3 text-center text-[0.65rem] tracking-[0.3em] uppercase transition-colors duration-300 hover:bg-foreground hover:text-background"
+        <button
+          type="button"
+          onClick={onAgregar}
+          disabled={yaEsta}
+          className="mt-4 block w-full border border-hairline px-6 py-3 text-center text-[0.65rem] tracking-[0.3em] uppercase transition-colors duration-300 hover:bg-foreground hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-foreground"
         >
-          Pedir
-        </a>
+          {yaEsta ? "En el carrito" : agregado ? "Agregado" : "Apartar"}
+        </button>
       </div>
-
     </article>
   );
 }
