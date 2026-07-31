@@ -145,7 +145,6 @@ function Index() {
           </section>
         )}
 
-        <DatosBancarios />
       </main>
 
       <SiteFooter />
