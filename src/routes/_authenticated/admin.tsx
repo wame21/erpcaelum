@@ -183,6 +183,17 @@ function AdminPage() {
     ? codigoSel.precio_venta_por_gramo * Number(form.peso_gramos || 0)
     : null;
 
+  const q = busqueda.trim().toLowerCase();
+  const listaFiltrada = (productos.data ?? []).filter((p) =>
+    q
+      ? [p.sku, p.nombre, p.codigo_proveedor, p.categoria, p.medida, p.grosor]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(q))
+      : true,
+  );
+
+
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
