@@ -29,7 +29,12 @@ const keyPara = (userId: string | null) => (userId ? `${KEY_BASE}_${userId}` : `
 function leer(key: string): ItemCarrito[] {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as ItemCarrito[]) : [];
+    const parsed = raw ? (JSON.parse(raw) as ItemCarrito[]) : [];
+    return parsed.map((i) => ({
+      ...i,
+      stock: Number.isFinite(i.stock) ? i.stock : 1,
+      cantidad: Number.isFinite(i.cantidad) ? i.cantidad : 1,
+    }));
   } catch {
     return [];
   }

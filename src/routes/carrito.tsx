@@ -69,7 +69,7 @@ function CopyRow({ label: etiqueta, value }: { label: string; value: string }) {
 }
 
 function CarritoPage() {
-  const { items, total, quitar, vaciar } = useCarrito();
+  const { items, total, quitar, vaciar, cambiarCantidad } = useCarrito();
   const { user, cargando: cargandoSesion } = useSesion();
   const navigate = useNavigate();
   const enviarPedido = useServerFn(crearPedido);
@@ -181,7 +181,7 @@ function CarritoPage() {
           <>
             <ul className="mt-8 divide-y divide-hairline border-y border-hairline">
               {items.map((i) => (
-                <li key={i.id} className="flex items-center gap-4 py-4">
+                <li key={i.id} className="flex items-start gap-4 py-4">
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink">
                     {i.imagen_url && (
                       <img src={i.imagen_url} alt={i.nombre} className="h-full w-full rounded-lg object-cover" />
@@ -194,12 +194,38 @@ function CarritoPage() {
                     <p className="truncate font-display text-sm tracking-[0.14em] uppercase">
                       {i.nombre}
                     </p>
-                    <p className="text-sm text-silver">{mxn.format(i.precio_final)}</p>
+                    <p className="text-sm text-silver">
+                      {mxn.format(i.precio_final * i.cantidad)}
+                    </p>
+                    <div className="mt-2 flex items-center gap-3">
+                      <button
+                        type="button"
+                        aria-label="Quitar una pieza"
+                        onClick={() => cambiarCantidad(i.id, i.cantidad - 1)}
+                        disabled={i.cantidad <= 1}
+                        className="border border-hairline px-3 py-1 text-xs transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
+                      >
+                        −
+                      </button>
+                      <span className="text-xs tracking-[0.2em]">{i.cantidad}</span>
+                      <button
+                        type="button"
+                        aria-label="Agregar una pieza"
+                        onClick={() => cambiarCantidad(i.id, i.cantidad + 1)}
+                        disabled={i.cantidad >= i.stock}
+                        className="border border-hairline px-3 py-1 text-xs transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
+                      >
+                        +
+                      </button>
+                      <span className="text-[0.55rem] tracking-[0.2em] text-muted-foreground uppercase">
+                        {i.stock} disponibles
+                      </span>
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => quitar(i.id)}
-                    className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground"
+                    className="self-start text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground"
                   >
                     Quitar
                   </button>
