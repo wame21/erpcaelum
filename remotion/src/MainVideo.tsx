@@ -14,7 +14,7 @@ export const MainVideo = () => {
     <AbsoluteFill style={{ backgroundColor: "#050505" }}>
       <PersistentBackground />
       <TransitionSeries>
-        <TransitionSeries.Sequence durationInFrames={60}>
+        <TransitionSeries.Sequence durationInFrames={170}>
           <Scene0 />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition

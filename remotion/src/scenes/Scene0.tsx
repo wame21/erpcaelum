@@ -147,12 +147,12 @@ export const Scene0 = () => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const pointerX = interpolate(frame, [pointerAppear, 138], [220, 40], {
+  const pointerX = interpolate(frame, [pointerAppear, 138], [240, 60], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: (t) => 1 - Math.pow(1 - t, 3),
   });
-  const pointerY = interpolate(frame, [pointerAppear, 138], [260, 40], {
+  const pointerY = interpolate(frame, [pointerAppear, 138], [420, 232], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: (t) => 1 - Math.pow(1 - t, 3),
