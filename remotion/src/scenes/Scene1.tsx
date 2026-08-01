@@ -1,34 +1,16 @@
-import { useCurrentFrame, interpolate, spring, AbsoluteFill } from "remotion";
+import { useCurrentFrame, interpolate, spring, AbsoluteFill, staticFile, Img } from "remotion";
 import { playfair, inter } from "../fonts";
 
 const Logo = ({ scale = 1, opacity = 1 }: { scale?: number; opacity?: number }) => (
-  <svg
-    width={180 * scale}
-    height={180 * scale}
-    viewBox="0 0 100 100"
-    style={{ opacity }}
-  >
-    <circle
-      cx="50"
-      cy="50"
-      r="46"
-      fill="none"
-      stroke="white"
-      strokeWidth="1.5"
-    />
-    <path
-      d="M 50 18 A 32 32 0 1 0 50 82 A 32 32 0 1 0 50 18"
-      fill="none"
-      stroke="white"
-      strokeWidth="5"
-      strokeLinecap="round"
-    />
-    <path d="M 50 18 L 50 50" stroke="white" strokeWidth="5" strokeLinecap="round" />
-    <path
-      d="M 50 32 L 56 42 L 50 50 L 44 42 Z"
-      fill="white"
-    />
-  </svg>
+  <Img
+    src={staticFile("images/caelum-logo.png")}
+    style={{
+      width: 180 * scale,
+      height: 180 * scale,
+      objectFit: "contain",
+      opacity,
+    }}
+  />
 );
 
 export const Scene1 = () => {
