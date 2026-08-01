@@ -182,9 +182,9 @@ function CarritoPage() {
             <ul className="mt-8 divide-y divide-hairline border-y border-hairline">
               {items.map((i) => (
                 <li key={i.id} className="flex items-center gap-4 py-4">
-                  <div className="h-16 w-16 shrink-0 overflow-hidden bg-ink">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink">
                     {i.imagen_url && (
-                      <img src={i.imagen_url} alt={i.nombre} className="h-full w-full object-cover" />
+                      <img src={i.imagen_url} alt={i.nombre} className="h-full w-full rounded-lg object-cover" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">

@@ -231,7 +231,7 @@ function AdminPage() {
           <>
             <form
               onSubmit={onSubmit}
-              className="mt-10 grid gap-6 border border-hairline p-6 sm:grid-cols-2"
+              className="mt-10 grid gap-6 rounded-lg border border-hairline p-6 sm:grid-cols-2"
             >
               <div className="space-y-2 sm:col-span-2">
                 <label className={label}>Nombre</label>
@@ -417,12 +417,12 @@ function AdminPage() {
                 )}
                 {listaFiltrada.map((p) => (
                   <div key={p.id} className="flex items-center gap-4 py-4">
-                    <div className="h-16 w-16 shrink-0 overflow-hidden border border-hairline bg-surface">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-hairline bg-surface">
                       {p.imagen_url && (
                         <img
                           src={p.imagen_url}
                           alt={p.nombre}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full rounded-lg object-cover"
                         />
                       )}
                     </div>

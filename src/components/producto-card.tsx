@@ -22,14 +22,14 @@ export function ProductoCard({ producto }: { producto: Producto }) {
   }
 
   return (
-    <article className="group border border-hairline bg-surface transition-colors duration-500 hover:border-silver/40">
-      <div className="aspect-square overflow-hidden bg-ink">
+    <article className="group overflow-hidden rounded-lg border border-hairline bg-surface transition-colors duration-500 hover:border-silver/40">
+      <div className="aspect-square overflow-hidden rounded-t-lg bg-ink">
         {producto.imagen_url ? (
           <img
             src={producto.imagen_url}
             alt={producto.nombre}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
+            className="h-full w-full rounded-lg object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[0.6rem] tracking-[0.3em] text-muted-foreground uppercase">
