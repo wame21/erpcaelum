@@ -12,6 +12,7 @@ export type Producto = {
   medida: string | null;
   grosor: string | null;
   peso_gramos: number;
+  stock: number;
   precio_final: number;
   imagen_url: string | null;
 };
