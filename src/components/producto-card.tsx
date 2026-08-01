@@ -38,11 +38,6 @@ export function ProductoCard({ producto }: { producto: Producto }) {
         )}
       </div>
       <div className="space-y-2 p-5">
-        {producto.sku && (
-          <p className="text-[0.6rem] tracking-[0.3em] text-muted-foreground uppercase">
-            {producto.sku}
-          </p>
-        )}
         <h3 className="font-display text-sm tracking-[0.16em] uppercase">{producto.nombre}</h3>
         <p className="text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
           {[producto.medida, producto.grosor, `${producto.peso_gramos} g`]
