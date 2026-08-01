@@ -1,4 +1,4 @@
-import { useCurrentFrame, interpolate, spring, AbsoluteFill } from "remotion";
+import { useCurrentFrame, interpolate, spring, AbsoluteFill, staticFile, Img } from "remotion";
 import { playfair, inter } from "../fonts";
 
 const WhatsAppIcon = ({ opacity = 1 }: { opacity?: number }) => (
@@ -13,10 +13,8 @@ const WhatsAppIcon = ({ opacity = 1 }: { opacity?: number }) => (
     strokeLinejoin="round"
     style={{ opacity }}
   >
-    <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
-    <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Z" fill="white" />
-    <path d="M14 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Z" fill="white" />
-    <path d="M9.5 13.5c.5 1 1.5 1.5 2.5 1.5s2-.5 2.5-1.5" />
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.5-5.6A8.38 8.38 0 0 1 4.5 11.5 8.5 8.5 0 0 1 11 3a8.38 8.38 0 0 1 3.8.9l.9.4" />
+    <path d="M15 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
   </svg>
 );
 
