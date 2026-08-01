@@ -47,7 +47,7 @@ function Index() {
               alt="Pulso de plata .925 en la muñeca"
               width={912}
               height={1104}
-              className="h-full w-full rounded-sm object-cover"
+              className="h-full w-full rounded-lg object-cover"
             />
             <img
               src={hero2}
@@ -55,7 +55,7 @@ function Index() {
               width={912}
               height={1104}
               loading="lazy"
-              className="h-full w-full rounded-sm object-cover"
+              className="h-full w-full rounded-lg object-cover"
             />
           </div>
         </section>
@@ -63,7 +63,7 @@ function Index() {
         {/* Banner de marca */}
         <section className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
           <Reveal>
-            <blockquote className="border border-hairline bg-surface px-7 py-9 text-center sm:px-14 sm:py-12">
+            <blockquote className="rounded-lg border border-hairline bg-surface px-7 py-9 text-center sm:px-14 sm:py-12">
               <p className="font-display text-[0.8rem] leading-[2.1] tracking-[0.16em] text-foreground uppercase sm:text-base sm:tracking-[0.2em]">
                 El lujo real se lleva en silencio. Piezas atemporales de plata .925 que imponen
                 respeto sin decir una sola palabra.
@@ -90,19 +90,19 @@ function Index() {
               { slug: "pulsos" as const, label: "Pulsos", img: catPulsos },
             ].map((cat, i) => (
               <Reveal key={cat.slug} delay={i * 120}>
-                <Link
+              <Link
                   to="/catalogo/$categoria"
                   params={{ categoria: cat.slug }}
                   className="group block"
                 >
-                  <div className="overflow-hidden border border-hairline bg-ink transition-colors duration-500 group-hover:border-silver/50">
+                  <div className="overflow-hidden rounded-lg border border-hairline bg-ink transition-colors duration-500 group-hover:border-silver/50">
                     <img
                       src={cat.img}
                       alt={cat.label}
                       width={816}
                       height={816}
                       loading="lazy"
-                      className="aspect-square w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
+                      className="aspect-square w-full rounded-lg object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
                     />
                   </div>
                   <p className="mt-4 text-center text-[0.7rem] tracking-[0.32em] text-muted-foreground uppercase transition-colors duration-300 group-hover:text-foreground sm:text-sm">
