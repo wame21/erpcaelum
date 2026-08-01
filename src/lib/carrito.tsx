@@ -8,6 +8,7 @@ export type ItemCarrito = {
   nombre: string;
   precio_final: number;
   imagen_url: string | null;
+  stock: number;
   cantidad: number;
 };
 
@@ -16,6 +17,7 @@ type CarritoCtx = {
   total: number;
   cantidadTotal: number;
   agregar: (item: Omit<ItemCarrito, "cantidad">) => void;
+  cambiarCantidad: (id: string, cantidad: number) => void;
   quitar: (id: string) => void;
   vaciar: () => void;
 };
@@ -88,6 +90,14 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
       agregar: (item) =>
         setItems((prev) =>
           prev.some((p) => p.id === item.id) ? prev : [...prev, { ...item, cantidad: 1 }],
+        ),
+      cambiarCantidad: (id, cantidad) =>
+        setItems((prev) =>
+          prev.map((p) =>
+            p.id === id
+              ? { ...p, cantidad: Math.max(1, Math.min(cantidad, Math.max(1, p.stock))) }
+              : p,
+          ),
         ),
       quitar: (id) => setItems((prev) => prev.filter((p) => p.id !== id)),
       vaciar: () => setItems([]),

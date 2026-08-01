@@ -8,6 +8,7 @@ export function ProductoCard({ producto }: { producto: Producto }) {
   const { agregar, items } = useCarrito();
   const [agregado, setAgregado] = useState(false);
   const yaEsta = items.some((i) => i.id === producto.id);
+  const agotado = producto.stock <= 0;
 
   function onAgregar() {
     agregar({
@@ -16,6 +17,7 @@ export function ProductoCard({ producto }: { producto: Producto }) {
       nombre: producto.nombre,
       precio_final: producto.precio_final,
       imagen_url: producto.imagen_url,
+      stock: producto.stock,
     });
     setAgregado(true);
     setTimeout(() => setAgregado(false), 2000);
@@ -47,13 +49,20 @@ export function ProductoCard({ producto }: { producto: Producto }) {
         <p className="pt-1 text-sm tracking-[0.1em] text-silver">
           {mxn.format(producto.precio_final)}
         </p>
+        <p className="text-[0.6rem] tracking-[0.22em] text-muted-foreground uppercase">
+          {agotado
+            ? "Agotado"
+            : producto.stock === 1
+              ? "Última pieza disponible"
+              : `${producto.stock} piezas disponibles`}
+        </p>
         <button
           type="button"
           onClick={onAgregar}
-          disabled={yaEsta}
+          disabled={yaEsta || agotado}
           className="mt-4 block w-full border border-hairline px-6 py-3 text-center text-[0.65rem] tracking-[0.3em] uppercase transition-colors duration-300 hover:bg-foreground hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-foreground"
         >
-          {yaEsta ? "En el carrito" : agregado ? "Agregado" : "Apartar"}
+          {agotado ? "Agotado" : yaEsta ? "En el carrito" : agregado ? "Agregado" : "Apartar"}
         </button>
       </div>
     </article>
