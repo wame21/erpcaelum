@@ -15,12 +15,12 @@ const Logo = ({ scale = 1, opacity = 1 }: { scale?: number; opacity?: number }) 
 
 export const Scene1 = () => {
   const frame = useCurrentFrame();
-  const { fps } = { fps: 30 };
+  const fps = 30;
 
-  const logoScale = spring({ frame: frame - 10, fps: 30, config: { damping: 15, stiffness: 80 } });
-  const titleOpacity = interpolate(frame, [30, 50], [0, 1], { extrapolateRight: "clamp" });
-  const titleY = interpolate(frame, [30, 50], [20, 0], { extrapolateRight: "clamp" });
-  const taglineOpacity = interpolate(frame, [50, 70], [0, 1], { extrapolateRight: "clamp" });
+  const logoScale = spring({ frame: frame - 10, fps, config: { damping: 15, stiffness: 80 } });
+  const titleOpacity = interpolate(frame, [10, 30], [0, 1], { extrapolateRight: "clamp" });
+  const titleY = interpolate(frame, [10, 30], [20, 0], { extrapolateRight: "clamp" });
+  const taglineOpacity = interpolate(frame, [30, 50], [0, 1], { extrapolateRight: "clamp" });
 
   return (
     <AbsoluteFill
