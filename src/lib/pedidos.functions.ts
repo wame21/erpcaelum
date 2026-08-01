@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const BUCKET = "caelum_imagenes";
 
-export type EstadoPedido = "en_progreso" | "confirmado" | "cancelado";
+export type EstadoPedido = "en_progreso" | "confirmado" | "completado" | "cancelado";
 
 export type PedidoItem = {
   sku: string | null;
@@ -33,7 +33,7 @@ const crearPedidoSchema = z.object({
   porcentaje_pago: z.number().int().min(50).max(100),
   comprobante_path: z.string().trim().max(300).optional().nullable(),
   items: z
-    .array(z.object({ producto_id: z.string().uuid(), cantidad: z.number().int().min(1).max(10) }))
+    .array(z.object({ producto_id: z.string().uuid(), cantidad: z.number().int().min(1).max(99) }))
     .min(1)
     .max(20),
 });
@@ -48,7 +48,7 @@ export const crearPedido = createServerFn({ method: "POST" })
     const ids = data.items.map((i) => i.producto_id);
     const { data: piezas, error: errPiezas } = await supabase
       .from("productos_con_precio")
-      .select("id, nombre, precio_final")
+      .select("id, nombre, precio_final, stock")
       .in("id", ids)
       .eq("activo", true);
     if (errPiezas) throw new Error(errPiezas.message);
@@ -62,6 +62,9 @@ export const crearPedido = createServerFn({ method: "POST" })
       .map((item) => {
         const pieza = piezas.find((p: any) => p.id === item.producto_id);
         if (!pieza) return null;
+        if (Number(pieza.stock ?? 0) < item.cantidad) {
+          throw new Error(`No hay suficientes piezas disponibles de ${pieza.nombre}`);
+        }
         return {
           producto_id: item.producto_id,
           sku: skus.get(item.producto_id) ?? null,
@@ -190,15 +193,73 @@ export const cambiarEstadoPedido = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        estado: z.enum(["en_progreso", "confirmado", "cancelado"]),
+        estado: z.enum(["en_progreso", "confirmado", "completado", "cancelado"]),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
-    const { error } = await (context as any).supabase
+    const supabase = (context as any).supabase;
+
+    const { data: pedido, error: errPedido } = await supabase
       .from("pedidos")
-      .update({ estado: data.estado })
+      .select("id, estado, inventario_descontado")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (errPedido) throw new Error(errPedido.message);
+    if (!pedido) throw new Error("La orden no existe");
+
+    const debeDescontar = data.estado === "completado" && !pedido.inventario_descontado;
+    const debeDevolver = data.estado !== "completado" && pedido.inventario_descontado;
+
+    if (debeDescontar || debeDevolver) {
+      const { data: lineas, error: errLineas } = await supabase
+        .from("pedido_items")
+        .select("producto_id, cantidad")
+        .eq("pedido_id", data.id);
+      if (errLineas) throw new Error(errLineas.message);
+
+      const ids = (lineas ?? [])
+        .map((l: any) => l.producto_id)
+        .filter((id: string | null): id is string => !!id);
+
+      if (ids.length > 0) {
+        const { data: piezas, error: errPiezas } = await supabase
+          .from("productos")
+          .select("id, nombre, stock")
+          .in("id", ids);
+        if (errPiezas) throw new Error(errPiezas.message);
+
+        const cambios = (lineas ?? []).map((l: any) => {
+          const pieza = (piezas ?? []).find((p: any) => p.id === l.producto_id);
+          const actual = Number(pieza?.stock ?? 0);
+          const delta = debeDescontar ? -Number(l.cantidad ?? 0) : Number(l.cantidad ?? 0);
+          const nuevo = actual + delta;
+          if (nuevo < 0) {
+            throw new Error(
+              `No hay inventario suficiente de ${pieza?.nombre ?? "una pieza"} para completar la orden`,
+            );
+          }
+          return { id: l.producto_id as string, stock: nuevo };
+        });
+
+        for (const c of cambios) {
+          const { error: errStock } = await supabase
+            .from("productos")
+            .update({ stock: c.stock })
+            .eq("id", c.id);
+          if (errStock) throw new Error(errStock.message);
+        }
+      }
+    }
+
+    const { error } = await supabase
+      .from("pedidos")
+      .update({
+        estado: data.estado,
+        ...(debeDescontar ? { inventario_descontado: true } : {}),
+        ...(debeDevolver ? { inventario_descontado: false } : {}),
+      })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
