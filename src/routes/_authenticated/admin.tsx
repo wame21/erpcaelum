@@ -41,6 +41,7 @@ type ProductoPayload = {
   medida: string | null;
   grosor: string | null;
   peso_gramos: number;
+  stock: number;
   destacado: boolean;
   activo: boolean;
   imagen_path: string | null;
@@ -56,6 +57,7 @@ type FormState = {
   medida: string;
   grosor: string;
   peso_gramos: string;
+  stock: string;
   destacado: boolean;
   activo: boolean;
   imagen_path: string;
@@ -69,6 +71,7 @@ const vacio: FormState = {
   medida: "",
   grosor: "",
   peso_gramos: "",
+  stock: "1",
   destacado: false,
   activo: true,
   imagen_path: "",
@@ -154,6 +157,7 @@ function AdminPage() {
       medida: p.medida ?? "",
       grosor: p.grosor ?? "",
       peso_gramos: String(p.peso_gramos),
+      stock: String(p.stock),
       destacado: p.destacado,
       activo: p.activo,
       imagen_path: p.imagen_path ?? "",
@@ -172,6 +176,7 @@ function AdminPage() {
       medida: form.medida.trim() || null,
       grosor: form.grosor.trim() || null,
       peso_gramos: Number(form.peso_gramos || 0),
+      stock: Math.max(0, Math.trunc(Number(form.stock || 0))),
       destacado: form.destacado,
       activo: form.activo,
       imagen_path: form.imagen_path || null,
@@ -308,6 +313,20 @@ function AdminPage() {
               </div>
 
               <div className="space-y-2">
+                <label className={label}>Piezas disponibles</label>
+                <input
+                  required
+                  type="number"
+                  step="1"
+                  min="0"
+                  className={field}
+                  placeholder="Piezas que llegaron del proveedor"
+                  value={form.stock}
+                  onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
                 <label className={label}>Precio estimado</label>
                 <p className="py-2 text-sm">
                   {precioEstimado
@@ -431,7 +450,8 @@ function AdminPage() {
                         <span className="text-muted-foreground">{p.sku}</span> · {p.nombre}
                       </p>
                       <p className="mt-1 text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
-                        {p.categoria} · {p.codigo_proveedor} · {p.peso_gramos} g
+                        {p.categoria} · {p.codigo_proveedor} · {p.peso_gramos} g ·{" "}
+                        {p.stock} disp.
                         {p.medida ? ` · ${p.medida}` : ""}
                         {p.grosor ? ` · ${p.grosor}` : ""}
                       </p>
