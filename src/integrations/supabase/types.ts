@@ -270,6 +270,38 @@ export type Database = {
           stock: number | null
           updated_at: string | null
         }
+        Insert: {
+          activo?: boolean | null
+          categoria?: Database["public"]["Enums"]["categoria_joya"] | null
+          created_at?: string | null
+          descripcion?: string | null
+          destacado?: boolean | null
+          grosor?: string | null
+          id?: string | null
+          imagen_path?: string | null
+          medida?: string | null
+          nombre?: string | null
+          peso_gramos?: number | null
+          precio_final?: never
+          stock?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          activo?: boolean | null
+          categoria?: Database["public"]["Enums"]["categoria_joya"] | null
+          created_at?: string | null
+          descripcion?: string | null
+          destacado?: boolean | null
+          grosor?: string | null
+          id?: string | null
+          imagen_path?: string | null
+          medida?: string | null
+          nombre?: string | null
+          peso_gramos?: number | null
+          precio_final?: never
+          stock?: number | null
+          updated_at?: string | null
+        }
         Relationships: []
       }
     }
