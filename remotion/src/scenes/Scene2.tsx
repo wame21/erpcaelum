@@ -42,6 +42,7 @@ export const Scene2 = () => {
             height: "100%",
             objectFit: "cover",
             borderRadius: 36,
+            filter: "brightness(1.2) contrast(1.05)",
           }}
         />
       </div>
