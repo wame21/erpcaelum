@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION private.precio_gramo(text) TO PUBLIC;
