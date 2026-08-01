@@ -102,6 +102,7 @@ export type Database = {
           created_at: string
           estado: Database["public"]["Enums"]["estado_pedido"]
           id: string
+          inventario_descontado: boolean
           monto_a_pagar: number
           nombre: string
           notas: string | null
@@ -116,6 +117,7 @@ export type Database = {
           created_at?: string
           estado?: Database["public"]["Enums"]["estado_pedido"]
           id?: string
+          inventario_descontado?: boolean
           monto_a_pagar?: number
           nombre: string
           notas?: string | null
@@ -130,6 +132,7 @@ export type Database = {
           created_at?: string
           estado?: Database["public"]["Enums"]["estado_pedido"]
           id?: string
+          inventario_descontado?: boolean
           monto_a_pagar?: number
           nombre?: string
           notas?: string | null
@@ -180,6 +183,7 @@ export type Database = {
           nombre: string
           peso_gramos: number
           sku: string
+          stock: number
           updated_at: string
         }
         Insert: {
@@ -196,6 +200,7 @@ export type Database = {
           nombre: string
           peso_gramos?: number
           sku?: string
+          stock?: number
           updated_at?: string
         }
         Update: {
@@ -212,6 +217,7 @@ export type Database = {
           nombre?: string
           peso_gramos?: number
           sku?: string
+          stock?: number
           updated_at?: string
         }
         Relationships: [
@@ -261,6 +267,7 @@ export type Database = {
           nombre: string | null
           peso_gramos: number | null
           precio_final: number | null
+          stock: number | null
           updated_at: string | null
         }
         Relationships: []
