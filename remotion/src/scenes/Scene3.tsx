@@ -87,7 +87,7 @@ export const Scene3 = () => {
         >
           <Img
             src={staticFile("images/pulsos.png")}
-            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 30 }}
+            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 30, filter: "brightness(1.2) contrast(1.05)" }}
           />
         </div>
       </div>

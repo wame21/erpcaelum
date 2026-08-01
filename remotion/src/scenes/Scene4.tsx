@@ -37,7 +37,7 @@ export const Scene4 = () => {
       >
         <Img
           src={staticFile("images/carrito.png")}
-          style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 36 }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 36, filter: "brightness(1.2) contrast(1.05)" }}
         />
       </div>
 
