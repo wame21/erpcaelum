@@ -37,13 +37,11 @@ export const Scene5 = () => {
         color: "white",
       }}
     >
-      <div style={{ transform: `scale(${logoScale})` }}>
-        <svg width={120} height={120} viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="46" fill="none" stroke="white" strokeWidth="1.5" />
-          <path d="M 50 18 A 32 32 0 1 0 50 82 A 32 32 0 1 0 50 18" fill="none" stroke="white" strokeWidth="5" strokeLinecap="round" />
-          <path d="M 50 18 L 50 50" stroke="white" strokeWidth="5" strokeLinecap="round" />
-          <path d="M 50 32 L 56 42 L 50 50 L 44 42 Z" fill="white" />
-        </svg>
+      <div style={{ transform: `scale(${interpolate(logoScale, [0, 1], [0.85, 1])})` }}>
+        <Img
+          src={staticFile("images/caelum-logo.png")}
+          style={{ width: 120, height: 120, objectFit: "contain" }}
+        />
       </div>
 
       <h1
