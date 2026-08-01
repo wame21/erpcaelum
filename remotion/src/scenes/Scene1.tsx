@@ -32,7 +32,7 @@ export const Scene1 = () => {
         color: "white",
       }}
     >
-      <div style={{ transform: `scale(${logoScale})` }}>
+      <div style={{ transform: `scale(${interpolate(logoScale, [0, 1], [0.85, 1])})`, opacity: 1 }}>
         <Logo />
       </div>
       <h1
