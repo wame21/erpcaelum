@@ -11,6 +11,7 @@ import {
 const etiquetas: Record<EstadoPedido, string> = {
   en_progreso: "En progreso",
   confirmado: "Confirmado",
+  completado: "Completado",
   cancelado: "Cancelado",
 };
 
@@ -84,7 +85,7 @@ export function AdminPedidos() {
                   Sin comprobante
                 </span>
               )}
-              {(["en_progreso", "confirmado", "cancelado"] as EstadoPedido[])
+              {(["en_progreso", "confirmado", "completado", "cancelado"] as EstadoPedido[])
                 .filter((e) => e !== p.estado)
                 .map((e) => (
                   <button
