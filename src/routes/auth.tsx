@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
+import { AuthAdminForm } from "@/components/auth-admin-form";
 import { SiteHeader } from "@/components/site-header";
 import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
