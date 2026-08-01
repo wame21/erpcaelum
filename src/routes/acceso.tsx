@@ -115,6 +115,19 @@ function AccesoPage() {
           </button>
         </form>
 
+        <p className="mt-5 text-[0.6rem] leading-[1.9] tracking-[0.14em] text-muted-foreground uppercase">
+          Al crear tu cuenta aceptas nuestros{" "}
+          <Link to="/terminos" className="text-foreground underline">
+            Términos de Servicio
+          </Link>{" "}
+          y el{" "}
+          <Link to="/privacidad" className="text-foreground underline">
+            Aviso de Privacidad
+          </Link>
+          .
+        </p>
+
+
         <button
           type="button"
           onClick={() => {
