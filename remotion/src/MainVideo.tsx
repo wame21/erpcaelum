@@ -2,6 +2,7 @@ import { AbsoluteFill } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { PersistentBackground } from "./components/PersistentBackground";
+import { Scene0 } from "./scenes/Scene0";
 import { Scene1 } from "./scenes/Scene1";
 import { Scene2 } from "./scenes/Scene2";
 import { Scene3 } from "./scenes/Scene3";
@@ -13,6 +14,13 @@ export const MainVideo = () => {
     <AbsoluteFill style={{ backgroundColor: "#050505" }}>
       <PersistentBackground />
       <TransitionSeries>
+        <TransitionSeries.Sequence durationInFrames={60}>
+          <Scene0 />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade({})}
+          timing={linearTiming({ durationInFrames: 15 })}
+        />
         <TransitionSeries.Sequence durationInFrames={75}>
           <Scene1 />
         </TransitionSeries.Sequence>
@@ -48,3 +56,4 @@ export const MainVideo = () => {
     </AbsoluteFill>
   );
 };
+
