@@ -5,8 +5,8 @@ const Logo = ({ scale = 1, opacity = 1 }: { scale?: number; opacity?: number }) 
   <Img
     src={staticFile("images/caelum-logo.png")}
     style={{
-      width: 180 * scale,
-      height: 180 * scale,
+      width: 220 * scale,
+      height: 220 * scale,
       objectFit: "contain",
       opacity,
     }}
