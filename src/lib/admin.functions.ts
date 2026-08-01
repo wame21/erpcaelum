@@ -15,6 +15,7 @@ export type AdminProducto = {
   medida: string | null;
   grosor: string | null;
   peso_gramos: number;
+  stock: number;
   activo: boolean;
   destacado: boolean;
   imagen_path: string | null;
@@ -37,6 +38,7 @@ const productoSchema = z.object({
   medida: z.string().trim().max(60).optional().nullable(),
   grosor: z.string().trim().max(60).optional().nullable(),
   peso_gramos: z.number().min(0).max(10000),
+  stock: z.number().int().min(0).max(9999).optional(),
   destacado: z.boolean().optional(),
   activo: z.boolean().optional(),
   imagen_path: z.string().trim().max(300).optional().nullable(),
@@ -65,7 +67,7 @@ export const listarProductosAdmin = createServerFn({ method: "GET" })
     const { data: rows, error } = await supabase
       .from("productos")
       .select(
-        "id, sku, nombre, descripcion, categoria, codigo_proveedor, medida, grosor, peso_gramos, activo, destacado, imagen_path",
+        "id, sku, nombre, descripcion, categoria, codigo_proveedor, medida, grosor, peso_gramos, stock, activo, destacado, imagen_path",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -86,6 +88,7 @@ export const listarProductosAdmin = createServerFn({ method: "GET" })
     return (rows ?? []).map((r: any) => ({
       ...r,
       peso_gramos: Number(r.peso_gramos ?? 0),
+      stock: Number(r.stock ?? 0),
       imagen_url: r.imagen_path ? (urls.get(r.imagen_path) ?? null) : null,
     }));
   });
