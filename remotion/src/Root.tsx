@@ -11,4 +11,3 @@ export const RemotionRoot = () => (
       height={1920}
     />
 );
-
