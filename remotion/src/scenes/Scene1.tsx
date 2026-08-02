@@ -1,23 +1,9 @@
-import { useCurrentFrame, interpolate, spring, AbsoluteFill, staticFile, Img } from "remotion";
+import { useCurrentFrame, interpolate, spring, AbsoluteFill } from "remotion";
 import { playfair, inter } from "../fonts";
-
-const Logo = ({ scale = 1, opacity = 1 }: { scale?: number; opacity?: number }) => (
-  <Img
-    src={staticFile("images/caelum-logo.png")}
-    style={{
-      width: 220 * scale,
-      height: 220 * scale,
-      objectFit: "contain",
-      opacity,
-    }}
-  />
-);
 
 export const Scene1 = () => {
   const frame = useCurrentFrame();
-  const fps = 30;
 
-  const logoScale = spring({ frame: frame - 10, fps, config: { damping: 15, stiffness: 80 } });
   const titleOpacity = interpolate(frame, [10, 30], [0, 1], { extrapolateRight: "clamp" });
   const titleY = interpolate(frame, [10, 30], [20, 0], { extrapolateRight: "clamp" });
   const taglineOpacity = interpolate(frame, [30, 50], [0, 1], { extrapolateRight: "clamp" });
@@ -32,15 +18,11 @@ export const Scene1 = () => {
         color: "white",
       }}
     >
-      <div style={{ transform: `scale(${interpolate(logoScale, [0, 1], [0.85, 1])})`, opacity: 1 }}>
-        <Logo />
-      </div>
       <h1
         style={{
           fontFamily: playfair.fontFamily,
           fontSize: 72,
           letterSpacing: "0.35em",
-          marginTop: 40,
           opacity: titleOpacity,
           transform: `translateY(${titleY}px)`,
           fontWeight: 400,
