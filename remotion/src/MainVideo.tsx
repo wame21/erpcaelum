@@ -3,7 +3,6 @@ import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { PersistentBackground } from "./components/PersistentBackground";
 import { Scene0 } from "./scenes/Scene0";
-import { Scene1 } from "./scenes/Scene1";
 import { Scene2 } from "./scenes/Scene2";
 import { Scene3 } from "./scenes/Scene3";
 import { Scene4 } from "./scenes/Scene4";
@@ -16,13 +15,6 @@ export const MainVideo = () => {
       <TransitionSeries>
         <TransitionSeries.Sequence durationInFrames={170}>
           <Scene0 />
-        </TransitionSeries.Sequence>
-        <TransitionSeries.Transition
-          presentation={fade({})}
-          timing={linearTiming({ durationInFrames: 15 })}
-        />
-        <TransitionSeries.Sequence durationInFrames={75}>
-          <Scene1 />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade({})}
@@ -49,11 +41,10 @@ export const MainVideo = () => {
           presentation={fade({})}
           timing={linearTiming({ durationInFrames: 15 })}
         />
-        <TransitionSeries.Sequence durationInFrames={69}>
+        <TransitionSeries.Sequence durationInFrames={129}>
           <Scene5 />
         </TransitionSeries.Sequence>
       </TransitionSeries>
     </AbsoluteFill>
   );
 };
-
