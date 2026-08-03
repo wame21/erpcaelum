@@ -77,6 +77,67 @@ export type Database = {
         }
         Relationships: []
       }
+      movimientos_inventario: {
+        Row: {
+          cantidad: number
+          created_at: string
+          id: string
+          motivo: string | null
+          pedido_id: string | null
+          producto_id: string
+          stock_anterior: number
+          stock_nuevo: number
+          tipo: Database["public"]["Enums"]["tipo_movimiento_inventario"]
+          usuario_id: string | null
+        }
+        Insert: {
+          cantidad: number
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          pedido_id?: string | null
+          producto_id: string
+          stock_anterior: number
+          stock_nuevo: number
+          tipo: Database["public"]["Enums"]["tipo_movimiento_inventario"]
+          usuario_id?: string | null
+        }
+        Update: {
+          cantidad?: number
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          pedido_id?: string | null
+          producto_id?: string
+          stock_anterior?: number
+          stock_nuevo?: number
+          tipo?: Database["public"]["Enums"]["tipo_movimiento_inventario"]
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimientos_inventario_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_inventario_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimientos_inventario_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos_con_precio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movimientos_puntos: {
         Row: {
           created_at: string
@@ -380,6 +441,7 @@ export type Database = {
           nombre: string | null
           peso_gramos: number | null
           precio_final: number | null
+          sku: string | null
           stock: number | null
           updated_at: string | null
         }
@@ -396,6 +458,7 @@ export type Database = {
           nombre?: string | null
           peso_gramos?: number | null
           precio_final?: never
+          sku?: string | null
           stock?: number | null
           updated_at?: string | null
         }
@@ -412,6 +475,7 @@ export type Database = {
           nombre?: string | null
           peso_gramos?: number | null
           precio_final?: never
+          sku?: string | null
           stock?: number | null
           updated_at?: string | null
         }
@@ -419,12 +483,24 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      cambiar_estado_pedido: {
+        Args: {
+          p_estado: Database["public"]["Enums"]["estado_pedido"]
+          p_pedido_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
       categoria_joya: "cadenas" | "pulsos"
       estado_pedido: "en_progreso" | "confirmado" | "cancelado" | "completado"
+      tipo_movimiento_inventario:
+        | "entrada"
+        | "salida"
+        | "ajuste"
+        | "merma"
+        | "devolucion"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -555,6 +631,13 @@ export const Constants = {
       app_role: ["admin", "user"],
       categoria_joya: ["cadenas", "pulsos"],
       estado_pedido: ["en_progreso", "confirmado", "cancelado", "completado"],
+      tipo_movimiento_inventario: [
+        "entrada",
+        "salida",
+        "ajuste",
+        "merma",
+        "devolucion",
+      ],
     },
   },
 } as const
