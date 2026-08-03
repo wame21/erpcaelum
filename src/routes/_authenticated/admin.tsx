@@ -217,12 +217,20 @@ function AdminPage() {
               Alta, edición y baja de piezas
             </p>
           </div>
-          <button
-            onClick={cerrarSesion}
-            className="text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase transition-colors hover:text-foreground"
-          >
-            Salir
-          </button>
+          <div className="flex items-center gap-5">
+            <Link
+              to="/dashboard"
+              className="text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase transition-colors hover:text-foreground"
+            >
+              Dashboard
+            </Link>
+            <button
+              onClick={cerrarSesion}
+              className="text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase transition-colors hover:text-foreground"
+            >
+              Salir
+            </button>
+          </div>
         </div>
 
         {noAutorizado && (
