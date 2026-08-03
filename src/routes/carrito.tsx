@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCarrito } from "@/lib/carrito";
 import { useSesion } from "@/hooks/use-sesion";
+import { extensionSegura, validarComprobante } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
 import { BENEFICIARIO, CLABE, mxn } from "@/lib/banco";
 import { crearPedido, obtenerPerfil } from "@/lib/pedidos.functions";

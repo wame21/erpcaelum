@@ -6,6 +6,7 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
 
+import { extensionSegura, validarImagen } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
 import {
   cambiarEstadoProducto,
