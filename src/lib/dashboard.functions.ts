@@ -49,15 +49,7 @@ export type DashboardData = {
   topClientes: TopCliente[];
 };
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data, error } = await context.supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", context.userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error("No autorizado");
-}
+import { assertAdmin } from "@/lib/admin-guard";
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const round2 = (n: number) => Math.round(n * 100) / 100;

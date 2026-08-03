@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdmin } from "@/lib/admin-guard";
 
 const BUCKET = "caelum_imagenes";
 
@@ -44,18 +45,6 @@ const productoSchema = z.object({
   imagen_path: z.string().trim().max(300).optional().nullable(),
 });
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
-  // La comprobación se hace leyendo user_roles como el propio usuario (RLS lo
-  // limita a sus propias filas); la función has_role ya no es invocable por
-  // clientes autenticados.
-  const { data, error } = await context.supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", context.userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error("No autorizado");
-}
 
 
 export const listarProductosAdmin = createServerFn({ method: "GET" })
