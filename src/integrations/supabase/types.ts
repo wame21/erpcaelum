@@ -41,36 +41,134 @@ export type Database = {
         }
         Relationships: []
       }
+      cupones: {
+        Row: {
+          activo: boolean
+          codigo: string
+          created_at: string
+          descripcion: string | null
+          expira_en: string | null
+          id: string
+          tipo: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          activo?: boolean
+          codigo: string
+          created_at?: string
+          descripcion?: string | null
+          expira_en?: string | null
+          id?: string
+          tipo?: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          activo?: boolean
+          codigo?: string
+          created_at?: string
+          descripcion?: string | null
+          expira_en?: string | null
+          id?: string
+          tipo?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      movimientos_puntos: {
+        Row: {
+          created_at: string
+          id: string
+          notas: string | null
+          pedido_id: string | null
+          puntos: number
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notas?: string | null
+          pedido_id?: string | null
+          puntos?: number
+          tipo?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notas?: string | null
+          pedido_id?: string | null
+          puntos?: number
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimientos_puntos_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedido_items: {
         Row: {
           cantidad: number
+          categoria: Database["public"]["Enums"]["categoria_joya"] | null
+          codigo_proveedor: string | null
+          costo_por_gramo_historico: number
+          costo_unitario: number
           created_at: string
           id: string
+          margen_porcentual: number
           nombre: string
           pedido_id: string
+          peso_gramos: number
           precio_unitario: number
+          precio_venta_gramo_historico: number
           producto_id: string | null
           sku: string | null
+          utilidad_bruta: number
         }
         Insert: {
           cantidad?: number
+          categoria?: Database["public"]["Enums"]["categoria_joya"] | null
+          codigo_proveedor?: string | null
+          costo_por_gramo_historico?: number
+          costo_unitario?: number
           created_at?: string
           id?: string
+          margen_porcentual?: number
           nombre: string
           pedido_id: string
+          peso_gramos?: number
           precio_unitario?: number
+          precio_venta_gramo_historico?: number
           producto_id?: string | null
           sku?: string | null
+          utilidad_bruta?: number
         }
         Update: {
           cantidad?: number
+          categoria?: Database["public"]["Enums"]["categoria_joya"] | null
+          codigo_proveedor?: string | null
+          costo_por_gramo_historico?: number
+          costo_unitario?: number
           created_at?: string
           id?: string
+          margen_porcentual?: number
           nombre?: string
           pedido_id?: string
+          peso_gramos?: number
           precio_unitario?: number
+          precio_venta_gramo_historico?: number
           producto_id?: string | null
           sku?: string | null
+          utilidad_bruta?: number
         }
         Relationships: [
           {
@@ -146,22 +244,31 @@ export type Database = {
       }
       perfiles: {
         Row: {
+          cashback_acumulado: number
           created_at: string
+          nivel: string
           nombre: string | null
+          puntos: number
           telefono: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          cashback_acumulado?: number
           created_at?: string
+          nivel?: string
           nombre?: string | null
+          puntos?: number
           telefono?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          cashback_acumulado?: number
           created_at?: string
+          nivel?: string
           nombre?: string | null
+          puntos?: number
           telefono?: string | null
           updated_at?: string
           user_id?: string
@@ -173,6 +280,7 @@ export type Database = {
           activo: boolean
           categoria: Database["public"]["Enums"]["categoria_joya"]
           codigo_proveedor: string
+          costo_por_gramo_historico: number
           created_at: string
           descripcion: string | null
           destacado: boolean
@@ -182,6 +290,7 @@ export type Database = {
           medida: string | null
           nombre: string
           peso_gramos: number
+          precio_venta_gramo_historico: number
           sku: string
           stock: number
           updated_at: string
@@ -190,6 +299,7 @@ export type Database = {
           activo?: boolean
           categoria: Database["public"]["Enums"]["categoria_joya"]
           codigo_proveedor: string
+          costo_por_gramo_historico?: number
           created_at?: string
           descripcion?: string | null
           destacado?: boolean
@@ -199,6 +309,7 @@ export type Database = {
           medida?: string | null
           nombre: string
           peso_gramos?: number
+          precio_venta_gramo_historico?: number
           sku?: string
           stock?: number
           updated_at?: string
@@ -207,6 +318,7 @@ export type Database = {
           activo?: boolean
           categoria?: Database["public"]["Enums"]["categoria_joya"]
           codigo_proveedor?: string
+          costo_por_gramo_historico?: number
           created_at?: string
           descripcion?: string | null
           destacado?: boolean
@@ -216,6 +328,7 @@ export type Database = {
           medida?: string | null
           nombre?: string
           peso_gramos?: number
+          precio_venta_gramo_historico?: number
           sku?: string
           stock?: number
           updated_at?: string
