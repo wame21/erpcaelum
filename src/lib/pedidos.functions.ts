@@ -54,9 +54,14 @@ export const crearPedido = createServerFn({ method: "POST" })
     if (errPiezas) throw new Error(errPiezas.message);
     if (!piezas || piezas.length === 0) throw new Error("Las piezas ya no están disponibles");
 
-    const { data: skuRows } = await supabase.from("productos").select("id, sku").in("id", ids);
-    const skus = new Map<string, string>();
-    skuRows?.forEach((s: any) => skus.set(s.id, s.sku));
+    const { data: skuRows } = await supabase
+      .from("productos")
+      .select(
+        "id, sku, categoria, codigo_proveedor, peso_gramos, costo_por_gramo_historico, precio_venta_gramo_historico",
+      )
+      .in("id", ids);
+    const meta = new Map<string, any>();
+    skuRows?.forEach((s: any) => meta.set(s.id, s));
 
     const lineas = data.items
       .map((item) => {
@@ -65,12 +70,31 @@ export const crearPedido = createServerFn({ method: "POST" })
         if (Number(pieza.stock ?? 0) < item.cantidad) {
           throw new Error(`No hay suficientes piezas disponibles de ${pieza.nombre}`);
         }
+        const m = meta.get(item.producto_id) ?? {};
+        const peso = Number(m.peso_gramos ?? 0);
+        const costoGramo = Number(m.costo_por_gramo_historico ?? 0);
+        const ventaGramo = Number(m.precio_venta_gramo_historico ?? 0);
+        const precioUnitario = Number(pieza.precio_final ?? 0);
+        const costoUnitario = Math.round(peso * costoGramo * 100) / 100;
+        const utilidad = Math.round((precioUnitario - costoUnitario) * item.cantidad * 100) / 100;
+        const margen =
+          precioUnitario > 0
+            ? Math.round(((precioUnitario - costoUnitario) / precioUnitario) * 10000) / 100
+            : 0;
         return {
           producto_id: item.producto_id,
-          sku: skus.get(item.producto_id) ?? null,
+          sku: m.sku ?? null,
           nombre: pieza.nombre as string,
-          precio_unitario: Number(pieza.precio_final ?? 0),
+          precio_unitario: precioUnitario,
           cantidad: item.cantidad,
+          categoria: m.categoria ?? null,
+          codigo_proveedor: m.codigo_proveedor ?? null,
+          peso_gramos: peso,
+          costo_por_gramo_historico: costoGramo,
+          precio_venta_gramo_historico: ventaGramo,
+          costo_unitario: costoUnitario,
+          utilidad_bruta: utilidad,
+          margen_porcentual: margen,
         };
       })
       .filter((l): l is NonNullable<typeof l> => !!l);
