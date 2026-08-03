@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCarrito } from "@/lib/carrito";
 import { useSesion } from "@/hooks/use-sesion";
+import { extensionSegura, validarComprobante } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
 import { BENEFICIARIO, CLABE, mxn } from "@/lib/banco";
 import { crearPedido, obtenerPerfil } from "@/lib/pedidos.functions";
@@ -99,10 +100,15 @@ function CarritoPage() {
 
   async function subirComprobante(file: File) {
     if (!user) return;
+    const invalido = validarComprobante(file);
+    if (invalido) {
+      setError(invalido);
+      return;
+    }
     setSubiendo(true);
     setError(null);
     try {
-      const ext = file.name.split(".").pop() ?? "jpg";
+      const ext = extensionSegura(file.name);
       const path = `comprobantes/${user.id}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("caelum_imagenes")

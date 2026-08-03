@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdmin } from "@/lib/admin-guard";
 
 const BUCKET = "caelum_imagenes";
 
@@ -48,7 +49,7 @@ export const crearPedido = createServerFn({ method: "POST" })
     const ids = data.items.map((i) => i.producto_id);
     const { data: piezas, error: errPiezas } = await supabase
       .from("productos_con_precio")
-      .select("id, nombre, precio_final, stock")
+      .select("id, sku, nombre, precio_final, stock")
       .in("id", ids)
       .eq("activo", true);
     if (errPiezas) throw new Error(errPiezas.message);
@@ -145,15 +146,6 @@ export const obtenerPerfil = createServerFn({ method: "GET" })
     return { nombre: data?.nombre ?? "", telefono: data?.telefono ?? "" };
   });
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data, error } = await context.supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", context.userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error("No autorizado");
-}
 
 export const listarPedidosAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -225,66 +217,14 @@ export const cambiarEstadoPedido = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const supabase = (context as any).supabase;
 
-    const { data: pedido, error: errPedido } = await supabase
-      .from("pedidos")
-      .select("id, estado, inventario_descontado")
-      .eq("id", data.id)
-      .maybeSingle();
-    if (errPedido) throw new Error(errPedido.message);
-    if (!pedido) throw new Error("La orden no existe");
-
-    const debeDescontar = data.estado === "completado" && !pedido.inventario_descontado;
-    const debeDevolver = data.estado !== "completado" && pedido.inventario_descontado;
-
-    if (debeDescontar || debeDevolver) {
-      const { data: lineas, error: errLineas } = await supabase
-        .from("pedido_items")
-        .select("producto_id, cantidad")
-        .eq("pedido_id", data.id);
-      if (errLineas) throw new Error(errLineas.message);
-
-      const ids = (lineas ?? [])
-        .map((l: any) => l.producto_id)
-        .filter((id: string | null): id is string => !!id);
-
-      if (ids.length > 0) {
-        const { data: piezas, error: errPiezas } = await supabase
-          .from("productos")
-          .select("id, nombre, stock")
-          .in("id", ids);
-        if (errPiezas) throw new Error(errPiezas.message);
-
-        const cambios = (lineas ?? []).map((l: any) => {
-          const pieza = (piezas ?? []).find((p: any) => p.id === l.producto_id);
-          const actual = Number(pieza?.stock ?? 0);
-          const delta = debeDescontar ? -Number(l.cantidad ?? 0) : Number(l.cantidad ?? 0);
-          const nuevo = actual + delta;
-          if (nuevo < 0) {
-            throw new Error(
-              `No hay inventario suficiente de ${pieza?.nombre ?? "una pieza"} para completar la orden`,
-            );
-          }
-          return { id: l.producto_id as string, stock: nuevo };
-        });
-
-        for (const c of cambios) {
-          const { error: errStock } = await supabase
-            .from("productos")
-            .update({ stock: c.stock })
-            .eq("id", c.id);
-          if (errStock) throw new Error(errStock.message);
-        }
-      }
-    }
-
-    const { error } = await supabase
-      .from("pedidos")
-      .update({
-        estado: data.estado,
-        ...(debeDescontar ? { inventario_descontado: true } : {}),
-        ...(debeDevolver ? { inventario_descontado: false } : {}),
-      })
-      .eq("id", data.id);
+    // El descuento/devolución de inventario y el cambio de estado ocurren
+    // dentro de una única transacción en la base de datos, con bloqueo de
+    // filas: dos ventas simultáneas no pueden agotar la misma pieza.
+    const { error } = await supabase.rpc("cambiar_estado_pedido", {
+      p_pedido_id: data.id,
+      p_estado: data.estado,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+

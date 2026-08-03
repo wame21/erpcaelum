@@ -6,6 +6,7 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
 
+import { extensionSegura, validarImagen } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
 import {
   cambiarEstadoProducto,
@@ -130,10 +131,15 @@ function AdminPage() {
   const noAutorizado = productos.isError;
 
   async function subirImagen(file: File) {
+    const invalido = validarImagen(file);
+    if (invalido) {
+      setError(invalido);
+      return;
+    }
     setSubiendo(true);
     setError(null);
     try {
-      const ext = file.name.split(".").pop() ?? "jpg";
+      const ext = extensionSegura(file.name);
       const path = `${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("caelum_imagenes")
