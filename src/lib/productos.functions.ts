@@ -51,7 +51,7 @@ export const listarProductos = createServerFn({ method: "GET" })
     let query = supabase
       .from("productos_con_precio")
       .select(
-        "id, nombre, descripcion, categoria, medida, grosor, peso_gramos, stock, precio_final, imagen_path",
+        "id, sku, nombre, descripcion, categoria, medida, grosor, peso_gramos, stock, precio_final, imagen_path",
       )
       .eq("activo", true)
       .order("created_at", { ascending: false })
@@ -67,18 +67,6 @@ export const listarProductos = createServerFn({ method: "GET" })
     }
     if (!rows) return [];
 
-    const ids = rows.map((r) => r.id as string);
-    const skus = new Map<string, string>();
-    if (ids.length > 0) {
-      const { data: skuRows } = await supabase
-        .from("productos")
-        .select("id, sku")
-        .in("id", ids);
-      skuRows?.forEach((s) => {
-        if (s.id && s.sku) skus.set(s.id, s.sku);
-      });
-    }
-
     const paths = rows.map((r) => r.imagen_path).filter((p): p is string => !!p);
     const urls = new Map<string, string>();
     if (paths.length > 0) {
@@ -92,7 +80,7 @@ export const listarProductos = createServerFn({ method: "GET" })
 
     return rows.map((r) => ({
       id: r.id as string,
-      sku: skus.get(r.id as string) ?? "",
+      sku: (r.sku ?? "") as string,
       nombre: (r.nombre ?? "") as string,
       descripcion: r.descripcion ?? null,
       categoria: (r.categoria ?? "cadenas") as "cadenas" | "pulsos",
