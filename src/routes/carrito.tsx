@@ -99,10 +99,15 @@ function CarritoPage() {
 
   async function subirComprobante(file: File) {
     if (!user) return;
+    const invalido = validarComprobante(file);
+    if (invalido) {
+      setError(invalido);
+      return;
+    }
     setSubiendo(true);
     setError(null);
     try {
-      const ext = file.name.split(".").pop() ?? "jpg";
+      const ext = extensionSegura(file.name);
       const path = `comprobantes/${user.id}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("caelum_imagenes")
