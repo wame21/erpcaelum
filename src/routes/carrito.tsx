@@ -77,9 +77,11 @@ function CopyRow({ label: etiqueta, value }: { label: string; value: string }) {
 function CarritoPage() {
   const { items, total, quitar, vaciar, cambiarCantidad } = useCarrito();
   const { user, cargando: cargandoSesion } = useSesion();
-  const navigate = useNavigate();
   const enviarPedido = useServerFn(crearPedido);
+  const enviarPedidoInvitado = useServerFn(crearPedidoInvitado);
+  const subirInvitado = useServerFn(subirComprobanteInvitado);
   const traerPerfil = useServerFn(obtenerPerfil);
+
 
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
