@@ -10,6 +10,12 @@ export const Scene5 = () => {
   const taglineOpacity = interpolate(frame, [35, 50], [0, 1], { extrapolateRight: "clamp" });
   const taglineY = interpolate(frame, [35, 50], [20, 0], { extrapolateRight: "clamp" });
 
+  const ctaSpring = spring({ frame: frame - 62, fps, config: { damping: 18, stiffness: 120 } });
+  const ctaOpacity = interpolate(frame, [62, 78], [0, 1], { extrapolateRight: "clamp" });
+  const ctaY = interpolate(ctaSpring, [0, 1], [26, 0]);
+  const pulse = 1 + Math.sin((frame - 62) / 9) * 0.012;
+  const urlOpacity = interpolate(frame, [86, 102], [0, 1], { extrapolateRight: "clamp" });
+
   return (
     <AbsoluteFill
       style={{
@@ -54,6 +60,39 @@ export const Scene5 = () => {
         }}
       >
         Silentium est potentia
+      </p>
+
+      <div
+        style={{
+          marginTop: 72,
+          opacity: ctaOpacity,
+          transform: `translateY(${ctaY}px) scale(${pulse})`,
+          border: "1px solid rgba(255,255,255,0.55)",
+          borderRadius: 999,
+          padding: "22px 54px",
+          fontFamily: inter.fontFamily,
+          fontSize: 24,
+          letterSpacing: "0.3em",
+          textTransform: "uppercase",
+          fontWeight: 400,
+          backgroundColor: "rgba(255,255,255,0.04)",
+        }}
+      >
+        Ver colección
+      </div>
+
+      <p
+        style={{
+          fontFamily: inter.fontFamily,
+          fontSize: 20,
+          letterSpacing: "0.18em",
+          marginTop: 26,
+          opacity: urlOpacity,
+          color: "#8a8a8a",
+          fontWeight: 300,
+        }}
+      >
+        caelumjoyeria.lovable.app/#categorias
       </p>
     </AbsoluteFill>
   );

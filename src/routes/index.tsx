@@ -73,7 +73,7 @@ function Index() {
         </section>
 
         {/* Categorías */}
-        <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
+        <section id="categorias" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
           <Reveal>
             <div className="flex items-center gap-5">
               <span className="h-px flex-1 bg-hairline" />
