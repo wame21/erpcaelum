@@ -9,7 +9,12 @@ import { useSesion } from "@/hooks/use-sesion";
 import { extensionSegura, validarComprobante } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
 import { BENEFICIARIO, CLABE, mxn } from "@/lib/banco";
-import { crearPedido, obtenerPerfil } from "@/lib/pedidos.functions";
+import {
+  crearPedido,
+  crearPedidoInvitado,
+  obtenerPerfil,
+  subirComprobanteInvitado,
+} from "@/lib/pedidos.functions";
 
 export const Route = createFileRoute("/carrito")({
   head: () => ({
