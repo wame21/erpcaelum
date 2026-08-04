@@ -99,7 +99,6 @@ function CarritoPage() {
   const restante = total - montoAPagar;
 
   async function subirComprobante(file: File) {
-    if (!user) return;
     const invalido = validarComprobante(file);
     if (invalido) {
       setError(invalido);
@@ -108,13 +107,30 @@ function CarritoPage() {
     setSubiendo(true);
     setError(null);
     try {
-      const ext = extensionSegura(file.name);
-      const path = `comprobantes/${user.id}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("caelum_imagenes")
-        .upload(path, file, { upsert: false, contentType: file.type });
-      if (upErr) throw upErr;
-      setComprobante(path);
+      if (user) {
+        const ext = extensionSegura(file.name);
+        const path = `comprobantes/${user.id}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("caelum_imagenes")
+          .upload(path, file, { upsert: false, contentType: file.type });
+        if (upErr) throw upErr;
+        setComprobante(path);
+      } else {
+        const buffer = await file.arrayBuffer();
+        let binario = "";
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.length; i += 8192) {
+          binario += String.fromCharCode(...bytes.subarray(i, i + 8192));
+        }
+        const { path } = await subirInvitado({
+          data: {
+            nombre_archivo: file.name,
+            tipo: file.type as any,
+            contenido_base64: btoa(binario),
+          },
+        });
+        setComprobante(path);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo subir el comprobante");
     } finally {
@@ -124,14 +140,10 @@ function CarritoPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) {
-      navigate({ to: "/acceso" });
-      return;
-    }
     setEnviando(true);
     setError(null);
     try {
-      await enviarPedido({
+      const payload = {
         data: {
           nombre: nombre.trim(),
           telefono: telefono.trim(),
@@ -139,7 +151,9 @@ function CarritoPage() {
           comprobante_path: comprobante,
           items: items.map((i) => ({ producto_id: i.id, cantidad: i.cantidad })),
         },
-      });
+      };
+      if (user) await enviarPedido(payload);
+      else await enviarPedidoInvitado(payload);
       vaciar();
       setConfirmado(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -149,6 +163,7 @@ function CarritoPage() {
       setEnviando(false);
     }
   }
+
 
   return (
     <div className="min-h-screen bg-background">
