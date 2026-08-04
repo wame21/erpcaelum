@@ -269,7 +269,7 @@ export type Database = {
           telefono: string
           total: number
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           comprobante_path?: string | null
@@ -284,7 +284,7 @@ export type Database = {
           telefono: string
           total?: number
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           comprobante_path?: string | null
@@ -299,7 +299,7 @@ export type Database = {
           telefono?: string
           total?: number
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
@@ -9,7 +9,12 @@ import { useSesion } from "@/hooks/use-sesion";
 import { extensionSegura, validarComprobante } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
 import { BENEFICIARIO, CLABE, mxn } from "@/lib/banco";
-import { crearPedido, obtenerPerfil } from "@/lib/pedidos.functions";
+import {
+  crearPedido,
+  crearPedidoInvitado,
+  obtenerPerfil,
+  subirComprobanteInvitado,
+} from "@/lib/pedidos.functions";
 
 export const Route = createFileRoute("/carrito")({
   head: () => ({
@@ -72,9 +77,11 @@ function CopyRow({ label: etiqueta, value }: { label: string; value: string }) {
 function CarritoPage() {
   const { items, total, quitar, vaciar, cambiarCantidad } = useCarrito();
   const { user, cargando: cargandoSesion } = useSesion();
-  const navigate = useNavigate();
   const enviarPedido = useServerFn(crearPedido);
+  const enviarPedidoInvitado = useServerFn(crearPedidoInvitado);
+  const subirInvitado = useServerFn(subirComprobanteInvitado);
   const traerPerfil = useServerFn(obtenerPerfil);
+
 
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -99,7 +106,6 @@ function CarritoPage() {
   const restante = total - montoAPagar;
 
   async function subirComprobante(file: File) {
-    if (!user) return;
     const invalido = validarComprobante(file);
     if (invalido) {
       setError(invalido);
@@ -108,13 +114,30 @@ function CarritoPage() {
     setSubiendo(true);
     setError(null);
     try {
-      const ext = extensionSegura(file.name);
-      const path = `comprobantes/${user.id}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("caelum_imagenes")
-        .upload(path, file, { upsert: false, contentType: file.type });
-      if (upErr) throw upErr;
-      setComprobante(path);
+      if (user) {
+        const ext = extensionSegura(file.name);
+        const path = `comprobantes/${user.id}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("caelum_imagenes")
+          .upload(path, file, { upsert: false, contentType: file.type });
+        if (upErr) throw upErr;
+        setComprobante(path);
+      } else {
+        const buffer = await file.arrayBuffer();
+        let binario = "";
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.length; i += 8192) {
+          binario += String.fromCharCode(...bytes.subarray(i, i + 8192));
+        }
+        const { path } = await subirInvitado({
+          data: {
+            nombre_archivo: file.name,
+            tipo: file.type as any,
+            contenido_base64: btoa(binario),
+          },
+        });
+        setComprobante(path);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo subir el comprobante");
     } finally {
@@ -124,14 +147,10 @@ function CarritoPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) {
-      navigate({ to: "/acceso" });
-      return;
-    }
     setEnviando(true);
     setError(null);
     try {
-      await enviarPedido({
+      const payload = {
         data: {
           nombre: nombre.trim(),
           telefono: telefono.trim(),
@@ -139,7 +158,9 @@ function CarritoPage() {
           comprobante_path: comprobante,
           items: items.map((i) => ({ producto_id: i.id, cantidad: i.cantidad })),
         },
-      });
+      };
+      if (user) await enviarPedido(payload);
+      else await enviarPedidoInvitado(payload);
       vaciar();
       setConfirmado(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -149,6 +170,7 @@ function CarritoPage() {
       setEnviando(false);
     }
   }
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -311,7 +333,7 @@ function CarritoPage() {
                 <input
                   type="file"
                   accept="image/*,application/pdf"
-                  disabled={!user || subiendo}
+                  disabled={subiendo}
                   className="block w-full text-xs text-muted-foreground file:mr-4 file:border file:border-hairline file:bg-transparent file:px-4 file:py-2 file:text-[0.6rem] file:tracking-[0.24em] file:uppercase"
                   onChange={(e) => {
                     const f = e.target.files?.[0];
@@ -327,16 +349,18 @@ function CarritoPage() {
 
               {!cargandoSesion && !user && (
                 <p className="text-[0.62rem] tracking-[0.18em] text-muted-foreground uppercase">
-                  Inicia sesión para apartar tu pieza.{" "}
+                  No necesitas cuenta para apartar.{" "}
                   <Link to="/acceso" className="text-foreground underline">
-                    Crear cuenta o entrar
-                  </Link>
+                    Crear cuenta
+                  </Link>{" "}
+                  solo si quieres guardar tu historial.
                 </p>
               )}
 
               <button
                 type="submit"
-                disabled={enviando || subiendo || !user}
+                disabled={enviando || subiendo}
+
                 className="w-full border border-hairline py-3 text-[0.7rem] tracking-[0.3em] uppercase transition-colors duration-300 hover:bg-foreground hover:text-background disabled:opacity-50"
               >
                 {enviando ? "Enviando…" : "Enviar"}
