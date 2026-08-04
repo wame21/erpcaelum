@@ -333,7 +333,7 @@ function CarritoPage() {
                 <input
                   type="file"
                   accept="image/*,application/pdf"
-                  disabled={!user || subiendo}
+                  disabled={subiendo}
                   className="block w-full text-xs text-muted-foreground file:mr-4 file:border file:border-hairline file:bg-transparent file:px-4 file:py-2 file:text-[0.6rem] file:tracking-[0.24em] file:uppercase"
                   onChange={(e) => {
                     const f = e.target.files?.[0];
@@ -349,16 +349,18 @@ function CarritoPage() {
 
               {!cargandoSesion && !user && (
                 <p className="text-[0.62rem] tracking-[0.18em] text-muted-foreground uppercase">
-                  Inicia sesión para apartar tu pieza.{" "}
+                  No necesitas cuenta para apartar.{" "}
                   <Link to="/acceso" className="text-foreground underline">
-                    Crear cuenta o entrar
-                  </Link>
+                    Crear cuenta
+                  </Link>{" "}
+                  solo si quieres guardar tu historial.
                 </p>
               )}
 
               <button
                 type="submit"
-                disabled={enviando || subiendo || !user}
+                disabled={enviando || subiendo}
+
                 className="w-full border border-hairline py-3 text-[0.7rem] tracking-[0.3em] uppercase transition-colors duration-300 hover:bg-foreground hover:text-background disabled:opacity-50"
               >
                 {enviando ? "Enviando…" : "Enviar"}
