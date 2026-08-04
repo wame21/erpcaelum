@@ -43,64 +43,11 @@ export const crearPedido = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => crearPedidoSchema.parse(input))
   .handler(async ({ data, context }) => {
+    const { construirLineas } = await import("@/lib/pedidos-core.server");
     const supabase = (context as any).supabase;
     const userId = (context as any).userId as string;
 
-    const ids = data.items.map((i) => i.producto_id);
-    const { data: piezas, error: errPiezas } = await supabase
-      .from("productos_con_precio")
-      .select("id, sku, nombre, precio_final, stock")
-      .in("id", ids)
-      .eq("activo", true);
-    if (errPiezas) throw new Error(errPiezas.message);
-    if (!piezas || piezas.length === 0) throw new Error("Las piezas ya no están disponibles");
-
-    const { data: skuRows } = await supabase
-      .from("productos")
-      .select(
-        "id, sku, categoria, codigo_proveedor, peso_gramos, costo_por_gramo_historico, precio_venta_gramo_historico",
-      )
-      .in("id", ids);
-    const meta = new Map<string, any>();
-    skuRows?.forEach((s: any) => meta.set(s.id, s));
-
-    const lineas = data.items
-      .map((item) => {
-        const pieza = piezas.find((p: any) => p.id === item.producto_id);
-        if (!pieza) return null;
-        if (Number(pieza.stock ?? 0) < item.cantidad) {
-          throw new Error(`No hay suficientes piezas disponibles de ${pieza.nombre}`);
-        }
-        const m = meta.get(item.producto_id) ?? {};
-        const peso = Number(m.peso_gramos ?? 0);
-        const costoGramo = Number(m.costo_por_gramo_historico ?? 0);
-        const ventaGramo = Number(m.precio_venta_gramo_historico ?? 0);
-        const precioUnitario = Number(pieza.precio_final ?? 0);
-        const costoUnitario = Math.round(peso * costoGramo * 100) / 100;
-        const utilidad = Math.round((precioUnitario - costoUnitario) * item.cantidad * 100) / 100;
-        const margen =
-          precioUnitario > 0
-            ? Math.round(((precioUnitario - costoUnitario) / precioUnitario) * 10000) / 100
-            : 0;
-        return {
-          producto_id: item.producto_id,
-          sku: m.sku ?? null,
-          nombre: pieza.nombre as string,
-          precio_unitario: precioUnitario,
-          cantidad: item.cantidad,
-          categoria: m.categoria ?? null,
-          codigo_proveedor: m.codigo_proveedor ?? null,
-          peso_gramos: peso,
-          costo_por_gramo_historico: costoGramo,
-          precio_venta_gramo_historico: ventaGramo,
-          costo_unitario: costoUnitario,
-          utilidad_bruta: utilidad,
-          margen_porcentual: margen,
-        };
-      })
-      .filter((l): l is NonNullable<typeof l> => !!l);
-
-    if (lineas.length === 0) throw new Error("Las piezas ya no están disponibles");
+    const lineas = await construirLineas(supabase, data.items);
 
     const total = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
     const montoAPagar = Math.round((total * data.porcentaje_pago) / 100);
@@ -134,6 +81,76 @@ export const crearPedido = createServerFn({ method: "POST" })
 
     return { id: pedido.id as string, total, monto_a_pagar: montoAPagar };
   });
+
+/** Apartado sin cuenta: solo nombre y teléfono. */
+export const crearPedidoInvitado = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => crearPedidoSchema.parse(input))
+  .handler(async ({ data }) => {
+    const { construirLineas } = await import("@/lib/pedidos-core.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const lineas = await construirLineas(supabaseAdmin, data.items);
+
+    const total = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const montoAPagar = Math.round((total * data.porcentaje_pago) / 100);
+
+    const comprobante =
+      data.comprobante_path && /^comprobantes\/invitados\/[\w.-]+$/.test(data.comprobante_path)
+        ? data.comprobante_path
+        : null;
+
+    const { data: pedido, error } = await (supabaseAdmin as any)
+      .from("pedidos")
+      .insert({
+        user_id: null,
+        nombre: data.nombre,
+        telefono: data.telefono,
+        total,
+        porcentaje_pago: data.porcentaje_pago,
+        monto_a_pagar: montoAPagar,
+        comprobante_path: comprobante,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    const { error: errItems } = await (supabaseAdmin as any)
+      .from("pedido_items")
+      .insert(lineas.map((l) => ({ ...l, pedido_id: pedido.id })));
+    if (errItems) throw new Error(errItems.message);
+
+    return { id: pedido.id as string, total, monto_a_pagar: montoAPagar };
+  });
+
+const comprobanteInvitadoSchema = z.object({
+  nombre_archivo: z.string().trim().min(3).max(200),
+  tipo: z.enum(["image/jpeg", "image/png", "image/webp", "image/avif", "application/pdf"]),
+  contenido_base64: z.string().min(10).max(12_000_000),
+});
+
+/** Sube el comprobante de un invitado al bucket privado y devuelve su ruta. */
+export const subirComprobanteInvitado = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => comprobanteInvitadoSchema.parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const binario = Uint8Array.from(atob(data.contenido_base64), (c) => c.charCodeAt(0));
+    if (binario.byteLength > 8 * 1024 * 1024) throw new Error("El archivo supera los 8 MB");
+
+    const ext = (data.nombre_archivo.toLowerCase().split(".").pop() ?? "jpg").replace(
+      /[^a-z0-9]/g,
+      "",
+    );
+    const path = `comprobantes/invitados/${crypto.randomUUID()}.${ext.slice(0, 5) || "jpg"}`;
+
+    const { error } = await supabaseAdmin.storage
+      .from(BUCKET)
+      .upload(path, binario, { contentType: data.tipo, upsert: false });
+    if (error) throw new Error(error.message);
+
+    return { path };
+  });
+
 
 export const obtenerPerfil = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
