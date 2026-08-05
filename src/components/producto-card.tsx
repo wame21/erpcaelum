@@ -12,7 +12,7 @@ export function ProductoCard({ producto }: { producto: Producto }) {
   const yaEsta = items.some((i) => i.id === producto.id);
   const agotado = producto.stock <= 0;
 
-  const detalle = [producto.medida, producto.grosor, `${producto.peso_gramos} g`]
+  const detalle = [producto.medida, producto.grosor, producto.tejido, `${producto.peso_gramos} g`]
     .filter(Boolean)
     .join(" · ");
 
