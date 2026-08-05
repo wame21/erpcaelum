@@ -11,6 +11,7 @@ export type Producto = {
   categoria: "cadenas" | "pulsos";
   medida: string | null;
   grosor: string | null;
+  tejido: "barbado" | "figaro" | "chino" | null;
   peso_gramos: number;
   stock: number;
   precio_final: number;
@@ -51,7 +52,7 @@ export const listarProductos = createServerFn({ method: "GET" })
     let query = supabase
       .from("productos_con_precio")
       .select(
-        "id, sku, nombre, descripcion, categoria, medida, grosor, peso_gramos, stock, precio_final, imagen_path",
+        "id, sku, nombre, descripcion, categoria, medida, grosor, tejido, peso_gramos, stock, precio_final, imagen_path",
       )
       .eq("activo", true)
       .order("created_at", { ascending: false })
@@ -86,6 +87,7 @@ export const listarProductos = createServerFn({ method: "GET" })
       categoria: (r.categoria ?? "cadenas") as "cadenas" | "pulsos",
       medida: r.medida ?? null,
       grosor: r.grosor ?? null,
+      tejido: (r.tejido ?? null) as "barbado" | "figaro" | "chino" | null,
       peso_gramos: Number(r.peso_gramos ?? 0),
       stock: Number(r.stock ?? 0),
       precio_final: Number(r.precio_final ?? 0),

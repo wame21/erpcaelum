@@ -41,6 +41,7 @@ type ProductoPayload = {
   codigo_proveedor: string;
   medida: string | null;
   grosor: string | null;
+  tejido: "barbado" | "figaro" | "chino" | null;
   peso_gramos: number;
   stock: number;
   destacado: boolean;
@@ -57,6 +58,7 @@ type FormState = {
   codigo_proveedor: string;
   medida: string;
   grosor: string;
+  tejido: "" | "barbado" | "figaro" | "chino";
   peso_gramos: string;
   stock: string;
   destacado: boolean;
@@ -71,6 +73,7 @@ const vacio: FormState = {
   codigo_proveedor: "",
   medida: "",
   grosor: "",
+  tejido: "",
   peso_gramos: "",
   stock: "1",
   destacado: false,
@@ -162,6 +165,7 @@ function AdminPage() {
       codigo_proveedor: p.codigo_proveedor,
       medida: p.medida ?? "",
       grosor: p.grosor ?? "",
+      tejido: p.tejido ?? "",
       peso_gramos: String(p.peso_gramos),
       stock: String(p.stock),
       destacado: p.destacado,
@@ -181,6 +185,7 @@ function AdminPage() {
       codigo_proveedor: form.codigo_proveedor.trim(),
       medida: form.medida.trim() || null,
       grosor: form.grosor.trim() || null,
+      tejido: form.tejido || null,
       peso_gramos: Number(form.peso_gramos || 0),
       stock: Math.max(0, Math.trunc(Number(form.stock || 0))),
       destacado: form.destacado,
@@ -197,14 +202,15 @@ function AdminPage() {
   }
 
   const codigoSel = codigos.data?.find((c) => c.codigo === form.codigo_proveedor);
+  const factorTejido = form.tejido === "figaro" ? 1.2 : form.tejido === "chino" ? 1.35 : 1;
   const precioEstimado = codigoSel
-    ? codigoSel.precio_venta_por_gramo * Number(form.peso_gramos || 0)
+    ? codigoSel.precio_venta_por_gramo * Number(form.peso_gramos || 0) * factorTejido
     : null;
 
   const q = busqueda.trim().toLowerCase();
   const listaFiltrada = (productos.data ?? []).filter((p) =>
     q
-      ? [p.sku, p.nombre, p.codigo_proveedor, p.categoria, p.medida, p.grosor]
+      ? [p.sku, p.nombre, p.codigo_proveedor, p.categoria, p.medida, p.grosor, p.tejido]
           .filter(Boolean)
           .some((v) => String(v).toLowerCase().includes(q))
       : true,
@@ -311,6 +317,22 @@ function AdminPage() {
                   value={form.grosor}
                   onChange={(e) => setForm({ ...form, grosor: e.target.value })}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className={label}>Tejido</label>
+                <select
+                  className={`${field} [&>option]:bg-background`}
+                  value={form.tejido}
+                  onChange={(e) =>
+                    setForm({ ...form, tejido: e.target.value as FormState["tejido"] })
+                  }
+                >
+                  <option value="">Sin especificar</option>
+                  <option value="barbado">Barbado (×1.00)</option>
+                  <option value="figaro">Fígaro (×1.20)</option>
+                  <option value="chino">Chino (×1.35)</option>
+                </select>
               </div>
 
               <div className="space-y-2">
@@ -468,6 +490,7 @@ function AdminPage() {
                         {p.stock} disp.
                         {p.medida ? ` · ${p.medida}` : ""}
                         {p.grosor ? ` · ${p.grosor}` : ""}
+                        {p.tejido ? ` · ${p.tejido}` : ""}
                       </p>
                     </div>
                     <span

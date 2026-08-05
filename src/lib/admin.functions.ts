@@ -15,6 +15,7 @@ export type AdminProducto = {
   codigo_proveedor: string;
   medida: string | null;
   grosor: string | null;
+  tejido: "barbado" | "figaro" | "chino" | null;
   peso_gramos: number;
   stock: number;
   activo: boolean;
@@ -38,6 +39,7 @@ const productoSchema = z.object({
   codigo_proveedor: z.string().trim().min(1).max(30),
   medida: z.string().trim().max(60).optional().nullable(),
   grosor: z.string().trim().max(60).optional().nullable(),
+  tejido: z.enum(["barbado", "figaro", "chino"]).optional().nullable(),
   peso_gramos: z.number().min(0).max(10000),
   stock: z.number().int().min(0).max(9999).optional(),
   destacado: z.boolean().optional(),
@@ -56,7 +58,7 @@ export const listarProductosAdmin = createServerFn({ method: "GET" })
     const { data: rows, error } = await supabase
       .from("productos")
       .select(
-        "id, sku, nombre, descripcion, categoria, codigo_proveedor, medida, grosor, peso_gramos, stock, activo, destacado, imagen_path",
+        "id, sku, nombre, descripcion, categoria, codigo_proveedor, medida, grosor, tejido, peso_gramos, stock, activo, destacado, imagen_path",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
