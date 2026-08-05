@@ -37,9 +37,9 @@ export const Route = createFileRoute("/carrito")({
   component: CarritoPage,
 });
 
-const label = "text-[0.6rem] tracking-[0.24em] text-muted-foreground uppercase";
+const label = "text-[0.72rem] tracking-[0.24em] text-muted-foreground uppercase";
 const field =
-  "w-full border-b border-hairline bg-transparent py-2 text-sm outline-none transition-colors focus:border-foreground";
+  "w-full border-b border-hairline bg-transparent py-2 text-base outline-none transition-colors focus:border-foreground";
 
 function CopyRow({ label: etiqueta, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -60,12 +60,12 @@ function CopyRow({ label: etiqueta, value }: { label: string; value: string }) {
     <div className="space-y-2">
       <span className={label}>{etiqueta}</span>
       <div className="flex items-center gap-3 border-b border-hairline pb-2">
-        <span className="flex-1 text-sm tracking-wide text-foreground">{value}</span>
+        <span className="flex-1 text-base tracking-wide text-foreground">{value}</span>
         <button
           type="button"
           onClick={handleCopy}
           disabled={deshabilitado}
-          className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground disabled:opacity-40"
+          className="text-[0.7rem] tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground disabled:opacity-40"
         >
           {copied ? "Copiado" : "Copiar"}
         </button>
@@ -182,7 +182,7 @@ function CarritoPage() {
 
         {confirmado ? (
           <div className="mt-10 border border-hairline bg-surface p-7 text-center sm:p-12">
-            <p className="text-[0.7rem] leading-[2.2] tracking-[0.16em] text-foreground uppercase">
+            <p className="text-[0.82rem] leading-[2.1] tracking-[0.16em] text-foreground uppercase">
               Su pedido entró en estado de Confirmación. En un plazo máximo de 15 minutos, nos
               contactaremos para los pasos siguientes correspondientes a su compra.
             </p>
@@ -195,7 +195,7 @@ function CarritoPage() {
           </div>
         ) : items.length === 0 ? (
           <div className="mt-10 border border-hairline bg-surface p-8 text-center">
-            <p className="text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
+            <p className="text-[0.78rem] tracking-[0.2em] text-muted-foreground uppercase">
               Aún no has apartado ninguna pieza.
             </p>
             <Link
@@ -216,13 +216,13 @@ function CarritoPage() {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[0.6rem] tracking-[0.28em] text-muted-foreground uppercase">
+                    <p className="text-[0.7rem] tracking-[0.28em] text-muted-foreground uppercase">
                       {i.sku}
                     </p>
-                    <p className="truncate font-display text-sm tracking-[0.14em] uppercase">
+                    <p className="truncate font-display text-base tracking-[0.14em] uppercase">
                       {i.nombre}
                     </p>
-                    <p className="text-sm text-silver">
+                    <p className="text-base text-silver">
                       {mxn.format(i.precio_final * i.cantidad)}
                     </p>
                     <div className="mt-2 flex items-center gap-3">
@@ -231,21 +231,21 @@ function CarritoPage() {
                         aria-label="Quitar una pieza"
                         onClick={() => cambiarCantidad(i.id, i.cantidad - 1)}
                         disabled={i.cantidad <= 1}
-                        className="border border-hairline px-3 py-1 text-xs transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
+                        className="border border-hairline px-3 py-1 text-sm transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
                       >
                         −
                       </button>
-                      <span className="text-xs tracking-[0.2em]">{i.cantidad}</span>
+                      <span className="text-sm tracking-[0.2em]">{i.cantidad}</span>
                       <button
                         type="button"
                         aria-label="Agregar una pieza"
                         onClick={() => cambiarCantidad(i.id, i.cantidad + 1)}
                         disabled={i.cantidad >= i.stock}
-                        className="border border-hairline px-3 py-1 text-xs transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
+                        className="border border-hairline px-3 py-1 text-sm transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
                       >
                         +
                       </button>
-                      <span className="text-[0.55rem] tracking-[0.2em] text-muted-foreground uppercase">
+                      <span className="text-[0.68rem] tracking-[0.2em] text-muted-foreground uppercase">
                         {i.stock} disponibles
                       </span>
                     </div>
@@ -253,7 +253,7 @@ function CarritoPage() {
                   <button
                     type="button"
                     onClick={() => quitar(i.id)}
-                    className="self-start text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground"
+                    className="self-start text-[0.72rem] tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground"
                   >
                     Quitar
                   </button>
@@ -267,7 +267,7 @@ function CarritoPage() {
             </div>
 
             <form onSubmit={onSubmit} className="mt-10 space-y-8 border border-hairline p-6 sm:p-9">
-              <p className="text-[0.62rem] leading-[2.1] tracking-[0.16em] text-muted-foreground uppercase">
+              <p className="text-[0.76rem] leading-[2] tracking-[0.16em] text-muted-foreground uppercase">
                 A partir del 50% del valor tu pieza queda apartada a tu nombre; el restante puede
                 cubrirse a contra entrega. Déjanos tus datos y tu comprobante: nosotros te
                 contactamos, no tienes que buscarnos.
@@ -316,7 +316,7 @@ function CarritoPage() {
                 <CopyRow label="Monto a transferir" value={String(montoAPagar)} />
               </div>
 
-              <p className="text-[0.6rem] tracking-[0.18em] text-muted-foreground uppercase">
+              <p className="text-[0.72rem] tracking-[0.18em] text-muted-foreground uppercase">
                 {porcentaje === 100
                   ? `Cubres el total: ${mxn.format(montoAPagar)}.`
                   : `Apartas con ${mxn.format(montoAPagar)} y el restante ${mxn.format(restante)} se puede cubrir a contra entrega.`}
@@ -334,21 +334,21 @@ function CarritoPage() {
                   type="file"
                   accept="image/*,application/pdf"
                   disabled={subiendo}
-                  className="block w-full text-xs text-muted-foreground file:mr-4 file:border file:border-hairline file:bg-transparent file:px-4 file:py-2 file:text-[0.6rem] file:tracking-[0.24em] file:uppercase"
+                  className="block w-full text-sm text-muted-foreground file:mr-4 file:border file:border-hairline file:bg-transparent file:px-4 file:py-2 file:text-[0.7rem] file:tracking-[0.24em] file:uppercase"
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     if (f) void subirComprobante(f);
                   }}
                 />
-                <p className="text-[0.6rem] tracking-[0.18em] text-muted-foreground uppercase">
+                <p className="text-[0.72rem] tracking-[0.18em] text-muted-foreground uppercase">
                   {subiendo ? "Subiendo…" : comprobante ? "Comprobante adjunto" : "Opcional"}
                 </p>
               </div>
 
-              {error && <p className="text-xs text-destructive">{error}</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
 
               {!cargandoSesion && !user && (
-                <p className="text-[0.62rem] tracking-[0.18em] text-muted-foreground uppercase">
+                <p className="text-[0.76rem] tracking-[0.18em] text-muted-foreground uppercase">
                   No necesitas cuenta para apartar.{" "}
                   <Link to="/acceso" className="text-foreground underline">
                     Crear cuenta
