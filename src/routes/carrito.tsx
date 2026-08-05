@@ -231,17 +231,17 @@ function CarritoPage() {
                         aria-label="Quitar una pieza"
                         onClick={() => cambiarCantidad(i.id, i.cantidad - 1)}
                         disabled={i.cantidad <= 1}
-                        className="border border-hairline px-3 py-1 text-xs transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
+                        className="border border-hairline px-3 py-1 text-sm transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
                       >
                         −
                       </button>
-                      <span className="text-xs tracking-[0.2em]">{i.cantidad}</span>
+                      <span className="text-sm tracking-[0.2em]">{i.cantidad}</span>
                       <button
                         type="button"
                         aria-label="Agregar una pieza"
                         onClick={() => cambiarCantidad(i.id, i.cantidad + 1)}
                         disabled={i.cantidad >= i.stock}
-                        className="border border-hairline px-3 py-1 text-xs transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
+                        className="border border-hairline px-3 py-1 text-sm transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-foreground"
                       >
                         +
                       </button>
@@ -253,7 +253,7 @@ function CarritoPage() {
                   <button
                     type="button"
                     onClick={() => quitar(i.id)}
-                    className="self-start text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground"
+                    className="self-start text-[0.72rem] tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground"
                   >
                     Quitar
                   </button>
