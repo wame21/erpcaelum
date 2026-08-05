@@ -11,6 +11,7 @@ export type Producto = {
   categoria: "cadenas" | "pulsos";
   medida: string | null;
   grosor: string | null;
+  tejido: "barbado" | "figaro" | "chino" | null;
   peso_gramos: number;
   stock: number;
   precio_final: number;
