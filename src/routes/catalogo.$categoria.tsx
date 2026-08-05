@@ -62,10 +62,47 @@ function Estado({ titulo, texto }: { titulo: string; texto: string }) {
   );
 }
 
+const selectClase =
+  "w-full rounded-lg border border-hairline bg-transparent px-3 py-2 text-[0.7rem] tracking-[0.18em] uppercase outline-none transition-colors focus:border-foreground [&>option]:bg-background";
+const etiquetaClase =
+  "block text-[0.6rem] tracking-[0.24em] text-muted-foreground uppercase";
+
+const RANGOS_PESO = [
+  { valor: "0-5", texto: "Hasta 5 g", min: 0, max: 5 },
+  { valor: "5-15", texto: "5 – 15 g", min: 5, max: 15 },
+  { valor: "15-30", texto: "15 – 30 g", min: 15, max: 30 },
+  { valor: "30-9999", texto: "Más de 30 g", min: 30, max: Infinity },
+];
+
 function Catalogo() {
   const { categoria } = Route.useParams();
   const { data: productos } = useSuspenseQuery(catalogoQuery(categoria as Categoria));
   const titulo = categoria === "pulsos" ? "Pulsos" : "Cadenas";
+
+  const [medida, setMedida] = useState("");
+  const [grosor, setGrosor] = useState("");
+  const [peso, setPeso] = useState("");
+
+  const medidas = useMemo(
+    () => [...new Set(productos.map((p) => p.medida).filter((v): v is string => !!v))].sort(),
+    [productos],
+  );
+  const grosores = useMemo(
+    () => [...new Set(productos.map((p) => p.grosor).filter((v): v is string => !!v))].sort(),
+    [productos],
+  );
+
+  const filtrados = useMemo(() => {
+    const rango = RANGOS_PESO.find((r) => r.valor === peso);
+    return productos.filter((p) => {
+      if (medida && p.medida !== medida) return false;
+      if (grosor && p.grosor !== grosor) return false;
+      if (rango && !(p.peso_gramos > rango.min - 0.0001 && p.peso_gramos <= rango.max)) return false;
+      return true;
+    });
+  }, [productos, medida, grosor, peso]);
+
+  const hayFiltros = Boolean(medida || grosor || peso);
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,13 +114,96 @@ function Catalogo() {
           <span className="h-px flex-1 bg-hairline" />
         </div>
 
+        {productos.length > 0 && (
+          <div className="mt-10 rounded-lg border border-hairline p-4 sm:p-6">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="space-y-2">
+                <label className={etiquetaClase} htmlFor="filtro-medida">
+                  Medida
+                </label>
+                <select
+                  id="filtro-medida"
+                  className={selectClase}
+                  value={medida}
+                  onChange={(e) => setMedida(e.target.value)}
+                >
+                  <option value="">Todas</option>
+                  {medidas.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className={etiquetaClase} htmlFor="filtro-grosor">
+                  Grosor
+                </label>
+                <select
+                  id="filtro-grosor"
+                  className={selectClase}
+                  value={grosor}
+                  onChange={(e) => setGrosor(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {grosores.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className={etiquetaClase} htmlFor="filtro-peso">
+                  Peso
+                </label>
+                <select
+                  id="filtro-peso"
+                  className={selectClase}
+                  value={peso}
+                  onChange={(e) => setPeso(e.target.value)}
+                >
+                  <option value="">Cualquiera</option>
+                  {RANGOS_PESO.map((r) => (
+                    <option key={r.valor} value={r.valor}>
+                      {r.texto}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {hayFiltros && (
+              <div className="mt-4 flex items-center justify-between gap-4">
+                <span className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase">
+                  {filtrados.length} {filtrados.length === 1 ? "pieza" : "piezas"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMedida("");
+                    setGrosor("");
+                    setPeso("");
+                  }}
+                  className="text-[0.6rem] tracking-[0.24em] text-muted-foreground uppercase transition-colors hover:text-foreground"
+                >
+                  Limpiar filtros
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {productos.length === 0 ? (
           <p className="mt-16 text-center text-[0.7rem] tracking-[0.28em] text-muted-foreground uppercase">
             Próximamente
           </p>
+        ) : filtrados.length === 0 ? (
+          <p className="mt-16 text-center text-[0.7rem] tracking-[0.28em] text-muted-foreground uppercase">
+            Sin piezas con esos filtros
+          </p>
         ) : (
           <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
-            {productos.map((p, i) => (
+            {filtrados.map((p, i) => (
               <Reveal key={p.id} delay={(i % 3) * 100}>
                 <ProductoCard producto={p} />
               </Reveal>
@@ -95,3 +215,4 @@ function Catalogo() {
     </div>
   );
 }
+
