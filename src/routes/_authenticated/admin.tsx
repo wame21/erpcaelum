@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
+import { AdminGastos } from "@/components/admin-gastos";
 
 import { extensionSegura, validarImagen } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
@@ -518,6 +519,8 @@ function AdminPage() {
             </section>
 
             <AdminPedidos />
+
+            <AdminGastos />
           </>
 
         )}
