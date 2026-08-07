@@ -42,6 +42,12 @@ export type DashboardData = {
   costoTotalVendido: number;
   utilidadBrutaTotal: number;
   pedidosTotales: number;
+  gastosMes: number;
+  gastosTotales: number;
+  costoIndirectoPorPieza: number;
+  utilidadNetaMes: number;
+  utilidadNetaTotal: number;
+  gastosPorCategoria: Agrupado[];
   porDia: SerieDia[];
   porMes: SerieMes[];
   topProductos: TopProducto[];
@@ -49,6 +55,7 @@ export type DashboardData = {
   porProveedor: Agrupado[];
   topClientes: TopCliente[];
 };
+
 
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
