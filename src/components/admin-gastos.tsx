@@ -229,7 +229,7 @@ export function AdminGastos() {
           />
           {porPieza > 0 && (
             <p className="mt-2 text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
-              Costo por pieza: {mxn(porPieza)}
+              Costo por pieza: {mxn.format(porPieza)}
             </p>
           )}
         </div>
@@ -300,15 +300,15 @@ export function AdminGastos() {
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <div className="rounded-lg border border-hairline p-5">
           <p className={label}>Gastos del mes</p>
-          <p className="mt-2 text-lg">{mxn(totalMes)}</p>
+          <p className="mt-2 text-lg">{mxn.format(totalMes)}</p>
         </div>
         <div className="rounded-lg border border-hairline p-5">
           <p className={label}>Gastos acumulados</p>
-          <p className="mt-2 text-lg">{mxn(totalGlobal)}</p>
+          <p className="mt-2 text-lg">{mxn.format(totalGlobal)}</p>
         </div>
         <div className="rounded-lg border border-hairline p-5">
           <p className={label}>Costo indirecto por pieza</p>
-          <p className="mt-2 text-lg">{mxn(indirectoPorPieza)}</p>
+          <p className="mt-2 text-lg">{mxn.format(indirectoPorPieza)}</p>
         </div>
       </div>
 
@@ -327,11 +327,11 @@ export function AdminGastos() {
                 {g.fecha} · {g.categoria}
                 {g.proveedor ? ` · ${g.proveedor}` : ""}
                 {g.piezas_cubiertas
-                  ? ` · ${g.piezas_cubiertas} pzas · ${mxn(g.costo_por_pieza)}/pza`
+                  ? ` · ${g.piezas_cubiertas} pzas · ${mxn.format(g.costo_por_pieza)}/pza`
                   : ""}
               </p>
             </div>
-            <span className="text-sm">{mxn(g.monto)}</span>
+            <span className="text-sm">{mxn.format(g.monto)}</span>
             {g.comprobante_url && (
               <a
                 href={g.comprobante_url}
