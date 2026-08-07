@@ -143,6 +143,23 @@ function DashboardPage() {
                 label="Utilidad potencial"
                 value={mxn(data.inventarioVenta - data.inventarioCosto)}
               />
+              <Metric label="Gastos del mes" value={mxn(data.gastosMes)} />
+              <Metric label="Gastos acumulados" value={mxn(data.gastosTotales)} />
+              <Metric
+                label="Utilidad neta del mes"
+                value={mxn(data.utilidadNetaMes)}
+                hint="Utilidad de ventas menos gastos del mes"
+              />
+              <Metric
+                label="Utilidad neta total"
+                value={mxn(data.utilidadNetaTotal)}
+                hint="Utilidad bruta histórica menos gastos"
+              />
+              <Metric
+                label="Costo indirecto por pieza"
+                value={mxn(data.costoIndirectoPorPieza)}
+                hint="Empaque y branding prorrateado por pieza"
+              />
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
@@ -204,6 +221,23 @@ function DashboardPage() {
 
               <Panel title="Ventas por proveedor">
                 <Lista filas={data.porProveedor} />
+              </Panel>
+
+              <Panel title="Gastos por categoría">
+                {data.gastosPorCategoria.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Aún no hay gastos registrados.</p>
+                ) : (
+                  <ul className="divide-y divide-hairline">
+                    {data.gastosPorCategoria.map((g) => (
+                      <li key={g.etiqueta} className="flex items-center justify-between py-3">
+                        <span className="text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
+                          {g.etiqueta}
+                        </span>
+                        <span className="text-sm">{mxn(g.monto)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </Panel>
             </div>
 
