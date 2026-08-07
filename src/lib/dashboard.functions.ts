@@ -21,6 +21,7 @@ export type TopCliente = {
   ultima: string;
 };
 export type Agrupado = { etiqueta: string; ventas: number; utilidad: number };
+export type GastoCategoria = { etiqueta: string; monto: number };
 
 export type DashboardData = {
   ventasDia: number;
@@ -47,7 +48,7 @@ export type DashboardData = {
   costoIndirectoPorPieza: number;
   utilidadNetaMes: number;
   utilidadNetaTotal: number;
-  gastosPorCategoria: Agrupado[];
+  gastosPorCategoria: GastoCategoria[];
   porDia: SerieDia[];
   porMes: SerieMes[];
   topProductos: TopProducto[];
@@ -229,6 +230,27 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       inventarioVenta += stock * peso * Number(pr.precio_venta_gramo_historico ?? 0);
     }
 
+    const { data: gastos, error: errGastos } = await supabase
+      .from("gastos")
+      .select("categoria, monto, fecha, piezas_cubiertas, costo_por_pieza, activo")
+      .eq("activo", true);
+    if (errGastos) throw new Error(errGastos.message);
+
+    let gastosMes = 0,
+      gastosTotales = 0,
+      costoIndirectoPorPieza = 0;
+    const gastosCat = new Map<string, GastoCategoria>();
+    for (const g of gastos ?? []) {
+      const monto = Number(g.monto ?? 0);
+      gastosTotales += monto;
+      if (String(g.fecha ?? "").slice(0, 7) === mesActual) gastosMes += monto;
+      costoIndirectoPorPieza += Number(g.costo_por_pieza ?? 0);
+      const etiqueta = g.categoria ?? "otros";
+      const actual = gastosCat.get(etiqueta) ?? { etiqueta, monto: 0 };
+      actual.monto += monto;
+      gastosCat.set(etiqueta, actual);
+    }
+
     const pedidosTotales = validos.length;
 
     return {
@@ -253,6 +275,14 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       costoTotalVendido: round2(costoTotalVendido),
       utilidadBrutaTotal: round2(utilidadBrutaTotal),
       pedidosTotales,
+      gastosMes: round2(gastosMes),
+      gastosTotales: round2(gastosTotales),
+      costoIndirectoPorPieza: round2(costoIndirectoPorPieza),
+      utilidadNetaMes: round2(utilidadMes - gastosMes),
+      utilidadNetaTotal: round2(utilidadBrutaTotal - gastosTotales),
+      gastosPorCategoria: [...gastosCat.values()]
+        .map((g) => ({ ...g, monto: round2(g.monto) }))
+        .sort((a, b) => b.monto - a.monto),
       porDia: [...dias.values()]
         .sort((a, b) => a.fecha.localeCompare(b.fecha))
         .slice(-30)
