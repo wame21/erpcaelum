@@ -77,6 +77,54 @@ export type Database = {
         }
         Relationships: []
       }
+      gastos: {
+        Row: {
+          activo: boolean
+          categoria: Database["public"]["Enums"]["categoria_gasto"]
+          comprobante_path: string | null
+          concepto: string
+          costo_por_pieza: number | null
+          created_at: string
+          fecha: string
+          id: string
+          monto: number
+          notas: string | null
+          piezas_cubiertas: number | null
+          proveedor: string | null
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          categoria?: Database["public"]["Enums"]["categoria_gasto"]
+          comprobante_path?: string | null
+          concepto: string
+          costo_por_pieza?: number | null
+          created_at?: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          piezas_cubiertas?: number | null
+          proveedor?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          categoria?: Database["public"]["Enums"]["categoria_gasto"]
+          comprobante_path?: string | null
+          concepto?: string
+          costo_por_pieza?: number | null
+          created_at?: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          piezas_cubiertas?: number | null
+          proveedor?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       movimientos_inventario: {
         Row: {
           cantidad: number
@@ -499,6 +547,14 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      categoria_gasto:
+        | "empaque"
+        | "branding"
+        | "transporte"
+        | "materiales"
+        | "marketing"
+        | "herramientas"
+        | "otros"
       categoria_joya: "cadenas" | "pulsos"
       estado_pedido: "en_progreso" | "confirmado" | "cancelado" | "completado"
       tipo_movimiento_inventario:
@@ -636,6 +692,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      categoria_gasto: [
+        "empaque",
+        "branding",
+        "transporte",
+        "materiales",
+        "marketing",
+        "herramientas",
+        "otros",
+      ],
       categoria_joya: ["cadenas", "pulsos"],
       estado_pedido: ["en_progreso", "confirmado", "cancelado", "completado"],
       tipo_movimiento_inventario: [
