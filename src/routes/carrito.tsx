@@ -8,7 +8,7 @@ import { useCarrito } from "@/lib/carrito";
 import { useSesion } from "@/hooks/use-sesion";
 import { extensionSegura, validarComprobante } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
-import { BENEFICIARIO, CLABE, mxn } from "@/lib/banco";
+import { BENEFICIARIO, CLABE, enlaceWhatsApp, mxn } from "@/lib/banco";
 import {
   crearPedido,
   crearPedidoInvitado,
@@ -91,6 +91,7 @@ function CarritoPage() {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmado, setConfirmado] = useState(false);
+  const [enlacePedido, setEnlacePedido] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -159,8 +160,29 @@ function CarritoPage() {
           items: items.map((i) => ({ producto_id: i.id, cantidad: i.cantidad })),
         },
       };
-      if (user) await enviarPedido(payload);
-      else await enviarPedidoInvitado(payload);
+      const resultado = user ? await enviarPedido(payload) : await enviarPedidoInvitado(payload);
+
+      const folio = resultado.id.slice(0, 8).toUpperCase();
+      const lineas = items
+        .map((i) => `• ${i.sku} ${i.nombre} x${i.cantidad} — ${mxn.format(i.precio_final * i.cantidad)}`)
+        .join("\n");
+      const mensaje = [
+        `Confirmación de pedido CAELUM #${folio}`,
+        "",
+        `Nombre: ${nombre.trim()}`,
+        `Teléfono: ${telefono.trim()}`,
+        "",
+        lineas,
+        "",
+        `Total: ${mxn.format(resultado.total)}`,
+        `Pago ahora (${porcentaje}%): ${mxn.format(resultado.monto_a_pagar)}`,
+        comprobante ? "Comprobante adjunto en la página." : "Sin comprobante adjunto.",
+      ].join("\n");
+
+      const url = enlaceWhatsApp(mensaje);
+      setEnlacePedido(url);
+      window.open(url, "_blank", "noopener,noreferrer");
+
       vaciar();
       setConfirmado(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -183,12 +205,22 @@ function CarritoPage() {
         {confirmado ? (
           <div className="mt-10 border border-hairline bg-surface p-7 text-center sm:p-12">
             <p className="text-[0.82rem] leading-[2.1] tracking-[0.16em] text-foreground uppercase">
-              Su pedido entró en estado de Confirmación. En un plazo máximo de 15 minutos, nos
-              contactaremos para los pasos siguientes correspondientes a su compra.
+              Su pedido entró en estado de Confirmación. Envíanos la confirmación por WhatsApp
+              para coordinar los pasos siguientes de su compra.
             </p>
+            {enlacePedido && (
+              <a
+                href={enlacePedido}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 inline-block border border-hairline px-8 py-3 text-[0.65rem] tracking-[0.3em] uppercase transition-colors duration-300 hover:bg-foreground hover:text-background"
+              >
+                Enviar confirmación por WhatsApp
+              </a>
+            )}
             <Link
               to="/"
-              className="mt-8 inline-block border border-hairline px-8 py-3 text-[0.65rem] tracking-[0.3em] uppercase transition-colors duration-300 hover:bg-foreground hover:text-background"
+              className="mt-4 block text-[0.65rem] tracking-[0.3em] text-muted-foreground uppercase transition-colors hover:text-foreground"
             >
               Volver al inicio
             </Link>
