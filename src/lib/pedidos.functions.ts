@@ -9,6 +9,7 @@ const BUCKET = "caelum_imagenes";
 export type EstadoPedido = "en_progreso" | "confirmado" | "completado" | "cancelado";
 
 export type PedidoItem = {
+  producto_id: string | null;
   sku: string | null;
   nombre: string;
   precio_unitario: number;
@@ -182,7 +183,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
 
     const { data: items } = await supabase
       .from("pedido_items")
-      .select("pedido_id, sku, nombre, precio_unitario, cantidad")
+      .select("pedido_id, producto_id, sku, nombre, precio_unitario, cantidad")
       .in(
         "pedido_id",
         pedidos.map((p: any) => p.id),
@@ -212,6 +213,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
       items: (items ?? [])
         .filter((i: any) => i.pedido_id === p.id)
         .map((i: any) => ({
+          producto_id: i.producto_id ?? null,
           sku: i.sku,
           nombre: i.nombre,
           precio_unitario: Number(i.precio_unitario ?? 0),
@@ -243,5 +245,145 @@ export const cambiarEstadoPedido = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+/** Búsqueda de piezas por SKU o nombre para armar órdenes desde el panel. */
+export const buscarPiezasAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ q: z.string().trim().max(80).default("") }).parse(input ?? {}),
+  )
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<
+      { id: string; sku: string; nombre: string; precio_final: number; stock: number }[]
+    > => {
+      await assertAdmin(context as any);
+      const supabase = (context as any).supabase;
+
+      let query = supabase
+        .from("productos_con_precio")
+        .select("id, sku, nombre, precio_final, stock")
+        .eq("activo", true)
+        .order("sku", { ascending: true })
+        .limit(20);
+
+      if (data.q) query = query.or(`sku.ilike.%${data.q}%,nombre.ilike.%${data.q}%`);
+
+      const { data: rows, error } = await query;
+      if (error) throw new Error(error.message);
+      return (rows ?? []).map((r: any) => ({
+        id: r.id,
+        sku: r.sku ?? "",
+        nombre: r.nombre ?? "",
+        precio_final: Number(r.precio_final ?? 0),
+        stock: Number(r.stock ?? 0),
+      }));
+    },
+  );
+
+const itemsSchema = z
+  .array(z.object({ producto_id: z.string().uuid(), cantidad: z.number().int().min(1).max(99) }))
+  .min(1)
+  .max(40);
+
+/** Orden creada por el admin (venta directa / en la calle). */
+export const crearPedidoManual = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        nombre: z.string().trim().min(2).max(120),
+        telefono: z.string().trim().min(4).max(20),
+        porcentaje_pago: z.number().int().min(50).max(100),
+        notas: z.string().trim().max(300).optional().nullable(),
+        items: itemsSchema,
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { construirLineas } = await import("@/lib/pedidos-core.server");
+    const supabase = (context as any).supabase;
+
+    const lineas = await construirLineas(supabase, data.items);
+    const total = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const montoAPagar = Math.round((total * data.porcentaje_pago) / 100);
+
+    const { data: pedido, error } = await supabase
+      .from("pedidos")
+      .insert({
+        user_id: null,
+        nombre: data.nombre,
+        telefono: data.telefono,
+        total,
+        porcentaje_pago: data.porcentaje_pago,
+        monto_a_pagar: montoAPagar,
+        notas: data.notas || "Venta directa",
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    const { error: errItems } = await supabase
+      .from("pedido_items")
+      .insert(lineas.map((l) => ({ ...l, pedido_id: pedido.id })));
+    if (errItems) throw new Error(errItems.message);
+
+    return { id: pedido.id as string, total, monto_a_pagar: montoAPagar };
+  });
+
+/** Reemplaza las líneas de una orden y recalcula totales. */
+export const actualizarItemsPedido = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        porcentaje_pago: z.number().int().min(50).max(100).optional(),
+        items: itemsSchema,
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { construirLineas } = await import("@/lib/pedidos-core.server");
+    const supabase = (context as any).supabase;
+
+    const { data: pedido, error: errPedido } = await supabase
+      .from("pedidos")
+      .select("id, estado, porcentaje_pago, inventario_descontado")
+      .eq("id", data.id)
+      .single();
+    if (errPedido) throw new Error(errPedido.message);
+    if (pedido.inventario_descontado || pedido.estado === "completado") {
+      throw new Error("No se puede editar una orden completada; regrésala a otro estado primero");
+    }
+
+    const lineas = await construirLineas(supabase, data.items);
+    const total = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const porcentaje = data.porcentaje_pago ?? Number(pedido.porcentaje_pago ?? 50);
+    const montoAPagar = Math.round((total * porcentaje) / 100);
+
+    const { error: errDel } = await supabase
+      .from("pedido_items")
+      .delete()
+      .eq("pedido_id", data.id);
+    if (errDel) throw new Error(errDel.message);
+
+    const { error: errIns } = await supabase
+      .from("pedido_items")
+      .insert(lineas.map((l) => ({ ...l, pedido_id: data.id })));
+    if (errIns) throw new Error(errIns.message);
+
+    const { error: errUpd } = await supabase
+      .from("pedidos")
+      .update({ total, porcentaje_pago: porcentaje, monto_a_pagar: montoAPagar })
+      .eq("id", data.id);
+    if (errUpd) throw new Error(errUpd.message);
+
+    return { ok: true, total, monto_a_pagar: montoAPagar };
   });
 
