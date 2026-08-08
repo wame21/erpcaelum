@@ -9,6 +9,7 @@ const BUCKET = "caelum_imagenes";
 export type EstadoPedido = "en_progreso" | "confirmado" | "completado" | "cancelado";
 
 export type PedidoItem = {
+  producto_id: string | null;
   sku: string | null;
   nombre: string;
   precio_unitario: number;
@@ -182,7 +183,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
 
     const { data: items } = await supabase
       .from("pedido_items")
-      .select("pedido_id, sku, nombre, precio_unitario, cantidad")
+      .select("pedido_id, producto_id, sku, nombre, precio_unitario, cantidad")
       .in(
         "pedido_id",
         pedidos.map((p: any) => p.id),
@@ -212,6 +213,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
       items: (items ?? [])
         .filter((i: any) => i.pedido_id === p.id)
         .map((i: any) => ({
+          producto_id: i.producto_id ?? null,
           sku: i.sku,
           nombre: i.nombre,
           precio_unitario: Number(i.precio_unitario ?? 0),
