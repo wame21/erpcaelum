@@ -175,7 +175,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
     const { data: pedidos, error } = await supabase
       .from("pedidos")
       .select(
-        "id, nombre, telefono, total, porcentaje_pago, monto_a_pagar, estado, created_at, comprobante_path",
+        "id, nombre, telefono, total, descuento, porcentaje_pago, monto_a_pagar, estado, created_at, comprobante_path",
       )
       .order("created_at", { ascending: false })
       .limit(200);
