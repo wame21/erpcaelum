@@ -374,6 +374,7 @@ export function AdminPedidos() {
             </ul>
 
             <p className="mt-4 text-sm">
+              {p.descuento > 0 ? `Descuento −${mxn.format(p.descuento)} · ` : ""}
               Total {mxn.format(p.total)} · Pago {p.porcentaje_pago}% ={" "}
               <span className="text-silver">{mxn.format(p.monto_a_pagar)}</span>
             </p>
