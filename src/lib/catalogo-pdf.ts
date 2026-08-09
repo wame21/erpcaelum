@@ -3,7 +3,7 @@ import { mxn } from "@/lib/banco";
 
 export type PiezaCatalogo = {
   sku: string;
-  stock int;
+  stock: int;
   nombre: string;
   categoria: string;
   medida: string | null;
