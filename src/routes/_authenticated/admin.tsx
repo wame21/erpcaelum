@@ -9,9 +9,11 @@ import { AdminGastos } from "@/components/admin-gastos";
 
 import { extensionSegura, validarImagen } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
+import { generarCatalogoPdf } from "@/lib/catalogo-pdf";
 import {
   cambiarEstadoProducto,
   guardarProducto,
+  listarCatalogoAdmin,
   listarCodigos,
   listarProductosAdmin,
   type AdminProducto,
