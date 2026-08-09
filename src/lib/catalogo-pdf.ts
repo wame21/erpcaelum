@@ -117,7 +117,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
 
     // Logo pequeño
     if (logoImg) {
-      const lw = 22;
+      const lw = 18;
       const lh = (logoImg.h / logoImg.w) * lw;
       doc.addImage(logoImg.data, "PNG", x + (cardW - lw) / 2, y + 6, lw, lh);
     }
