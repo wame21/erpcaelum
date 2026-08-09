@@ -11,7 +11,6 @@ export type PiezaCatalogo = {
   peso_gramos: number;
   precio: number;
   imagen_url: string | null;
-  stock: number;
 };
 
 async function aDataUrl(url: string): Promise<{ data: string; w: number; h: number } | null> {
@@ -141,7 +140,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
     let ty = boxY + boxH + 8;
     doc.setTextColor(140, 140, 140);
     doc.setFontSize(6);
-    doc.text(`${p.sku} | Disponibles ${p.stock}`, x + cardW / 2, ty, { align: "center" });
+    doc.text(`${p.sku}`, x + cardW / 2, ty, { align: "center" });
 
     ty += 5;
 
