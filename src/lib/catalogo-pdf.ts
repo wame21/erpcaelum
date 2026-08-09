@@ -72,7 +72,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
   // Portada
   fondo();
   if (logoImg) {
-    const ancho = 50;
+    const ancho = 62;
     const alto = (logoImg.h / logoImg.w) * ancho;
     doc.addImage(logoImg.data, "PNG", (W - ancho) / 2, H / 2 - alto - 6, ancho, alto);
   }
@@ -123,8 +123,8 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
     }
 
     // Imagen de la pieza
-    const boxY = y + 40;
-    const boxH = cardH - 30;
+    const boxY = y + 26;
+    const boxH = cardH - 60;
     const boxW = cardW - 16;
     doc.setFillColor(0, 0, 0);
     doc.roundedRect(x + 8, boxY, boxW, boxH, 2, 2, "F");
@@ -140,7 +140,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
     let ty = boxY + boxH + 8;
     doc.setTextColor(140, 140, 140);
     doc.setFontSize(6);
-    doc.text(`${p.sku}`, x + cardW / 2, ty, { align: "center" });
+    doc.text(`${p.sku} · ${p.categoria.toUpperCase()}`, x + cardW / 2, ty, { align: "center" });
 
     ty += 5;
     doc.setTextColor(230, 230, 230);
