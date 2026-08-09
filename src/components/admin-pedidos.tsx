@@ -123,8 +123,12 @@ function NuevaOrden({ onListo }: { onListo: () => void }) {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [porcentaje, setPorcentaje] = useState(100);
+  const [descuento, setDescuento] = useState("");
   const [lineas, setLineas] = useState<Linea[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const subtotal = lineas.reduce((acc, l) => acc + l.precio * l.cantidad, 0);
+  const desc = Math.min(Math.max(0, Math.round(Number(descuento || 0))), subtotal);
 
   const m = useMutation({
     mutationFn: () =>
@@ -133,6 +137,7 @@ function NuevaOrden({ onListo }: { onListo: () => void }) {
           nombre: nombre.trim(),
           telefono: telefono.trim(),
           porcentaje_pago: porcentaje,
+          descuento: desc,
           notas: "Venta directa",
           items: lineas.map((l) => ({ producto_id: l.producto_id, cantidad: l.cantidad })),
         },
@@ -140,6 +145,7 @@ function NuevaOrden({ onListo }: { onListo: () => void }) {
     onSuccess: () => {
       setNombre("");
       setTelefono("");
+      setDescuento("");
       setLineas([]);
       setAbierto(false);
       setError(null);
@@ -159,7 +165,7 @@ function NuevaOrden({ onListo }: { onListo: () => void }) {
   return (
     <div className="space-y-5 rounded-lg border border-hairline p-5">
       <p className={label}>Venta directa</p>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         <div className="space-y-1">
           <span className={label}>Nombre</span>
           <input className={campo} value={nombre} onChange={(e) => setNombre(e.target.value)} />
@@ -167,6 +173,18 @@ function NuevaOrden({ onListo }: { onListo: () => void }) {
         <div className="space-y-1">
           <span className={label}>Teléfono</span>
           <input className={campo} value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+        </div>
+        <div className="space-y-1">
+          <span className={label}>Descuento ($)</span>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            placeholder="0"
+            className={campo}
+            value={descuento}
+            onChange={(e) => setDescuento(e.target.value)}
+          />
         </div>
         <div className="space-y-1">
           <span className={label}>Pago</span>
@@ -185,6 +203,12 @@ function NuevaOrden({ onListo }: { onListo: () => void }) {
       </div>
 
       <LineasEditor lineas={lineas} setLineas={setLineas} />
+
+      <p className="text-sm text-muted-foreground">
+        Descuento −{mxn.format(desc)} · Total final{" "}
+        <span className="text-silver">{mxn.format(subtotal - desc)}</span> · A pagar{" "}
+        {mxn.format(Math.round(((subtotal - desc) * porcentaje) / 100))}
+      </p>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
