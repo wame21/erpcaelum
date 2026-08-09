@@ -72,7 +72,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
   // Portada
   fondo();
   if (logoImg) {
-    const ancho = 62;
+    const ancho = 50;
     const alto = (logoImg.h / logoImg.w) * ancho;
     doc.addImage(logoImg.data, "PNG", (W - ancho) / 2, H / 2 - alto - 6, ancho, alto);
   }
@@ -133,16 +133,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
       const ratio = Math.min(boxW / img.w, boxH / img.h);
       const iw = img.w * ratio;
       const ih = img.h * ratio;
-      doc.addImage(
-        img.data,
-        "JPEG",
-        x + 8 + (boxW - iw) / 2,
-        boxY + (boxH - ih) / 2,
-        iw,
-        ih,
-        undefined,
-        "FAST",
-      );
+      doc.addImage(img.data, "JPEG", x + 8 + (boxW - iw) / 2, boxY + (boxH - ih) / 2, iw, ih, undefined, "FAST");
     }
 
     // Datos
