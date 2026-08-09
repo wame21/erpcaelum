@@ -307,6 +307,7 @@ export type Database = {
         Row: {
           comprobante_path: string | null
           created_at: string
+          descuento: number
           estado: Database["public"]["Enums"]["estado_pedido"]
           id: string
           inventario_descontado: boolean
@@ -322,6 +323,7 @@ export type Database = {
         Insert: {
           comprobante_path?: string | null
           created_at?: string
+          descuento?: number
           estado?: Database["public"]["Enums"]["estado_pedido"]
           id?: string
           inventario_descontado?: boolean
@@ -337,6 +339,7 @@ export type Database = {
         Update: {
           comprobante_path?: string | null
           created_at?: string
+          descuento?: number
           estado?: Database["public"]["Enums"]["estado_pedido"]
           id?: string
           inventario_descontado?: boolean
