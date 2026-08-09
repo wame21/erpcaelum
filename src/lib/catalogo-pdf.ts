@@ -140,14 +140,13 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
     let ty = boxY + boxH + 8;
     doc.setTextColor(140, 140, 140);
     doc.setFontSize(6);
-    doc.text(`${p.sku}`, x + cardW / 2, ty, { align: "center" });
+    doc.text(`${p.sku} ` + `Disponibles: ${p.stock}`, x + cardW / 2, ty, { align: "center" });
 
     ty += 5;
 
     ty += 5;
     const detalles = [
       p.medida ? `MEDIDA ${p.medida}` : null,
-      p.stock ? "DISPONIBLES ${p.stock}" : null,
       p.grosor ? `GROSOR ${p.grosor}` : null,
       p.peso_gramos ? `PESO ${p.peso_gramos} G` : null,
       p.tejido ? p.tejido.toUpperCase() : null,
