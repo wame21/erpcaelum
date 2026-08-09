@@ -140,7 +140,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
     let ty = boxY + boxH + 8;
     doc.setTextColor(140, 140, 140);
     doc.setFontSize(6);
-    doc.text(`${p.sku} ` x + cardW / 2, ty, { align: "center" });
+    doc.text(`${p.sku} `, x + cardW / 2, ty, { align: "center" });
 
     ty += 5;
 
