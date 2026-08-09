@@ -124,8 +124,8 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
 
     // Imagen de la pieza
     const boxY = y + 26;
-    const boxH = cardH - 20;
-    const boxW = cardW - 16;
+    const boxH = cardH - 10;
+    const boxW = cardW - 8;
     doc.setFillColor(0, 0, 0);
     doc.roundedRect(x + 8, boxY, boxW, boxH, 2, 2, "F");
     const img = imagenes.get(p.sku);
