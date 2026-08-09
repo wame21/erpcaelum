@@ -95,11 +95,31 @@ function AdminPage() {
   const fetchCodigos = useServerFn(listarCodigos);
   const guardar = useServerFn(guardarProducto);
   const cambiarEstado = useServerFn(cambiarEstadoProducto);
+  const fetchCatalogo = useServerFn(listarCatalogoAdmin);
 
   const [form, setForm] = useState<FormState>(vacio);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const [generandoPdf, setGenerandoPdf] = useState(false);
+
+  async function descargarCatalogo() {
+    setGenerandoPdf(true);
+    setError(null);
+    try {
+      const piezas = await fetchCatalogo();
+      if (piezas.length === 0) {
+        setError("No hay piezas activas para el catálogo.");
+        return;
+      }
+      await generarCatalogoPdf(piezas);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo generar el catálogo");
+    } finally {
+      setGenerandoPdf(false);
+    }
+  }
+
 
   const productos = useQuery({
     queryKey: ["admin", "productos"],
