@@ -21,6 +21,7 @@ export type PedidoAdmin = {
   nombre: string;
   telefono: string;
   total: number;
+  descuento: number;
   porcentaje_pago: number;
   monto_a_pagar: number;
   estado: EstadoPedido;
