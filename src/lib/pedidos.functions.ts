@@ -76,10 +76,7 @@ export const crearPedido = createServerFn({ method: "POST" })
 
     await supabase
       .from("perfiles")
-      .upsert(
-        { user_id: userId, nombre: data.nombre, telefono: data.telefono },
-        { onConflict: "user_id" },
-      );
+      .upsert({ user_id: userId, nombre: data.nombre, telefono: data.telefono }, { onConflict: "user_id" });
 
     return { id: pedido.id as string, total, monto_a_pagar: montoAPagar };
   });
@@ -139,10 +136,7 @@ export const subirComprobanteInvitado = createServerFn({ method: "POST" })
     const binario = Uint8Array.from(atob(data.contenido_base64), (c) => c.charCodeAt(0));
     if (binario.byteLength > 8 * 1024 * 1024) throw new Error("El archivo supera los 8 MB");
 
-    const ext = (data.nombre_archivo.toLowerCase().split(".").pop() ?? "jpg").replace(
-      /[^a-z0-9]/g,
-      "",
-    );
+    const ext = (data.nombre_archivo.toLowerCase().split(".").pop() ?? "jpg").replace(/[^a-z0-9]/g, "");
     const path = `comprobantes/invitados/${crypto.randomUUID()}.${ext.slice(0, 5) || "jpg"}`;
 
     const { error } = await supabaseAdmin.storage
@@ -152,7 +146,6 @@ export const subirComprobanteInvitado = createServerFn({ method: "POST" })
 
     return { path };
   });
-
 
 export const obtenerPerfil = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -164,7 +157,6 @@ export const obtenerPerfil = createServerFn({ method: "GET" })
       .maybeSingle();
     return { nombre: data?.nombre ?? "", telefono: data?.telefono ?? "" };
   });
-
 
 export const listarPedidosAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -190,9 +182,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
         pedidos.map((p: any) => p.id),
       );
 
-    const paths = pedidos
-      .map((p: any) => p.comprobante_path)
-      .filter((p: string | null): p is string => !!p);
+    const paths = pedidos.map((p: any) => p.comprobante_path).filter((p: string | null): p is string => !!p);
     const urls = new Map<string, string>();
     if (paths.length > 0) {
       const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrls(paths, 60 * 60);
@@ -252,16 +242,12 @@ export const cambiarEstadoPedido = createServerFn({ method: "POST" })
 /** Búsqueda de piezas por SKU o nombre para armar órdenes desde el panel. */
 export const buscarPiezasAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ q: z.string().trim().max(80).default("") }).parse(input ?? {}),
-  )
+  .inputValidator((input: unknown) => z.object({ q: z.string().trim().max(80).default("") }).parse(input ?? {}))
   .handler(
     async ({
       data,
       context,
-    }): Promise<
-      { id: string; sku: string; nombre: string; precio_final: number; stock: number }[]
-    > => {
+    }): Promise<{ id: string; sku: string; nombre: string; precio_final: number; stock: number }[]> => {
       await assertAdmin(context as any);
       const supabase = (context as any).supabase;
 
@@ -320,7 +306,7 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
     const { data: pedido, error } = await supabase
       .from("pedidos")
       .insert({
-        user_id: null,
+        user_id: r.id,
         nombre: data.nombre,
         telefono: data.telefono,
         total,
@@ -371,18 +357,12 @@ export const actualizarItemsPedido = createServerFn({ method: "POST" })
 
     const lineas = await construirLineas(supabase, data.items);
     const subtotal = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
-    const descuento = Math.min(
-      Math.round(data.descuento ?? Number(pedido.descuento ?? 0)),
-      subtotal,
-    );
+    const descuento = Math.min(Math.round(data.descuento ?? Number(pedido.descuento ?? 0)), subtotal);
     const total = subtotal - descuento;
     const porcentaje = data.porcentaje_pago ?? Number(pedido.porcentaje_pago ?? 50);
     const montoAPagar = Math.round((total * porcentaje) / 100);
 
-    const { error: errDel } = await supabase
-      .from("pedido_items")
-      .delete()
-      .eq("pedido_id", data.id);
+    const { error: errDel } = await supabase.from("pedido_items").delete().eq("pedido_id", data.id);
     if (errDel) throw new Error(errDel.message);
 
     const { error: errIns } = await supabase
@@ -398,4 +378,3 @@ export const actualizarItemsPedido = createServerFn({ method: "POST" })
 
     return { ok: true, total, descuento, monto_a_pagar: montoAPagar };
   });
-
