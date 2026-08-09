@@ -206,6 +206,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
       nombre: p.nombre,
       telefono: p.telefono,
       total: Number(p.total ?? 0),
+      descuento: Number(p.descuento ?? 0),
       porcentaje_pago: Number(p.porcentaje_pago ?? 50),
       monto_a_pagar: Number(p.monto_a_pagar ?? 0),
       estado: p.estado as EstadoPedido,
