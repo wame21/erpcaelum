@@ -146,6 +146,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
 
     ty += 5;
     const detalles = [
+      p.stock ? `STOCK ${p.stock}` : null,
       p.medida ? `MEDIDA ${p.medida}` : null,
       p.grosor ? `GROSOR ${p.grosor}` : null,
       p.peso_gramos ? `PESO ${p.peso_gramos} G` : null,
