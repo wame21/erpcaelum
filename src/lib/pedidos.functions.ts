@@ -300,6 +300,7 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
         nombre: z.string().trim().min(2).max(120),
         telefono: z.string().trim().min(4).max(20),
         porcentaje_pago: z.number().int().min(50).max(100),
+        descuento: z.number().min(0).max(1000000).optional(),
         notas: z.string().trim().max(300).optional().nullable(),
         items: itemsSchema,
       })
@@ -311,7 +312,9 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
     const supabase = (context as any).supabase;
 
     const lineas = await construirLineas(supabase, data.items);
-    const total = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const subtotal = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const descuento = Math.min(Math.round(data.descuento ?? 0), subtotal);
+    const total = subtotal - descuento;
     const montoAPagar = Math.round((total * data.porcentaje_pago) / 100);
 
     const { data: pedido, error } = await supabase
@@ -321,6 +324,7 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
         nombre: data.nombre,
         telefono: data.telefono,
         total,
+        descuento,
         porcentaje_pago: data.porcentaje_pago,
         monto_a_pagar: montoAPagar,
         notas: data.notas || "Venta directa",
@@ -334,7 +338,7 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
       .insert(lineas.map((l) => ({ ...l, pedido_id: pedido.id })));
     if (errItems) throw new Error(errItems.message);
 
-    return { id: pedido.id as string, total, monto_a_pagar: montoAPagar };
+    return { id: pedido.id as string, total, descuento, monto_a_pagar: montoAPagar };
   });
 
 /** Reemplaza las líneas de una orden y recalcula totales. */
