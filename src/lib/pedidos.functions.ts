@@ -21,6 +21,7 @@ export type PedidoAdmin = {
   nombre: string;
   telefono: string;
   total: number;
+  descuento: number;
   porcentaje_pago: number;
   monto_a_pagar: number;
   estado: EstadoPedido;
@@ -174,7 +175,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
     const { data: pedidos, error } = await supabase
       .from("pedidos")
       .select(
-        "id, nombre, telefono, total, porcentaje_pago, monto_a_pagar, estado, created_at, comprobante_path",
+        "id, nombre, telefono, total, descuento, porcentaje_pago, monto_a_pagar, estado, created_at, comprobante_path",
       )
       .order("created_at", { ascending: false })
       .limit(200);
@@ -205,6 +206,7 @@ export const listarPedidosAdmin = createServerFn({ method: "GET" })
       nombre: p.nombre,
       telefono: p.telefono,
       total: Number(p.total ?? 0),
+      descuento: Number(p.descuento ?? 0),
       porcentaje_pago: Number(p.porcentaje_pago ?? 50),
       monto_a_pagar: Number(p.monto_a_pagar ?? 0),
       estado: p.estado as EstadoPedido,
@@ -298,6 +300,7 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
         nombre: z.string().trim().min(2).max(120),
         telefono: z.string().trim().min(4).max(20),
         porcentaje_pago: z.number().int().min(50).max(100),
+        descuento: z.number().min(0).max(1000000).optional(),
         notas: z.string().trim().max(300).optional().nullable(),
         items: itemsSchema,
       })
@@ -309,7 +312,9 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
     const supabase = (context as any).supabase;
 
     const lineas = await construirLineas(supabase, data.items);
-    const total = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const subtotal = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const descuento = Math.min(Math.round(data.descuento ?? 0), subtotal);
+    const total = subtotal - descuento;
     const montoAPagar = Math.round((total * data.porcentaje_pago) / 100);
 
     const { data: pedido, error } = await supabase
@@ -319,6 +324,7 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
         nombre: data.nombre,
         telefono: data.telefono,
         total,
+        descuento,
         porcentaje_pago: data.porcentaje_pago,
         monto_a_pagar: montoAPagar,
         notas: data.notas || "Venta directa",
@@ -332,7 +338,7 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
       .insert(lineas.map((l) => ({ ...l, pedido_id: pedido.id })));
     if (errItems) throw new Error(errItems.message);
 
-    return { id: pedido.id as string, total, monto_a_pagar: montoAPagar };
+    return { id: pedido.id as string, total, descuento, monto_a_pagar: montoAPagar };
   });
 
 /** Reemplaza las líneas de una orden y recalcula totales. */
@@ -343,6 +349,7 @@ export const actualizarItemsPedido = createServerFn({ method: "POST" })
       .object({
         id: z.string().uuid(),
         porcentaje_pago: z.number().int().min(50).max(100).optional(),
+        descuento: z.number().min(0).max(1000000).optional(),
         items: itemsSchema,
       })
       .parse(input),
@@ -354,7 +361,7 @@ export const actualizarItemsPedido = createServerFn({ method: "POST" })
 
     const { data: pedido, error: errPedido } = await supabase
       .from("pedidos")
-      .select("id, estado, porcentaje_pago, inventario_descontado")
+      .select("id, estado, porcentaje_pago, descuento, inventario_descontado")
       .eq("id", data.id)
       .single();
     if (errPedido) throw new Error(errPedido.message);
@@ -363,7 +370,12 @@ export const actualizarItemsPedido = createServerFn({ method: "POST" })
     }
 
     const lineas = await construirLineas(supabase, data.items);
-    const total = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const subtotal = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
+    const descuento = Math.min(
+      Math.round(data.descuento ?? Number(pedido.descuento ?? 0)),
+      subtotal,
+    );
+    const total = subtotal - descuento;
     const porcentaje = data.porcentaje_pago ?? Number(pedido.porcentaje_pago ?? 50);
     const montoAPagar = Math.round((total * porcentaje) / 100);
 
@@ -380,10 +392,10 @@ export const actualizarItemsPedido = createServerFn({ method: "POST" })
 
     const { error: errUpd } = await supabase
       .from("pedidos")
-      .update({ total, porcentaje_pago: porcentaje, monto_a_pagar: montoAPagar })
+      .update({ total, descuento, porcentaje_pago: porcentaje, monto_a_pagar: montoAPagar })
       .eq("id", data.id);
     if (errUpd) throw new Error(errUpd.message);
 
-    return { ok: true, total, monto_a_pagar: montoAPagar };
+    return { ok: true, total, descuento, monto_a_pagar: montoAPagar };
   });
 

@@ -1,0 +1,1 @@
+ALTER TABLE public.pedidos ADD COLUMN IF NOT EXISTS descuento numeric NOT NULL DEFAULT 0 CHECK (descuento >= 0);

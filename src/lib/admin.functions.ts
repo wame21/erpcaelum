@@ -136,3 +136,56 @@ export const cambiarEstadoProducto = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export type PiezaCatalogoAdmin = {
+  sku: string;
+  nombre: string;
+  categoria: string;
+  medida: string | null;
+  grosor: string | null;
+  tejido: string | null;
+  peso_gramos: number;
+  precio: number;
+  imagen_url: string | null;
+};
+
+/** Piezas activas con precio e imagen firmada, para el catálogo PDF. */
+export const listarCatalogoAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PiezaCatalogoAdmin[]> => {
+    await assertAdmin(context as any);
+    const supabase = (context as any).supabase;
+
+    const { data: rows, error } = await supabase
+      .from("productos_con_precio")
+      .select(
+        "sku, nombre, categoria, medida, grosor, tejido, peso_gramos, precio_final, imagen_path, stock",
+      )
+      .eq("activo", true)
+      .order("categoria", { ascending: true })
+      .order("sku", { ascending: true });
+    if (error) throw new Error(error.message);
+
+    const paths = (rows ?? [])
+      .map((r: any) => r.imagen_path)
+      .filter((p: string | null): p is string => !!p);
+    const urls = new Map<string, string>();
+    if (paths.length > 0) {
+      const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrls(paths, 60 * 60);
+      signed?.forEach((s: any) => {
+        if (s.path && s.signedUrl) urls.set(s.path, s.signedUrl);
+      });
+    }
+
+    return (rows ?? []).map((r: any) => ({
+      sku: r.sku ?? "",
+      nombre: r.nombre ?? "",
+      categoria: r.categoria ?? "",
+      medida: r.medida ?? null,
+      grosor: r.grosor ?? null,
+      tejido: r.tejido ?? null,
+      peso_gramos: Number(r.peso_gramos ?? 0),
+      precio: Number(r.precio_final ?? 0),
+      imagen_url: r.imagen_path ? (urls.get(r.imagen_path) ?? null) : null,
+    }));
+  });

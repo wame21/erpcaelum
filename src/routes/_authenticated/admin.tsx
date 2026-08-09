@@ -9,9 +9,11 @@ import { AdminGastos } from "@/components/admin-gastos";
 
 import { extensionSegura, validarImagen } from "@/lib/archivos";
 import { supabase } from "@/integrations/supabase/client";
+import { generarCatalogoPdf } from "@/lib/catalogo-pdf";
 import {
   cambiarEstadoProducto,
   guardarProducto,
+  listarCatalogoAdmin,
   listarCodigos,
   listarProductosAdmin,
   type AdminProducto,
@@ -93,11 +95,31 @@ function AdminPage() {
   const fetchCodigos = useServerFn(listarCodigos);
   const guardar = useServerFn(guardarProducto);
   const cambiarEstado = useServerFn(cambiarEstadoProducto);
+  const fetchCatalogo = useServerFn(listarCatalogoAdmin);
 
   const [form, setForm] = useState<FormState>(vacio);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const [generandoPdf, setGenerandoPdf] = useState(false);
+
+  async function descargarCatalogo() {
+    setGenerandoPdf(true);
+    setError(null);
+    try {
+      const piezas = await fetchCatalogo();
+      if (piezas.length === 0) {
+        setError("No hay piezas activas para el catálogo.");
+        return;
+      }
+      await generarCatalogoPdf(piezas);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo generar el catálogo");
+    } finally {
+      setGenerandoPdf(false);
+    }
+  }
+
 
   const productos = useQuery({
     queryKey: ["admin", "productos"],
@@ -451,9 +473,19 @@ function AdminPage() {
                 <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
                   Piezas registradas
                 </h2>
-                <p className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase">
-                  {listaFiltrada.length} de {productos.data?.length ?? 0}
-                </p>
+                <div className="flex items-center gap-5">
+                  <p className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase">
+                    {listaFiltrada.length} de {productos.data?.length ?? 0}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void descargarCatalogo()}
+                    disabled={generandoPdf}
+                    className="border border-hairline px-4 py-2 text-[0.6rem] tracking-[0.2em] uppercase transition-colors hover:bg-foreground hover:text-background disabled:opacity-50"
+                  >
+                    {generandoPdf ? "Generando…" : "Catálogo PDF"}
+                  </button>
+                </div>
               </div>
               <input
                 type="search"
