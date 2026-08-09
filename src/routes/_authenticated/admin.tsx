@@ -473,9 +473,19 @@ function AdminPage() {
                 <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
                   Piezas registradas
                 </h2>
-                <p className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase">
-                  {listaFiltrada.length} de {productos.data?.length ?? 0}
-                </p>
+                <div className="flex items-center gap-5">
+                  <p className="text-[0.6rem] tracking-[0.2em] text-muted-foreground uppercase">
+                    {listaFiltrada.length} de {productos.data?.length ?? 0}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void descargarCatalogo()}
+                    disabled={generandoPdf}
+                    className="border border-hairline px-4 py-2 text-[0.6rem] tracking-[0.2em] uppercase transition-colors hover:bg-foreground hover:text-background disabled:opacity-50"
+                  >
+                    {generandoPdf ? "Generando…" : "Catálogo PDF"}
+                  </button>
+                </div>
               </div>
               <input
                 type="search"
