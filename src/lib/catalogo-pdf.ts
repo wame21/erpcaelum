@@ -143,9 +143,6 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
     doc.text(`${p.sku}`, x + cardW / 2, ty, { align: "center" });
 
     ty += 5;
-    doc.setTextColor(230, 230, 230);
-    doc.setFontSize(8);
-    doc.text(p.nombre.toUpperCase().slice(0, 32), x + cardW / 2, ty, { align: "center" });
 
     ty += 5;
     const detalles = [
