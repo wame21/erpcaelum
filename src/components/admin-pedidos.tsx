@@ -233,6 +233,7 @@ function EditorPedido({ pedido, onListo }: { pedido: PedidoAdmin; onListo: () =>
   const actualizar = useServerFn(actualizarItemsPedido);
   const [editando, setEditando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [descuento, setDescuento] = useState(String(pedido.descuento || ""));
   const [lineas, setLineas] = useState<Linea[]>(() =>
     pedido.items
       .filter((i) => !!i.producto_id)
@@ -245,11 +246,15 @@ function EditorPedido({ pedido, onListo }: { pedido: PedidoAdmin; onListo: () =>
       })),
   );
 
+  const subtotal = lineas.reduce((acc, l) => acc + l.precio * l.cantidad, 0);
+  const desc = Math.min(Math.max(0, Math.round(Number(descuento || 0))), subtotal);
+
   const m = useMutation({
     mutationFn: () =>
       actualizar({
         data: {
           id: pedido.id,
+          descuento: desc,
           items: lineas.map((l) => ({ producto_id: l.producto_id, cantidad: l.cantidad })),
         },
       }),
@@ -274,6 +279,22 @@ function EditorPedido({ pedido, onListo }: { pedido: PedidoAdmin; onListo: () =>
   return (
     <div className="mt-4 w-full space-y-4 border-t border-hairline pt-4">
       <LineasEditor lineas={lineas} setLineas={setLineas} />
+      <div className="max-w-[12rem] space-y-1">
+        <span className={label}>Descuento ($)</span>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          placeholder="0"
+          className={campo}
+          value={descuento}
+          onChange={(e) => setDescuento(e.target.value)}
+        />
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Descuento −{mxn.format(desc)} · Total final{" "}
+        <span className="text-silver">{mxn.format(subtotal - desc)}</span>
+      </p>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex gap-4">
         <button
