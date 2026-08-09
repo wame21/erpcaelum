@@ -306,7 +306,7 @@ export const crearPedidoManual = createServerFn({ method: "POST" })
     const { data: pedido, error } = await supabase
       .from("pedidos")
       .insert({
-        user_id: r.id,
+        user_id: null,
         nombre: data.nombre,
         telefono: data.telefono,
         total,
