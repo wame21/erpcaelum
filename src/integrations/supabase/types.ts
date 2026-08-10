@@ -391,7 +391,8 @@ export type Database = {
         Row: {
           activo: boolean
           categoria: Database["public"]["Enums"]["categoria_joya"]
-          codigo_proveedor: string
+          codigo_proveedor: string | null
+          costo_compra_total: number
           costo_por_gramo_historico: number
           created_at: string
           descripcion: string | null
@@ -402,6 +403,7 @@ export type Database = {
           medida: string | null
           nombre: string
           peso_gramos: number
+          precio_venta: number
           precio_venta_gramo_historico: number
           sku: string
           stock: number
@@ -411,7 +413,8 @@ export type Database = {
         Insert: {
           activo?: boolean
           categoria: Database["public"]["Enums"]["categoria_joya"]
-          codigo_proveedor: string
+          codigo_proveedor?: string | null
+          costo_compra_total?: number
           costo_por_gramo_historico?: number
           created_at?: string
           descripcion?: string | null
@@ -422,6 +425,7 @@ export type Database = {
           medida?: string | null
           nombre: string
           peso_gramos?: number
+          precio_venta?: number
           precio_venta_gramo_historico?: number
           sku?: string
           stock?: number
@@ -431,7 +435,8 @@ export type Database = {
         Update: {
           activo?: boolean
           categoria?: Database["public"]["Enums"]["categoria_joya"]
-          codigo_proveedor?: string
+          codigo_proveedor?: string | null
+          costo_compra_total?: number
           costo_por_gramo_historico?: number
           created_at?: string
           descripcion?: string | null
@@ -442,6 +447,7 @@ export type Database = {
           medida?: string | null
           nombre?: string
           peso_gramos?: number
+          precio_venta?: number
           precio_venta_gramo_historico?: number
           sku?: string
           stock?: number
