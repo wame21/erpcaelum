@@ -91,7 +91,7 @@ function Catalogo() {
     [productos],
   );
   const tejidos = useMemo(
-    () => [...new Set(productos.map((p) => p.tejido).filter((v): v is string => !!v))].sort(),
+    () => [...new Set(productos.map((p) => p.tejido).filter((v): v is NonNullable<typeof v> => !!v))].sort() as string[],
     [productos],
   );
   const grosores = useMemo(
