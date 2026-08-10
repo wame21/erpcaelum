@@ -65,7 +65,7 @@ export const listarProductosAdmin = createServerFn({ method: "GET" })
     const { data: rows, error } = await supabase
       .from("productos")
       .select(
-        "id, sku, nombre, descripcion, categoria, codigo_proveedor, medida, grosor, tejido, peso_gramos, stock, activo, destacado, imagen_path",
+        "id, sku, nombre, descripcion, categoria, codigo_proveedor, medida, grosor, tejido, peso_gramos, costo_compra_total, precio_venta, costo_por_gramo_historico, stock, activo, destacado, imagen_path",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -86,6 +86,9 @@ export const listarProductosAdmin = createServerFn({ method: "GET" })
     return (rows ?? []).map((r: any) => ({
       ...r,
       peso_gramos: Number(r.peso_gramos ?? 0),
+      costo_compra_total: Number(r.costo_compra_total ?? 0),
+      precio_venta: Number(r.precio_venta ?? 0),
+      costo_por_gramo_historico: Number(r.costo_por_gramo_historico ?? 0),
       stock: Number(r.stock ?? 0),
       imagen_url: r.imagen_path ? (urls.get(r.imagen_path) ?? null) : null,
     }));
