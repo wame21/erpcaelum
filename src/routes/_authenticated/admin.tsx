@@ -14,7 +14,6 @@ import {
   cambiarEstadoProducto,
   guardarProducto,
   listarCatalogoAdmin,
-  listarCodigos,
   listarProductosAdmin,
   type AdminProducto,
 } from "@/lib/admin.functions";
@@ -41,11 +40,13 @@ type ProductoPayload = {
   nombre: string;
   descripcion: string | null;
   categoria: "cadenas" | "pulsos";
-  codigo_proveedor: string;
+  codigo_proveedor: string | null;
   medida: string | null;
   grosor: string | null;
   tejido: "barbado" | "figaro" | "chino" | null;
   peso_gramos: number;
+  costo_compra_total: number;
+  precio_venta: number;
   stock: number;
   destacado: boolean;
   activo: boolean;
@@ -63,6 +64,8 @@ type FormState = {
   grosor: string;
   tejido: "" | "barbado" | "figaro" | "chino";
   peso_gramos: string;
+  costo_compra_total: string;
+  precio_venta: string;
   stock: string;
   destacado: boolean;
   activo: boolean;
@@ -78,6 +81,8 @@ const vacio: FormState = {
   grosor: "",
   tejido: "",
   peso_gramos: "",
+  costo_compra_total: "",
+  precio_venta: "",
   stock: "1",
   destacado: false,
   activo: true,
@@ -92,7 +97,6 @@ function AdminPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const fetchProductos = useServerFn(listarProductosAdmin);
-  const fetchCodigos = useServerFn(listarCodigos);
   const guardar = useServerFn(guardarProducto);
   const cambiarEstado = useServerFn(cambiarEstadoProducto);
   const fetchCatalogo = useServerFn(listarCatalogoAdmin);
@@ -129,14 +133,6 @@ function AdminPage() {
   });
 
   const esAdmin = productos.isSuccess;
-
-  const codigos = useQuery({
-    queryKey: ["admin", "codigos"],
-    queryFn: () => fetchCodigos(),
-    retry: false,
-    throwOnError: false,
-    enabled: esAdmin,
-  });
 
   const mGuardar = useMutation({
     mutationFn: (data: ProductoPayload) => guardar({ data } as never),
@@ -185,11 +181,13 @@ function AdminPage() {
       nombre: p.nombre,
       descripcion: p.descripcion ?? "",
       categoria: p.categoria,
-      codigo_proveedor: p.codigo_proveedor,
+      codigo_proveedor: p.codigo_proveedor ?? "",
       medida: p.medida ?? "",
       grosor: p.grosor ?? "",
       tejido: p.tejido ?? "",
       peso_gramos: String(p.peso_gramos),
+      costo_compra_total: String(p.costo_compra_total ?? 0),
+      precio_venta: String(p.precio_venta ?? 0),
       stock: String(p.stock),
       destacado: p.destacado,
       activo: p.activo,
@@ -205,11 +203,13 @@ function AdminPage() {
       nombre: form.nombre.trim(),
       descripcion: form.descripcion.trim() || null,
       categoria: form.categoria,
-      codigo_proveedor: form.codigo_proveedor.trim(),
+      codigo_proveedor: form.codigo_proveedor.trim() || null,
       medida: form.medida.trim() || null,
       grosor: form.grosor.trim() || null,
       tejido: form.tejido || null,
       peso_gramos: Number(form.peso_gramos || 0),
+      costo_compra_total: Number(form.costo_compra_total || 0),
+      precio_venta: Number(form.precio_venta || 0),
       stock: Math.max(0, Math.trunc(Number(form.stock || 0))),
       destacado: form.destacado,
       activo: form.activo,
@@ -224,16 +224,20 @@ function AdminPage() {
     navigate({ to: "/auth", replace: true });
   }
 
-  const codigoSel = codigos.data?.find((c) => c.codigo === form.codigo_proveedor);
-  const factorTejido = form.tejido === "figaro" ? 1.2 : form.tejido === "chino" ? 1.35 : 1;
-  const precioEstimado = codigoSel
-    ? codigoSel.precio_venta_por_gramo * Number(form.peso_gramos || 0) * factorTejido
-    : null;
+  const costoCompra = Number(form.costo_compra_total || 0);
+  const pesoForm = Number(form.peso_gramos || 0);
+  const costoPorGramo = pesoForm > 0 ? costoCompra / pesoForm : 0;
+  const MARGEN_OBJETIVO = 0.525; // 52.5% (rango 50–55%)
+  const precioSugerido =
+    costoCompra > 0 ? Math.round(costoCompra / (1 - MARGEN_OBJETIVO) / 10) * 10 : null;
+  const precioVenta = Number(form.precio_venta || 0);
+  const margenReal = precioVenta > 0 ? ((precioVenta - costoCompra) / precioVenta) * 100 : null;
+  const mxnFmt = (n: number) => n.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
 
   const q = busqueda.trim().toLowerCase();
   const listaFiltrada = (productos.data ?? []).filter((p) =>
     q
-      ? [p.sku, p.nombre, p.codigo_proveedor, p.categoria, p.medida, p.grosor, p.tejido]
+      ? [p.sku, p.nombre, p.categoria, p.medida, p.grosor, p.tejido]
           .filter(Boolean)
           .some((v) => String(v).toLowerCase().includes(q))
       : true,
@@ -306,20 +310,20 @@ function AdminPage() {
               </div>
 
               <div className="space-y-2">
-                <label className={label}>Código proveedor</label>
-                <select
+                <label className={label}>Costo de compra (pieza)</label>
+                <input
                   required
-                  className={`${field} [&>option]:bg-background`}
-                  value={form.codigo_proveedor}
-                  onChange={(e) => setForm({ ...form, codigo_proveedor: e.target.value })}
-                >
-                  <option value="">Selecciona</option>
-                  {codigos.data?.map((c) => (
-                    <option key={c.codigo} value={c.codigo}>
-                      {c.codigo} — ${c.precio_venta_por_gramo}/g
-                    </option>
-                  ))}
-                </select>
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className={field}
+                  placeholder="Lo que te cotizaron"
+                  value={form.costo_compra_total}
+                  onChange={(e) => setForm({ ...form, costo_compra_total: e.target.value })}
+                />
+                <p className="text-[0.6rem] tracking-[0.18em] text-muted-foreground uppercase">
+                  {costoPorGramo > 0 ? `${mxnFmt(costoPorGramo)} / g` : "Costo por gramo —"}
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -352,9 +356,9 @@ function AdminPage() {
                   }
                 >
                   <option value="">Sin especificar</option>
-                  <option value="barbado">Barbado (×1.00)</option>
-                  <option value="figaro">Fígaro (×1.20)</option>
-                  <option value="chino">Chino (×1.35)</option>
+                  <option value="barbado">Barbado</option>
+                  <option value="figaro">Fígaro</option>
+                  <option value="chino">Chino</option>
                 </select>
               </div>
 
@@ -386,15 +390,32 @@ function AdminPage() {
               </div>
 
               <div className="space-y-2">
-                <label className={label}>Precio estimado</label>
-                <p className="py-2 text-sm">
-                  {precioEstimado
-                    ? precioEstimado.toLocaleString("es-MX", {
-                        style: "currency",
-                        currency: "MXN",
-                      })
-                    : "—"}
-                </p>
+                <label className={label}>Precio de venta (editable)</label>
+                <input
+                  required
+                  type="number"
+                  step="1"
+                  min="0"
+                  className={field}
+                  placeholder="Precio público"
+                  value={form.precio_venta}
+                  onChange={(e) => setForm({ ...form, precio_venta: e.target.value })}
+                />
+                <div className="flex flex-wrap items-center gap-3 text-[0.6rem] tracking-[0.18em] text-muted-foreground uppercase">
+                  <span>
+                    Sugerido {precioSugerido ? mxnFmt(precioSugerido) : "—"} · margen 52.5%
+                  </span>
+                  {precioSugerido && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, precio_venta: String(precioSugerido) })}
+                      className="border border-hairline px-3 py-1 transition-colors hover:bg-foreground hover:text-background"
+                    >
+                      Usar sugerido
+                    </button>
+                  )}
+                  {margenReal !== null && <span>Margen real {margenReal.toFixed(1)}%</span>}
+                </div>
               </div>
 
               <div className="space-y-2 sm:col-span-2">
@@ -519,8 +540,8 @@ function AdminPage() {
                         <span className="text-muted-foreground">{p.sku}</span> · {p.nombre}
                       </p>
                       <p className="mt-1 text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
-                        {p.categoria} · {p.codigo_proveedor} · {p.peso_gramos} g ·{" "}
-                        {p.stock} disp.
+                        {p.categoria} · {p.peso_gramos} g · {mxnFmt(p.precio_venta)} ·{" "}
+                        {mxnFmt(p.costo_por_gramo_historico)}/g costo · {p.stock} disp.
                         {p.medida ? ` · ${p.medida}` : ""}
                         {p.grosor ? ` · ${p.grosor}` : ""}
                         {p.tejido ? ` · ${p.tejido}` : ""}
