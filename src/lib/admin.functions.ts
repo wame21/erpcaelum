@@ -12,12 +12,16 @@ export type AdminProducto = {
   nombre: string;
   descripcion: string | null;
   categoria: "cadenas" | "pulsos";
-  codigo_proveedor: string;
+  codigo_proveedor: string | null;
   medida: string | null;
   grosor: string | null;
   tejido: "barbado" | "figaro" | "chino" | null;
   peso_gramos: number;
+  costo_compra_total: number;
+  precio_venta: number;
+  costo_por_gramo_historico: number;
   stock: number;
+
   activo: boolean;
   destacado: boolean;
   imagen_path: string | null;
@@ -36,12 +40,15 @@ const productoSchema = z.object({
   nombre: z.string().trim().min(1).max(120),
   descripcion: z.string().trim().max(600).optional().nullable(),
   categoria: z.enum(["cadenas", "pulsos"]),
-  codigo_proveedor: z.string().trim().min(1).max(30),
+  codigo_proveedor: z.string().trim().max(30).optional().nullable(),
   medida: z.string().trim().max(60).optional().nullable(),
   grosor: z.string().trim().max(60).optional().nullable(),
   tejido: z.enum(["barbado", "figaro", "chino"]).optional().nullable(),
   peso_gramos: z.number().min(0).max(10000),
+  costo_compra_total: z.number().min(0).max(1000000),
+  precio_venta: z.number().min(0).max(1000000),
   stock: z.number().int().min(0).max(9999).optional(),
+
   destacado: z.boolean().optional(),
   activo: z.boolean().optional(),
   imagen_path: z.string().trim().max(300).optional().nullable(),
