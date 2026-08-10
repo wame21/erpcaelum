@@ -84,9 +84,14 @@ function Catalogo() {
   const [medida, setMedida] = useState("");
   const [grosor, setGrosor] = useState("");
   const [peso, setPeso] = useState("");
+  const [tejido, setTejido] = useState("");
 
   const medidas = useMemo(
     () => [...new Set(productos.map((p) => p.medida).filter((v): v is string => !!v))].sort(),
+    [productos],
+  );
+  const tejidos = useMemo(
+    () => [...new Set(productos.map((p) => p.tejido).filter((v): v is string => !!v))].sort(),
     [productos],
   );
   const grosores = useMemo(
@@ -99,12 +104,13 @@ function Catalogo() {
     return productos.filter((p) => {
       if (medida && p.medida !== medida) return false;
       if (grosor && p.grosor !== grosor) return false;
+      if (tejido && p.tejido !== tejido) return false;
       if (rango && !(p.peso_gramos > rango.min - 0.0001 && p.peso_gramos <= rango.max)) return false;
       return true;
     });
-  }, [productos, medida, grosor, peso]);
+  }, [productos, medida, grosor, peso, tejido]);
 
-  const hayFiltros = Boolean(medida || grosor || peso);
+  const hayFiltros = Boolean(medida || grosor || peso || tejido);
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,7 +124,7 @@ function Catalogo() {
 
         {productos.length > 0 && (
           <div className="mt-10 rounded-lg border border-hairline p-4 sm:p-6">
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-2">
                 <label className={etiquetaClase} htmlFor="filtro-medida">
                   Medida
@@ -156,6 +162,24 @@ function Catalogo() {
                 </select>
               </div>
               <div className="space-y-2">
+                <label className={etiquetaClase} htmlFor="filtro-tejido">
+                  Tejido
+                </label>
+                <select
+                  id="filtro-tejido"
+                  className={selectClase}
+                  value={tejido}
+                  onChange={(e) => setTejido(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {tejidos.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
                 <label className={etiquetaClase} htmlFor="filtro-peso">
                   Peso
                 </label>
@@ -185,6 +209,7 @@ function Catalogo() {
                     setMedida("");
                     setGrosor("");
                     setPeso("");
+                    setTejido("");
                   }}
                   className="text-[0.6rem] tracking-[0.24em] text-muted-foreground uppercase transition-colors hover:text-foreground"
                 >

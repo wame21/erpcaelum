@@ -132,8 +132,6 @@ function AdminPage() {
     throwOnError: false,
   });
 
-  const esAdmin = productos.isSuccess;
-
   const mGuardar = useMutation({
     mutationFn: (data: ProductoPayload) => guardar({ data } as never),
     onSuccess: () => {
