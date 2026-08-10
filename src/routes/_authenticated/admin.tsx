@@ -414,8 +414,32 @@ function AdminPage() {
                       Usar sugerido
                     </button>
                   )}
-                  {margenReal !== null && <span>Margen real {margenReal.toFixed(1)}%</span>}
                 </div>
+                {margenSobreVenta !== null && (
+                  <div className="mt-3 space-y-1 border-l border-hairline pl-3">
+                    <p className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="text-[0.6rem] tracking-[0.18em] text-muted-foreground uppercase">
+                        Ganancia bruta estimada
+                      </span>
+                      <span
+                        className={
+                          margenSobreVenta >= 50
+                            ? "text-foreground"
+                            : "text-destructive"
+                        }
+                      >
+                        {mxnFmt(gananciaBruta)} · {margenSobreVenta.toFixed(1)}% del precio
+                        {rentabilidadSobreCosto !== null &&
+                          ` · ${rentabilidadSobreCosto.toFixed(1)}% sobre costo`}
+                      </span>
+                    </p>
+                    {margenSobreVenta < 50 && (
+                      <p className="text-[0.6rem] tracking-[0.18em] text-destructive uppercase">
+                        Margen por debajo del rango objetivo (50–55%)
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2 sm:col-span-2">
