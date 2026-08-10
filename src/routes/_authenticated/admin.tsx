@@ -229,7 +229,9 @@ function AdminPage() {
   const precioSugerido =
     costoCompra > 0 ? Math.round(costoCompra / (1 - MARGEN_OBJETIVO) / 10) * 10 : null;
   const precioVenta = Number(form.precio_venta || 0);
-  const margenReal = precioVenta > 0 ? ((precioVenta - costoCompra) / precioVenta) * 100 : null;
+  const gananciaBruta = precioVenta > costoCompra ? precioVenta - costoCompra : 0;
+  const margenSobreVenta = precioVenta > 0 ? (gananciaBruta / precioVenta) * 100 : null;
+  const rentabilidadSobreCosto = costoCompra > 0 ? (gananciaBruta / costoCompra) * 100 : null;
   const mxnFmt = (n: number) => n.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
 
   const q = busqueda.trim().toLowerCase();
