@@ -172,6 +172,7 @@ export const listarCatalogoAdmin = createServerFn({ method: "GET" })
         "sku, nombre, categoria, medida, grosor, tejido, peso_gramos, precio_final, imagen_path, stock",
       )
       .eq("activo", true)
+      .gt("stock", 0)
       .order("categoria", { ascending: true })
       .order("sku", { ascending: true });
     if (error) throw new Error(error.message);
