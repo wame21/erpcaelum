@@ -7,7 +7,8 @@ import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
 import { AdminGastos } from "@/components/admin-gastos";
 
-import { extensionSegura, validarImagen } from "@/lib/archivos";
+import { validarImagen } from "@/lib/archivos";
+import { optimizarImagenProducto } from "@/lib/imagenes-cliente";
 import { supabase } from "@/integrations/supabase/client";
 import { generarCatalogoPdf } from "@/lib/catalogo-pdf";
 import {
