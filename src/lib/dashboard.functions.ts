@@ -181,6 +181,38 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       proveedores.set(prov, pr);
     }
 
+    // Descuentos a nivel de pedido: reducen ingreso y utilidad bruta
+    for (const p of validos) {
+      const desc = Number(p.descuento ?? 0);
+      if (!desc) continue;
+      const fecha = String(p.created_at).slice(0, 10);
+      const mes = fecha.slice(0, 7);
+
+      ingresosTotales -= desc;
+      utilidadBrutaTotal -= desc;
+      totalPorPedido.set(p.id, (totalPorPedido.get(p.id) ?? 0) - desc);
+
+      if (fecha === hoy) {
+        ventasDia -= desc;
+        utilidadDia -= desc;
+      }
+      if (mes === mesActual) {
+        ventasMes -= desc;
+        utilidadMes -= desc;
+      }
+
+      const d = dias.get(fecha);
+      if (d) {
+        d.ventas -= desc;
+        d.utilidad -= desc;
+      }
+      const m = meses.get(mes);
+      if (m) {
+        m.ventas -= desc;
+        m.utilidad -= desc;
+      }
+    }
+
     // Clientes
     const clientes = new Map<string, TopCliente & { fechas: string[] }>();
     for (const p of validos) {
