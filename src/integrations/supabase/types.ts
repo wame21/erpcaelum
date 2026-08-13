@@ -125,6 +125,33 @@ export type Database = {
         }
         Relationships: []
       }
+      imagenes_cache: {
+        Row: {
+          bucket: string
+          created_at: string
+          expira_en: string
+          path: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          bucket?: string
+          created_at?: string
+          expira_en: string
+          path: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          expira_en?: string
+          path?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       movimientos_inventario: {
         Row: {
           cantidad: number
