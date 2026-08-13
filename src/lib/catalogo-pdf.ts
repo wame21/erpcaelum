@@ -67,7 +67,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
   await Promise.all(
     piezas.map(async (p) => {
       if (!p.imagen_url) return;
-      const img = await aDataUrl(p.imagen_url);
+      const img = await aDataUrl(p.imagen_url, true);
       if (img) imagenes.set(p.sku, img);
     }),
   );
