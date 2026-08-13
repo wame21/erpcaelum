@@ -7,7 +7,8 @@ import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
 import { AdminGastos } from "@/components/admin-gastos";
 
-import { extensionSegura, validarImagen } from "@/lib/archivos";
+import { validarImagen } from "@/lib/archivos";
+import { optimizarImagenProducto } from "@/lib/imagenes-cliente";
 import { supabase } from "@/integrations/supabase/client";
 import { generarCatalogoPdf } from "@/lib/catalogo-pdf";
 import {
@@ -159,11 +160,16 @@ function AdminPage() {
     setSubiendo(true);
     setError(null);
     try {
-      const ext = extensionSegura(file.name);
-      const path = `${crypto.randomUUID()}.${ext}`;
+      // WebP ≤1200 px, calidad ~80; ruta versionada para no romper caché.
+      const optimizada = await optimizarImagenProducto(file);
+      const path = `productos/${crypto.randomUUID()}.webp`;
       const { error: upErr } = await supabase.storage
-        .from("caelum_imagenes")
-        .upload(path, file, { upsert: false, contentType: file.type });
+        .from("caelum_productos")
+        .upload(path, optimizada, {
+          upsert: false,
+          contentType: "image/webp",
+          cacheControl: "31536000",
+        });
       if (upErr) throw upErr;
       setForm((f) => ({ ...f, imagen_path: path }));
     } catch (e) {
@@ -555,6 +561,10 @@ function AdminPage() {
                         <img
                           src={p.imagen_url}
                           alt={p.nombre}
+                          loading="lazy"
+                          decoding="async"
+                          width={64}
+                          height={64}
                           className="h-full w-full rounded-lg object-cover"
                         />
                       )}

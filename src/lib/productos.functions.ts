@@ -18,7 +18,7 @@ export type Producto = {
   imagen_url: string | null;
 };
 
-const BUCKET = "caelum_imagenes";
+
 
 function serverClient() {
   const url = process.env["SUPABASE_URL"]!;
@@ -69,14 +69,10 @@ export const listarProductos = createServerFn({ method: "GET" })
     if (!rows) return [];
 
     const paths = rows.map((r) => r.imagen_path).filter((p): p is string => !!p);
-    const urls = new Map<string, string>();
+    let urls = new Map<string, string>();
     if (paths.length > 0) {
-      const { data: signed } = await supabase.storage
-        .from(BUCKET)
-        .createSignedUrls(paths, 60 * 60);
-      signed?.forEach((s) => {
-        if (s.path && s.signedUrl) urls.set(s.path, s.signedUrl);
-      });
+      const { urlsProductos } = await import("@/lib/imagenes.server");
+      urls = await urlsProductos(paths);
     }
 
     return rows.map((r) => ({
