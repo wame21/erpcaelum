@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertAdmin } from "@/lib/admin-guard";
 
-const BUCKET = "caelum_imagenes";
+
 
 export type AdminProducto = {
   id: string;
