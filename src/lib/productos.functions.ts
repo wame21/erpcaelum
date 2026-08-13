@@ -18,7 +18,7 @@ export type Producto = {
   imagen_url: string | null;
 };
 
-const BUCKET = "caelum_imagenes";
+
 
 function serverClient() {
   const url = process.env["SUPABASE_URL"]!;
