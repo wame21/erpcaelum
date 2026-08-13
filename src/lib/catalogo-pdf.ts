@@ -13,24 +13,39 @@ export type PiezaCatalogo = {
   imagen_url: string | null;
 };
 
-async function aDataUrl(url: string): Promise<{ data: string; w: number; h: number } | null> {
+async function aDataUrl(
+  url: string,
+  comoJpeg = false,
+): Promise<{ data: string; w: number; h: number } | null> {
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
     const blob = await res.blob();
-    const data = await new Promise<string>((resolve, reject) => {
+    const original = await new Promise<string>((resolve, reject) => {
       const r = new FileReader();
       r.onload = () => resolve(String(r.result));
       r.onerror = reject;
       r.readAsDataURL(blob);
     });
-    const dims = await new Promise<{ w: number; h: number }>((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
-      img.onerror = () => resolve({ w: 1, h: 1 });
-      img.src = data;
+    const img = await new Promise<HTMLImageElement | null>((resolve) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => resolve(null);
+      el.src = original;
     });
-    return { data, ...dims };
+    if (!img) return null;
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    if (!comoJpeg) return { data: original, w, h };
+
+    // jsPDF no admite WebP: se re-codifica a JPEG en el navegador.
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return { data: original, w, h };
+    ctx.drawImage(img, 0, 0);
+    return { data: canvas.toDataURL("image/jpeg", 0.85), w, h };
   } catch {
     return null;
   }
