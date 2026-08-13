@@ -70,7 +70,7 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
 
     const { data: pedidos, error: errPedidos } = await supabase
       .from("pedidos")
-      .select("id, user_id, nombre, estado, created_at")
+      .select("id, user_id, nombre, estado, created_at, descuento")
       .order("created_at", { ascending: false })
       .limit(2000);
     if (errPedidos) throw new Error(errPedidos.message);
