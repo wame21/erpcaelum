@@ -73,14 +73,10 @@ export const listarProductosAdmin = createServerFn({ method: "GET" })
     const paths = (rows ?? [])
       .map((r: any) => r.imagen_path)
       .filter((p: string | null): p is string => !!p);
-    const urls = new Map<string, string>();
+    let urls = new Map<string, string>();
     if (paths.length > 0) {
-      const { data: signed } = await supabase.storage
-        .from(BUCKET)
-        .createSignedUrls(paths, 60 * 60);
-      signed?.forEach((s: any) => {
-        if (s.path && s.signedUrl) urls.set(s.path, s.signedUrl);
-      });
+      const { urlsProductos } = await import("@/lib/imagenes.server");
+      urls = await urlsProductos(paths);
     }
 
     return (rows ?? []).map((r: any) => ({
