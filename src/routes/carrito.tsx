@@ -244,7 +244,7 @@ function CarritoPage() {
                 <li key={i.id} className="flex items-start gap-4 py-4">
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ink">
                     {i.imagen_url && (
-                      <img src={i.imagen_url} alt={i.nombre} className="h-full w-full rounded-lg object-cover" />
+                      <img src={i.imagen_url} alt={i.nombre} loading="lazy" decoding="async" className="h-full w-full rounded-lg object-cover" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">

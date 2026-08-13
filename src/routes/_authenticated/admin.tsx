@@ -561,6 +561,10 @@ function AdminPage() {
                         <img
                           src={p.imagen_url}
                           alt={p.nombre}
+                          loading="lazy"
+                          decoding="async"
+                          width={64}
+                          height={64}
                           className="h-full w-full rounded-lg object-cover"
                         />
                       )}

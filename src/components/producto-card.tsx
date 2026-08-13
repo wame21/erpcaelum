@@ -96,6 +96,8 @@ export function ProductoCard({ producto }: { producto: Producto }) {
               <img
                 src={producto.imagen_url}
                 alt={producto.nombre}
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-contain"
               />
             ) : (
