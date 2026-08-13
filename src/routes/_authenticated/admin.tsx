@@ -160,11 +160,16 @@ function AdminPage() {
     setSubiendo(true);
     setError(null);
     try {
-      const ext = extensionSegura(file.name);
-      const path = `${crypto.randomUUID()}.${ext}`;
+      // WebP ≤1200 px, calidad ~80; ruta versionada para no romper caché.
+      const optimizada = await optimizarImagenProducto(file);
+      const path = `productos/${crypto.randomUUID()}.webp`;
       const { error: upErr } = await supabase.storage
-        .from("caelum_imagenes")
-        .upload(path, file, { upsert: false, contentType: file.type });
+        .from("caelum_productos")
+        .upload(path, optimizada, {
+          upsert: false,
+          contentType: "image/webp",
+          cacheControl: "31536000",
+        });
       if (upErr) throw upErr;
       setForm((f) => ({ ...f, imagen_path: path }));
     } catch (e) {
