@@ -120,47 +120,152 @@ function DashboardPage() {
         {data && (
           <div className="mt-10 space-y-10">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Metric
+                label="Inversión total"
+                value={mxn(data.inversionTotal)}
+                hint="Compra de piezas (vendidas + stock) más gastos de marca"
+              />
+              <Metric
+                label="Recuperado"
+                value={mxn(data.recuperado)}
+                hint={`${data.porcentajeRecuperado}% de la inversión`}
+              />
+              <Metric
+                label="Falta por recuperar"
+                value={mxn(data.faltaRecuperar)}
+                hint={data.faltaRecuperar === 0 ? "Inversión recuperada" : "Para llegar al punto de equilibrio"}
+              />
+              <Metric
+                label="Liquidez CAELUM"
+                value={mxn(data.liquidez)}
+                hint="Cobrado menos compras y gastos"
+              />
+              <Metric label="Utilidad bruta del mes" value={mxn(data.utilidadMes)} />
+              <Metric
+                label="Inventario"
+                value={mxn(data.inventarioCosto)}
+                hint={`${data.inventarioPiezas} pzas · ${mxn(data.inventarioVenta)} a venta`}
+              />
+              <Metric
+                label="Ganancia potencial"
+                value={mxn(data.inventarioVenta - data.inventarioCosto)}
+                hint="Si se vende todo el stock actual"
+              />
+              <Metric
+                label="Ticket promedio"
+                value={mxn(data.ticketPromedio)}
+                hint={`${data.pedidosTotales} pedidos · margen ${data.margenPromedio}%`}
+              />
+            </div>
+
+            <div className="rounded-lg border border-hairline p-6">
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <h2 className="text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                  Avance de recuperación
+                </h2>
+                <span className="text-sm text-muted-foreground">
+                  {mxn(data.recuperado)} / {mxn(data.inversionTotal)}
+                </span>
+              </div>
+              <div className="mt-4 h-1 w-full rounded-full bg-hairline">
+                <div
+                  className="h-1 rounded-full bg-foreground"
+                  style={{ width: `${Math.min(100, Math.max(1, data.porcentajeRecuperado))}%` }}
+                />
+              </div>
+              <p className="mt-3 text-[0.65rem] text-muted-foreground">
+                {data.porcentajeRecuperado}% recuperado · inversión en piezas{" "}
+                {mxn(data.inversionInventarioVendido + data.inversionStock)} · gastos{" "}
+                {mxn(data.inversionGastos)}
+              </p>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Panel title="Curva de recuperación de la inversión">
+                <ResponsiveContainer width="100%" height={260}>
+                  <AreaChart data={data.curvaRecuperacion}>
+                    <defs>
+                      <linearGradient id="gRecuperado" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="currentColor" stopOpacity={0.25} />
+                        <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeOpacity={0.08} vertical={false} />
+                    <XAxis dataKey="fecha" {...ejes} />
+                    <YAxis {...ejes} width={60} />
+                    <Tooltip content={<TooltipBox />} />
+                    <Area
+                      name="Recuperado"
+                      type="monotone"
+                      dataKey="acumulado"
+                      stroke="currentColor"
+                      fill="url(#gRecuperado)"
+                      strokeWidth={1.5}
+                    />
+                    <Area
+                      name="Inversión"
+                      type="monotone"
+                      dataKey="meta"
+                      stroke="hsl(var(--muted-foreground))"
+                      fill="transparent"
+                      strokeDasharray="4 4"
+                      strokeWidth={1.5}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+                <p className="mt-4 text-[0.65rem] text-muted-foreground">
+                  Donde la línea sólida cruza la punteada, CAELUM recupera todo lo invertido.
+                </p>
+              </Panel>
+
+              <Panel title="Liquidez acumulada por mes">
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={data.liquidezPorMes}>
+                    <CartesianGrid strokeOpacity={0.08} vertical={false} />
+                    <XAxis dataKey="mes" {...ejes} />
+                    <YAxis {...ejes} width={60} />
+                    <Tooltip content={<TooltipBox />} cursor={{ fillOpacity: 0.05 }} />
+                    <Bar name="Cobrado" dataKey="cobrado" fill="currentColor" radius={4} />
+                    <Bar
+                      name="Salidas"
+                      dataKey="salidas"
+                      fill="hsl(var(--muted-foreground))"
+                      radius={4}
+                    />
+                    <Bar name="Saldo acumulado" dataKey="saldoAcumulado" fill="transparent" />
+                  </BarChart>
+                </ResponsiveContainer>
+                <p className="mt-4 text-[0.65rem] text-muted-foreground">
+                  Salidas = compra de piezas y gastos registrados. El saldo acumulado es el dinero
+                  que debería quedar en caja.
+                </p>
+              </Panel>
+            </div>
+
+            <details className="group rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Detalle operativo
+              </summary>
+              <div className="mt-8 space-y-10">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Metric label="Ventas del día" value={mxn(data.ventasDia)} />
               <Metric label="Utilidad del día" value={mxn(data.utilidadDia)} />
               <Metric label="Ventas del mes" value={mxn(data.ventasMes)} />
-              <Metric label="Utilidad del mes" value={mxn(data.utilidadMes)} />
-              <Metric label="Pedidos del día" value={String(data.pedidosDia)} />
               <Metric label="Pedidos del mes" value={String(data.pedidosMes)} />
-              <Metric label="Ticket promedio" value={mxn(data.ticketPromedio)} />
-              <Metric label="Margen promedio" value={`${data.margenPromedio}%`} />
               <Metric label="Clientes nuevos" value={String(data.clientesNuevos)} />
               <Metric label="Clientes recurrentes" value={String(data.clientesRecurrentes)} />
               <Metric label="Piezas vendidas" value={String(data.productosVendidos)} />
-              <Metric label="Inventario disponible" value={`${data.inventarioPiezas} pzas`} />
-              <Metric label="Inventario a costo" value={mxn(data.inventarioCosto)} />
-              <Metric label="Inventario a venta" value={mxn(data.inventarioVenta)} />
-              <Metric
-                label="Capital invertido"
-                value={mxn(data.capitalInvertido)}
-                hint="Costo histórico del stock actual"
-              />
-              <Metric
-                label="Utilidad potencial"
-                value={mxn(data.inventarioVenta - data.inventarioCosto)}
-              />
               <Metric label="Gastos del mes" value={mxn(data.gastosMes)} />
               <Metric label="Gastos acumulados" value={mxn(data.gastosTotales)} />
-              <Metric
-                label="Utilidad neta del mes"
-                value={mxn(data.utilidadNetaMes)}
-                hint="Utilidad de ventas menos gastos del mes"
-              />
-              <Metric
-                label="Utilidad neta total"
-                value={mxn(data.utilidadNetaTotal)}
-                hint="Utilidad bruta histórica menos gastos"
-              />
+              <Metric label="Utilidad neta del mes" value={mxn(data.utilidadNetaMes)} />
+              <Metric label="Utilidad neta total" value={mxn(data.utilidadNetaTotal)} />
               <Metric
                 label="Costo indirecto por pieza"
                 value={mxn(data.costoIndirectoPorPieza)}
                 hint="Empaque y branding prorrateado por pieza"
               />
             </div>
+
 
             <div className="grid gap-6 lg:grid-cols-2">
               <Panel title="Ventas y utilidad por día">
