@@ -434,7 +434,10 @@ function DashboardPage() {
                 la compra. Cambiar los precios del proveedor no altera los reportes históricos.
               </p>
             </Panel>
+              </div>
+            </details>
           </div>
+
         )}
       </main>
     </div>
