@@ -22,6 +22,14 @@ export type TopCliente = {
 };
 export type Agrupado = { etiqueta: string; ventas: number; utilidad: number };
 export type GastoCategoria = { etiqueta: string; monto: number };
+export type PuntoRecuperacion = { fecha: string; acumulado: number; meta: number };
+export type PuntoLiquidez = {
+  mes: string;
+  cobrado: number;
+  salidas: number;
+  saldoAcumulado: number;
+};
+
 
 export type DashboardData = {
   ventasDia: number;
@@ -55,6 +63,17 @@ export type DashboardData = {
   porCategoria: Agrupado[];
   porProveedor: Agrupado[];
   topClientes: TopCliente[];
+  inversionInventarioVendido: number;
+  inversionStock: number;
+  inversionGastos: number;
+  inversionTotal: number;
+  recuperado: number;
+  porcentajeRecuperado: number;
+  faltaRecuperar: number;
+  liquidez: number;
+  curvaRecuperacion: PuntoRecuperacion[];
+  liquidezPorMes: PuntoLiquidez[];
+
 };
 
 
@@ -94,7 +113,9 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
 
     const { data: inventario, error: errInv } = await supabase
       .from("productos")
-      .select("stock, peso_gramos, costo_por_gramo_historico, precio_venta_gramo_historico, activo");
+      .select(
+        "stock, peso_gramos, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
+      );
     if (errInv) throw new Error(errInv.message);
 
     const pedidoPorId = new Map<string, any>();
@@ -254,12 +275,27 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     let inventarioPiezas = 0,
       inventarioCosto = 0,
       inventarioVenta = 0;
+    const salidasPorMes = new Map<string, number>();
+    const sumarSalida = (mes: string, monto: number) => {
+      if (!monto) return;
+      salidasPorMes.set(mes, (salidasPorMes.get(mes) ?? 0) + monto);
+    };
     for (const pr of inventario ?? []) {
       const stock = Number(pr.stock ?? 0);
       const peso = Number(pr.peso_gramos ?? 0);
+      const costo = stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
       inventarioPiezas += stock;
-      inventarioCosto += stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
+      inventarioCosto += costo;
       inventarioVenta += stock * peso * Number(pr.precio_venta_gramo_historico ?? 0);
+      sumarSalida(String(pr.created_at ?? "").slice(0, 7) || mesActual, costo);
+    }
+
+    // Costo de las piezas ya vendidas, por mes del pedido
+    for (const it of items) {
+      const pedido = pedidoPorId.get(it.pedido_id);
+      if (!pedido) continue;
+      const mes = String(pedido.created_at).slice(0, 7);
+      sumarSalida(mes, Number(it.costo_unitario ?? 0) * Number(it.cantidad ?? 0));
     }
 
     const { data: gastos, error: errGastos } = await supabase
@@ -281,9 +317,52 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       const actual = gastosCat.get(etiqueta) ?? { etiqueta, monto: 0 };
       actual.monto += monto;
       gastosCat.set(etiqueta, actual);
+      sumarSalida(String(g.fecha ?? "").slice(0, 7) || mesActual, monto);
     }
 
     const pedidosTotales = validos.length;
+
+    // === Inversión, recuperación y liquidez ===
+    const inversionInventarioVendido = costoTotalVendido;
+    const inversionStock = inventarioCosto;
+    const inversionGastos = gastosTotales;
+    const inversionTotal = inversionInventarioVendido + inversionStock + inversionGastos;
+    const recuperado = ingresosTotales;
+    const porcentajeRecuperado =
+      inversionTotal > 0 ? Math.min(100, (recuperado / inversionTotal) * 100) : 0;
+    const faltaRecuperar = Math.max(0, inversionTotal - recuperado);
+    const liquidez = recuperado - inversionTotal;
+
+    let acumulado = 0;
+    const curvaRecuperacion: PuntoRecuperacion[] = [...dias.values()]
+      .sort((a, b) => a.fecha.localeCompare(b.fecha))
+      .map((d) => {
+        acumulado += d.ventas;
+        return {
+          fecha: d.fecha,
+          acumulado: round2(acumulado),
+          meta: round2(inversionTotal),
+        };
+      })
+      .slice(-60);
+
+    const mesesLiquidez = [
+      ...new Set([...meses.keys(), ...salidasPorMes.keys()]),
+    ].sort((a, b) => a.localeCompare(b));
+    let saldo = 0;
+    const liquidezPorMes: PuntoLiquidez[] = mesesLiquidez.map((mes) => {
+      const cobrado = meses.get(mes)?.ventas ?? 0;
+      const salidas = salidasPorMes.get(mes) ?? 0;
+      saldo += cobrado - salidas;
+      return {
+        mes,
+        cobrado: round2(cobrado),
+        salidas: round2(salidas),
+        saldoAcumulado: round2(saldo),
+      };
+    });
+
+
 
     return {
       ventasDia: round2(ventasDia),
@@ -340,5 +419,15 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
         .sort((a, b) => b.ventas - a.ventas)
         .slice(0, 10),
       topClientes: clientesLista.sort((a, b) => b.total - a.total).slice(0, 10),
+      inversionInventarioVendido: round2(inversionInventarioVendido),
+      inversionStock: round2(inversionStock),
+      inversionGastos: round2(inversionGastos),
+      inversionTotal: round2(inversionTotal),
+      recuperado: round2(recuperado),
+      porcentajeRecuperado: round2(porcentajeRecuperado),
+      faltaRecuperar: round2(faltaRecuperar),
+      liquidez: round2(liquidez),
+      curvaRecuperacion,
+      liquidezPorMes,
     };
   });
