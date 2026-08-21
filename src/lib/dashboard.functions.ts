@@ -66,6 +66,10 @@ export type DashboardData = {
   inversionInventarioVendido: number;
   inversionStock: number;
   inversionGastos: number;
+  comprasInventario: number;
+  aportaciones: number;
+  retiros: number;
+
   inversionTotal: number;
   recuperado: number;
   porcentajeRecuperado: number;
