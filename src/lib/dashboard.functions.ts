@@ -114,9 +114,15 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     const { data: inventario, error: errInv } = await supabase
       .from("productos")
       .select(
-        "stock, peso_gramos, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
+        "stock, peso_gramos, costo_compra_total, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
       );
     if (errInv) throw new Error(errInv.message);
+
+    const { data: caja, error: errCaja } = await supabase
+      .from("movimientos_caja")
+      .select("tipo, monto, fecha");
+    if (errCaja) throw new Error(errCaja.message);
+
 
     const pedidoPorId = new Map<string, any>();
     validos.forEach((p: any) => pedidoPorId.set(p.id, p));
