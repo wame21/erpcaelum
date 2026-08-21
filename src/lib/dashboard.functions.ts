@@ -447,6 +447,10 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       inversionInventarioVendido: round2(inversionInventarioVendido),
       inversionStock: round2(inversionStock),
       inversionGastos: round2(inversionGastos),
+      comprasInventario: round2(comprasInventario),
+      aportaciones: round2(aportaciones),
+      retiros: round2(retiros),
+
       inversionTotal: round2(inversionTotal),
       recuperado: round2(recuperado),
       porcentajeRecuperado: round2(porcentajeRecuperado),
