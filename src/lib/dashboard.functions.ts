@@ -66,6 +66,10 @@ export type DashboardData = {
   inversionInventarioVendido: number;
   inversionStock: number;
   inversionGastos: number;
+  comprasInventario: number;
+  aportaciones: number;
+  retiros: number;
+
   inversionTotal: number;
   recuperado: number;
   porcentajeRecuperado: number;
@@ -114,9 +118,15 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     const { data: inventario, error: errInv } = await supabase
       .from("productos")
       .select(
-        "stock, peso_gramos, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
+        "stock, peso_gramos, costo_compra_total, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
       );
     if (errInv) throw new Error(errInv.message);
+
+    const { data: caja, error: errCaja } = await supabase
+      .from("movimientos_caja")
+      .select("tipo, monto, fecha");
+    if (errCaja) throw new Error(errCaja.message);
+
 
     const pedidoPorId = new Map<string, any>();
     validos.forEach((p: any) => pedidoPorId.set(p.id, p));
@@ -274,8 +284,10 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
 
     let inventarioPiezas = 0,
       inventarioCosto = 0,
-      inventarioVenta = 0;
+      inventarioVenta = 0,
+      comprasInventario = 0;
     const salidasPorMes = new Map<string, number>();
+    const entradasExtraPorMes = new Map<string, number>();
     const sumarSalida = (mes: string, monto: number) => {
       if (!monto) return;
       salidasPorMes.set(mes, (salidasPorMes.get(mes) ?? 0) + monto);
@@ -283,20 +295,29 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     for (const pr of inventario ?? []) {
       const stock = Number(pr.stock ?? 0);
       const peso = Number(pr.peso_gramos ?? 0);
-      const costo = stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
       inventarioPiezas += stock;
-      inventarioCosto += costo;
+      inventarioCosto += stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
       inventarioVenta += stock * peso * Number(pr.precio_venta_gramo_historico ?? 0);
-      sumarSalida(String(pr.created_at ?? "").slice(0, 7) || mesActual, costo);
+      // Salida de caja real: lo que pagaste al proveedor al comprar la pieza
+      const compra = Number(pr.costo_compra_total ?? 0);
+      comprasInventario += compra;
+      sumarSalida(String(pr.created_at ?? "").slice(0, 7) || mesActual, compra);
     }
 
-    // Costo de las piezas ya vendidas, por mes del pedido
-    for (const it of items) {
-      const pedido = pedidoPorId.get(it.pedido_id);
-      if (!pedido) continue;
-      const mes = String(pedido.created_at).slice(0, 7);
-      sumarSalida(mes, Number(it.costo_unitario ?? 0) * Number(it.cantidad ?? 0));
+    let aportaciones = 0,
+      retiros = 0;
+    for (const m of caja ?? []) {
+      const monto = Number(m.monto ?? 0);
+      const mes = String(m.fecha ?? "").slice(0, 7) || mesActual;
+      if (m.tipo === "retiro") {
+        retiros += monto;
+        sumarSalida(mes, monto);
+      } else {
+        aportaciones += monto;
+        entradasExtraPorMes.set(mes, (entradasExtraPorMes.get(mes) ?? 0) + monto);
+      }
     }
+
 
     const { data: gastos, error: errGastos } = await supabase
       .from("gastos")
@@ -326,12 +347,15 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     const inversionInventarioVendido = costoTotalVendido;
     const inversionStock = inventarioCosto;
     const inversionGastos = gastosTotales;
-    const inversionTotal = inversionInventarioVendido + inversionStock + inversionGastos;
+    // Lo realmente desembolsado: compras al proveedor + gastos de marca
+    const inversionTotal = comprasInventario + inversionGastos;
     const recuperado = ingresosTotales;
     const porcentajeRecuperado =
       inversionTotal > 0 ? Math.min(100, (recuperado / inversionTotal) * 100) : 0;
     const faltaRecuperar = Math.max(0, inversionTotal - recuperado);
-    const liquidez = recuperado - inversionTotal;
+    // Saldo de caja registrado
+    const liquidez =
+      recuperado + aportaciones - retiros - gastosTotales - comprasInventario;
 
     let acumulado = 0;
     const curvaRecuperacion: PuntoRecuperacion[] = [...dias.values()]
@@ -347,11 +371,11 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       .slice(-60);
 
     const mesesLiquidez = [
-      ...new Set([...meses.keys(), ...salidasPorMes.keys()]),
+      ...new Set([...meses.keys(), ...salidasPorMes.keys(), ...entradasExtraPorMes.keys()]),
     ].sort((a, b) => a.localeCompare(b));
     let saldo = 0;
     const liquidezPorMes: PuntoLiquidez[] = mesesLiquidez.map((mes) => {
-      const cobrado = meses.get(mes)?.ventas ?? 0;
+      const cobrado = (meses.get(mes)?.ventas ?? 0) + (entradasExtraPorMes.get(mes) ?? 0);
       const salidas = salidasPorMes.get(mes) ?? 0;
       saldo += cobrado - salidas;
       return {
@@ -361,6 +385,7 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
         saldoAcumulado: round2(saldo),
       };
     });
+
 
 
 
@@ -422,6 +447,10 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       inversionInventarioVendido: round2(inversionInventarioVendido),
       inversionStock: round2(inversionStock),
       inversionGastos: round2(inversionGastos),
+      comprasInventario: round2(comprasInventario),
+      aportaciones: round2(aportaciones),
+      retiros: round2(retiros),
+
       inversionTotal: round2(inversionTotal),
       recuperado: round2(recuperado),
       porcentajeRecuperado: round2(porcentajeRecuperado),

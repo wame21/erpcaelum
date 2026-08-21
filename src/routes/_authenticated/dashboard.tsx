@@ -174,10 +174,16 @@ function DashboardPage() {
                 />
               </div>
               <p className="mt-3 text-[0.65rem] text-muted-foreground">
-                {data.porcentajeRecuperado}% recuperado · inversión en piezas{" "}
-                {mxn(data.inversionInventarioVendido + data.inversionStock)} · gastos{" "}
-                {mxn(data.inversionGastos)}
+                {data.porcentajeRecuperado}% recuperado · compras al proveedor{" "}
+                {mxn(data.comprasInventario)} · gastos {mxn(data.inversionGastos)}
               </p>
+              <p className="mt-2 text-[0.65rem] text-muted-foreground">
+                Liquidez = cobrado {mxn(data.recuperado)} + aportaciones{" "}
+                {mxn(data.aportaciones)} − retiros {mxn(data.retiros)} − gastos{" "}
+                {mxn(data.inversionGastos)} − compras {mxn(data.comprasInventario)} ={" "}
+                {mxn(data.liquidez)}
+              </p>
+
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">

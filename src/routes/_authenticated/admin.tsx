@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
+import { AdminCaja } from "@/components/admin-caja";
 import { AdminGastos } from "@/components/admin-gastos";
 
 import { validarImagen } from "@/lib/archivos";
@@ -608,6 +609,8 @@ function AdminPage() {
             <AdminPedidos />
 
             <AdminGastos />
+
+            <AdminCaja />
           </>
 
         )}
