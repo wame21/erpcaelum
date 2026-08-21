@@ -152,6 +152,39 @@ export type Database = {
         }
         Relationships: []
       }
+      movimientos_caja: {
+        Row: {
+          concepto: string
+          created_at: string
+          fecha: string
+          id: string
+          monto: number
+          notas: string | null
+          tipo: Database["public"]["Enums"]["tipo_movimiento_caja"]
+          updated_at: string
+        }
+        Insert: {
+          concepto: string
+          created_at?: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_movimiento_caja"]
+          updated_at?: string
+        }
+        Update: {
+          concepto?: string
+          created_at?: string
+          fecha?: string
+          id?: string
+          monto?: number
+          notas?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_movimiento_caja"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       movimientos_inventario: {
         Row: {
           cantidad: number
@@ -593,6 +626,7 @@ export type Database = {
         | "otros"
       categoria_joya: "cadenas" | "pulsos"
       estado_pedido: "en_progreso" | "confirmado" | "cancelado" | "completado"
+      tipo_movimiento_caja: "aportacion" | "retiro"
       tipo_movimiento_inventario:
         | "entrada"
         | "salida"
@@ -739,6 +773,7 @@ export const Constants = {
       ],
       categoria_joya: ["cadenas", "pulsos"],
       estado_pedido: ["en_progreso", "confirmado", "cancelado", "completado"],
+      tipo_movimiento_caja: ["aportacion", "retiro"],
       tipo_movimiento_inventario: [
         "entrada",
         "salida",
