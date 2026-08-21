@@ -280,8 +280,10 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
 
     let inventarioPiezas = 0,
       inventarioCosto = 0,
-      inventarioVenta = 0;
+      inventarioVenta = 0,
+      comprasInventario = 0;
     const salidasPorMes = new Map<string, number>();
+    const entradasExtraPorMes = new Map<string, number>();
     const sumarSalida = (mes: string, monto: number) => {
       if (!monto) return;
       salidasPorMes.set(mes, (salidasPorMes.get(mes) ?? 0) + monto);
@@ -289,20 +291,29 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     for (const pr of inventario ?? []) {
       const stock = Number(pr.stock ?? 0);
       const peso = Number(pr.peso_gramos ?? 0);
-      const costo = stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
       inventarioPiezas += stock;
-      inventarioCosto += costo;
+      inventarioCosto += stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
       inventarioVenta += stock * peso * Number(pr.precio_venta_gramo_historico ?? 0);
-      sumarSalida(String(pr.created_at ?? "").slice(0, 7) || mesActual, costo);
+      // Salida de caja real: lo que pagaste al proveedor al comprar la pieza
+      const compra = Number(pr.costo_compra_total ?? 0);
+      comprasInventario += compra;
+      sumarSalida(String(pr.created_at ?? "").slice(0, 7) || mesActual, compra);
     }
 
-    // Costo de las piezas ya vendidas, por mes del pedido
-    for (const it of items) {
-      const pedido = pedidoPorId.get(it.pedido_id);
-      if (!pedido) continue;
-      const mes = String(pedido.created_at).slice(0, 7);
-      sumarSalida(mes, Number(it.costo_unitario ?? 0) * Number(it.cantidad ?? 0));
+    let aportaciones = 0,
+      retiros = 0;
+    for (const m of caja ?? []) {
+      const monto = Number(m.monto ?? 0);
+      const mes = String(m.fecha ?? "").slice(0, 7) || mesActual;
+      if (m.tipo === "retiro") {
+        retiros += monto;
+        sumarSalida(mes, monto);
+      } else {
+        aportaciones += monto;
+        entradasExtraPorMes.set(mes, (entradasExtraPorMes.get(mes) ?? 0) + monto);
+      }
     }
+
 
     const { data: gastos, error: errGastos } = await supabase
       .from("gastos")
