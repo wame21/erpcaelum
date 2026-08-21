@@ -343,12 +343,15 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     const inversionInventarioVendido = costoTotalVendido;
     const inversionStock = inventarioCosto;
     const inversionGastos = gastosTotales;
-    const inversionTotal = inversionInventarioVendido + inversionStock + inversionGastos;
+    // Lo realmente desembolsado: compras al proveedor + gastos de marca
+    const inversionTotal = comprasInventario + inversionGastos;
     const recuperado = ingresosTotales;
     const porcentajeRecuperado =
       inversionTotal > 0 ? Math.min(100, (recuperado / inversionTotal) * 100) : 0;
     const faltaRecuperar = Math.max(0, inversionTotal - recuperado);
-    const liquidez = recuperado - inversionTotal;
+    // Saldo de caja registrado
+    const liquidez =
+      recuperado + aportaciones - retiros - gastosTotales - comprasInventario;
 
     let acumulado = 0;
     const curvaRecuperacion: PuntoRecuperacion[] = [...dias.values()]
@@ -364,11 +367,11 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       .slice(-60);
 
     const mesesLiquidez = [
-      ...new Set([...meses.keys(), ...salidasPorMes.keys()]),
+      ...new Set([...meses.keys(), ...salidasPorMes.keys(), ...entradasExtraPorMes.keys()]),
     ].sort((a, b) => a.localeCompare(b));
     let saldo = 0;
     const liquidezPorMes: PuntoLiquidez[] = mesesLiquidez.map((mes) => {
-      const cobrado = meses.get(mes)?.ventas ?? 0;
+      const cobrado = (meses.get(mes)?.ventas ?? 0) + (entradasExtraPorMes.get(mes) ?? 0);
       const salidas = salidasPorMes.get(mes) ?? 0;
       saldo += cobrado - salidas;
       return {
@@ -378,6 +381,7 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
         saldoAcumulado: round2(saldo),
       };
     });
+
 
 
 
