@@ -63,6 +63,17 @@ export type DashboardData = {
   porCategoria: Agrupado[];
   porProveedor: Agrupado[];
   topClientes: TopCliente[];
+  inversionInventarioVendido: number;
+  inversionStock: number;
+  inversionGastos: number;
+  inversionTotal: number;
+  recuperado: number;
+  porcentajeRecuperado: number;
+  faltaRecuperar: number;
+  liquidez: number;
+  curvaRecuperacion: PuntoRecuperacion[];
+  liquidezPorMes: PuntoLiquidez[];
+
 };
 
 
