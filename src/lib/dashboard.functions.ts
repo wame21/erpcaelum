@@ -22,6 +22,14 @@ export type TopCliente = {
 };
 export type Agrupado = { etiqueta: string; ventas: number; utilidad: number };
 export type GastoCategoria = { etiqueta: string; monto: number };
+export type PuntoRecuperacion = { fecha: string; acumulado: number; meta: number };
+export type PuntoLiquidez = {
+  mes: string;
+  cobrado: number;
+  salidas: number;
+  saldoAcumulado: number;
+};
+
 
 export type DashboardData = {
   ventasDia: number;
