@@ -419,5 +419,15 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
         .sort((a, b) => b.ventas - a.ventas)
         .slice(0, 10),
       topClientes: clientesLista.sort((a, b) => b.total - a.total).slice(0, 10),
+      inversionInventarioVendido: round2(inversionInventarioVendido),
+      inversionStock: round2(inversionStock),
+      inversionGastos: round2(inversionGastos),
+      inversionTotal: round2(inversionTotal),
+      recuperado: round2(recuperado),
+      porcentajeRecuperado: round2(porcentajeRecuperado),
+      faltaRecuperar: round2(faltaRecuperar),
+      liquidez: round2(liquidez),
+      curvaRecuperacion,
+      liquidezPorMes,
     };
   });
