@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertAdmin } from "@/lib/admin-guard";
+import { iso, round2 } from "@/lib/dashboard-utils";
 
 export type SerieDia = { fecha: string; ventas: number; utilidad: number };
 export type SerieMes = { mes: string; ventas: number; utilidad: number };
@@ -82,8 +83,6 @@ export type DashboardData = {
 
 
 
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export const obtenerDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
