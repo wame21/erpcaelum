@@ -82,8 +82,6 @@ export type DashboardData = {
 
 
 
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export const obtenerDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
