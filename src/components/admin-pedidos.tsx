@@ -331,7 +331,7 @@ export function AdminPedidos() {
   });
 
   return (
-    <section className="mt-16">
+    <section className="mt-2">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
           Órdenes de compra

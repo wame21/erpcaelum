@@ -108,6 +108,7 @@ function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [generandoPdf, setGenerandoPdf] = useState(false);
+  const [formAbierto, setFormAbierto] = useState(false);
 
   async function descargarCatalogo() {
     setGenerandoPdf(true);
@@ -198,8 +199,10 @@ function AdminPage() {
       activo: p.activo,
       imagen_path: p.imagen_path ?? "",
     });
+    setFormAbierto(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -288,9 +291,17 @@ function AdminPage() {
 
         {!noAutorizado && (
           <>
+            <details
+              open={formAbierto}
+              onToggle={(e) => setFormAbierto((e.currentTarget as HTMLDetailsElement).open)}
+              className="mt-10 rounded-lg border border-hairline p-6"
+            >
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                {form.id ? "Editar pieza" : "Nueva pieza"}
+              </summary>
             <form
               onSubmit={onSubmit}
-              className="mt-10 grid gap-6 rounded-lg border border-hairline p-6 sm:grid-cols-2"
+              className="mt-8 grid gap-6 sm:grid-cols-2"
             >
               <div className="space-y-2 sm:col-span-2">
                 <label className={label}>Nombre</label>
@@ -519,8 +530,13 @@ function AdminPage() {
                 )}
               </div>
             </form>
+            </details>
 
-            <section className="mt-14">
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Piezas registradas ({productos.data?.length ?? 0})
+              </summary>
+            <section className="mt-8">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
                   Piezas registradas
@@ -605,12 +621,28 @@ function AdminPage() {
                 ))}
               </div>
             </section>
+            </details>
 
-            <AdminPedidos />
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Pedidos
+              </summary>
+              <AdminPedidos />
+            </details>
 
-            <AdminGastos />
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Gastos
+              </summary>
+              <AdminGastos />
+            </details>
 
-            <AdminCaja />
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Caja
+              </summary>
+              <AdminCaja />
+            </details>
           </>
 
         )}
