@@ -167,6 +167,12 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       utilidadBrutaTotal += utilidad;
       productosVendidos += cantidad;
       totalPorPedido.set(it.pedido_id, (totalPorPedido.get(it.pedido_id) ?? 0) + ingreso);
+      if (pedido.inventario_descontado && it.producto_id) {
+        unidadesVendidas.set(
+          it.producto_id,
+          (unidadesVendidas.get(it.producto_id) ?? 0) + cantidad,
+        );
+      }
 
       if (fecha === hoy) {
         ventasDia += ingreso;
