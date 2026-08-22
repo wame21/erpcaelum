@@ -306,8 +306,9 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       inventarioPiezas += stock;
       inventarioCosto += stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
       inventarioVenta += stock * peso * Number(pr.precio_venta_gramo_historico ?? 0);
-      // Salida de caja real: lo que pagaste al proveedor al comprar la pieza
-      const compra = Number(pr.costo_compra_total ?? 0);
+      // Salida de caja real: costo unitario × unidades compradas (stock actual + ya vendidas)
+      const unidades = stock + (unidadesVendidas.get(pr.id) ?? 0);
+      const compra = Number(pr.costo_compra_total ?? 0) * unidades;
       comprasInventario += compra;
       sumarSalida(String(pr.created_at ?? "").slice(0, 7) || mesActual, compra);
     }
