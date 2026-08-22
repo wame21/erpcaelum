@@ -1,0 +1,1 @@
+update public.movimientos_caja set monto = 7817.56, notas = 'Capital inicial ajustado: compras reales al proveedor (unidades compradas incluyendo las ya vendidas). Cuadra la liquidez en $770.00' where id = 'e35eb0d9-1051-499d-9737-880feab002fa';
