@@ -118,7 +118,7 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     const { data: inventario, error: errInv } = await supabase
       .from("productos")
       .select(
-        "stock, peso_gramos, costo_compra_total, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
+        "id, stock, peso_gramos, costo_compra_total, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
       );
     if (errInv) throw new Error(errInv.message);
 
