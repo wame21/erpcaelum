@@ -199,8 +199,10 @@ function AdminPage() {
       activo: p.activo,
       imagen_path: p.imagen_path ?? "",
     });
+    setFormAbierto(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
