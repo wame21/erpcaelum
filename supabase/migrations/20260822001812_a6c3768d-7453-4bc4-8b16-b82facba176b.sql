@@ -1,0 +1,1 @@
+update public.movimientos_caja set monto = 3194.00, notas = 'Ajustado tras corregir costos reales de pulseras; cuadra la liquidez en $770.00' where id = 'e35eb0d9-1051-499d-9737-880feab002fa';
