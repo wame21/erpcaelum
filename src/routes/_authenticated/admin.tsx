@@ -108,6 +108,7 @@ function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [generandoPdf, setGenerandoPdf] = useState(false);
+  const [formAbierto, setFormAbierto] = useState(false);
 
   async function descargarCatalogo() {
     setGenerandoPdf(true);
