@@ -110,7 +110,7 @@ export function AdminCaja() {
   if (movimientos.isError) return null;
 
   return (
-    <section className="mt-16">
+    <section className="mt-2">
       <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">Caja CAELUM</h2>
       <p className="mt-3 max-w-xl text-sm text-muted-foreground">
         Registra el dinero que entra de tu bolsillo (aportaciones) y el que sacas de la marca
