@@ -151,7 +151,7 @@ export function AdminGastos() {
   if (gastos.isError) return null;
 
   return (
-    <section className="mt-16">
+    <section className="mt-2">
       <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
         Gastos de la marca
       </h2>
