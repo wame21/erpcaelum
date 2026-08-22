@@ -621,12 +621,28 @@ function AdminPage() {
                 ))}
               </div>
             </section>
+            </details>
 
-            <AdminPedidos />
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Pedidos
+              </summary>
+              <AdminPedidos />
+            </details>
 
-            <AdminGastos />
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Gastos
+              </summary>
+              <AdminGastos />
+            </details>
 
-            <AdminCaja />
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Caja
+              </summary>
+              <AdminCaja />
+            </details>
           </>
 
         )}
