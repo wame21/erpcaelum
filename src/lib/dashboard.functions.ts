@@ -149,6 +149,8 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     const categorias = new Map<string, Agrupado>();
     const proveedores = new Map<string, Agrupado>();
     const totalPorPedido = new Map<string, number>();
+    // Piezas que ya salieron del inventario: también fueron compradas al proveedor
+    const unidadesVendidas = new Map<string, number>();
 
     for (const it of items) {
       const pedido = pedidoPorId.get(it.pedido_id);
