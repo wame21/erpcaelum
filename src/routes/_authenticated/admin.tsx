@@ -291,9 +291,17 @@ function AdminPage() {
 
         {!noAutorizado && (
           <>
+            <details
+              open={formAbierto}
+              onToggle={(e) => setFormAbierto((e.currentTarget as HTMLDetailsElement).open)}
+              className="mt-10 rounded-lg border border-hairline p-6"
+            >
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                {form.id ? "Editar pieza" : "Nueva pieza"}
+              </summary>
             <form
               onSubmit={onSubmit}
-              className="mt-10 grid gap-6 rounded-lg border border-hairline p-6 sm:grid-cols-2"
+              className="mt-8 grid gap-6 sm:grid-cols-2"
             >
               <div className="space-y-2 sm:col-span-2">
                 <label className={label}>Nombre</label>
