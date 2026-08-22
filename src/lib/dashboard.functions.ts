@@ -93,7 +93,7 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
 
     const { data: pedidos, error: errPedidos } = await supabase
       .from("pedidos")
-      .select("id, user_id, nombre, estado, created_at, descuento")
+      .select("id, user_id, nombre, estado, created_at, descuento, inventario_descontado")
       .order("created_at", { ascending: false })
       .limit(2000);
     if (errPedidos) throw new Error(errPedidos.message);
@@ -118,7 +118,7 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     const { data: inventario, error: errInv } = await supabase
       .from("productos")
       .select(
-        "stock, peso_gramos, costo_compra_total, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
+        "id, stock, peso_gramos, costo_compra_total, costo_por_gramo_historico, precio_venta_gramo_historico, activo, created_at",
       );
     if (errInv) throw new Error(errInv.message);
 
@@ -149,6 +149,8 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
     const categorias = new Map<string, Agrupado>();
     const proveedores = new Map<string, Agrupado>();
     const totalPorPedido = new Map<string, number>();
+    // Piezas que ya salieron del inventario: también fueron compradas al proveedor
+    const unidadesVendidas = new Map<string, number>();
 
     for (const it of items) {
       const pedido = pedidoPorId.get(it.pedido_id);
@@ -165,6 +167,12 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       utilidadBrutaTotal += utilidad;
       productosVendidos += cantidad;
       totalPorPedido.set(it.pedido_id, (totalPorPedido.get(it.pedido_id) ?? 0) + ingreso);
+      if (pedido.inventario_descontado && it.producto_id) {
+        unidadesVendidas.set(
+          it.producto_id,
+          (unidadesVendidas.get(it.producto_id) ?? 0) + cantidad,
+        );
+      }
 
       if (fecha === hoy) {
         ventasDia += ingreso;
@@ -298,8 +306,9 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       inventarioPiezas += stock;
       inventarioCosto += stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
       inventarioVenta += stock * peso * Number(pr.precio_venta_gramo_historico ?? 0);
-      // Salida de caja real: lo que pagaste al proveedor al comprar la pieza
-      const compra = Number(pr.costo_compra_total ?? 0);
+      // Salida de caja real: costo unitario × unidades compradas (stock actual + ya vendidas)
+      const unidades = stock + (unidadesVendidas.get(pr.id) ?? 0);
+      const compra = Number(pr.costo_compra_total ?? 0) * unidades;
       comprasInventario += compra;
       sumarSalida(String(pr.created_at ?? "").slice(0, 7) || mesActual, compra);
     }
