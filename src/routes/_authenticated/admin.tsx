@@ -530,8 +530,13 @@ function AdminPage() {
                 )}
               </div>
             </form>
+            </details>
 
-            <section className="mt-14">
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Piezas registradas ({productos.data?.length ?? 0})
+              </summary>
+            <section className="mt-8">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <h2 className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
                   Piezas registradas
