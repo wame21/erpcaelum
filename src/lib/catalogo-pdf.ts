@@ -1,4 +1,5 @@
 import logo from "@/assets/caelum-logo.png.asset.json";
+import portada from "@/assets/hero-1.jpg";
 import { mxn } from "@/lib/banco";
 
 export type PiezaCatalogo = {
@@ -51,6 +52,11 @@ async function aDataUrl(
   }
 }
 
+const TITULOS: Record<string, string> = {
+  pulsos: "PULSERAS",
+  cadenas: "CADENAS",
+};
+
 /** Genera y descarga un catálogo PDF estilizado con la estética CAELUM. */
 export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
   const { jsPDF } = await import("jspdf");
@@ -58,11 +64,13 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
 
   const W = 210;
   const H = 297;
-  const margen = 14;
+  const margen = 16;
   const negro = [8, 8, 8] as const;
-  const plata = [176, 176, 176] as const;
 
-  const logoImg = await aDataUrl(logo.url);
+  const [logoImg, portadaImg] = await Promise.all([
+    aDataUrl(logo.url),
+    aDataUrl(portada, true),
+  ]);
   const imagenes = new Map<string, { data: string; w: number; h: number }>();
   await Promise.all(
     piezas.map(async (p) => {
@@ -78,103 +86,149 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
   }
 
   function pie(n: number) {
-    doc.setTextColor(120, 120, 120);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(150, 150, 150);
     doc.setFontSize(7);
-    doc.text("CAELUM · PLATA .925 · GUASAVE, SIN.", margen, H - 9);
-    doc.text(String(n).padStart(2, "0"), W - margen, H - 9, { align: "right" });
+    doc.text("CAELUM JOYERÍA", margen, H - 14);
+    const num = String(n).padStart(2, "0");
+    doc.text(num, W - margen, H - 14, { align: "right" });
+    doc.setDrawColor(60, 60, 60);
+    doc.line(margen + 30, H - 15, W - margen - 8, H - 15);
   }
 
-  // Portada
+  // ── Portada ────────────────────────────────────────────────
   fondo();
-  if (logoImg) {
-    const ancho = 62;
-    const alto = (logoImg.h / logoImg.w) * ancho;
-    doc.addImage(logoImg.data, "PNG", (W - ancho) / 2, H / 2 - alto - 6, ancho, alto);
+  if (portadaImg) {
+    const ph = 150;
+    const ratio = Math.max(W / portadaImg.w, ph / portadaImg.h);
+    const iw = portadaImg.w * ratio;
+    const ih = portadaImg.h * ratio;
+    doc.addImage(portadaImg.data, "JPEG", (W - iw) / 2, H - ph, iw, ih, undefined, "FAST");
+    // Degradado simulado hacia el negro superior
+    for (let i = 0; i < 40; i++) {
+      doc.setFillColor(8, 8, 8);
+      doc.setGState(new (doc as any).GState({ opacity: 1 - i / 40 }));
+      doc.rect(0, H - ph + i * 0.9, W, 1, "F");
+    }
+    doc.setGState(new (doc as any).GState({ opacity: 1 }));
   }
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("times", "normal");
-  doc.setFontSize(14);
-  doc.text("C A T Á L O G O", W / 2, H / 2 + 12, { align: "center" });
-  doc.setTextColor(plata[0], plata[1], plata[2]);
+  if (logoImg) {
+    const ancho = 58;
+    const alto = (logoImg.h / logoImg.w) * ancho;
+    doc.addImage(logoImg.data, "PNG", (W - ancho) / 2, 62, ancho, alto);
+  }
+  doc.setTextColor(230, 230, 230);
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.text("SILENTIUM EST POTENTIA", W / 2, H / 2 + 22, { align: "center" });
-  doc.setFontSize(7);
-  doc.setTextColor(120, 120, 120);
+  doc.text("S I L E N T I U M   E S T   P O T E N T I A", W / 2, 132, { align: "center" });
+  doc.setFontSize(10);
+  doc.setTextColor(235, 235, 235);
+  doc.text("C A T Á L O G O   D E   J O Y E R Í A", W / 2, H - 34, { align: "center" });
+  doc.text("P L A T A   . 9 2 5", W / 2, H - 27, { align: "center" });
+  doc.setFontSize(7.5);
+  doc.setTextColor(170, 170, 170);
   doc.text(
-    new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" }),
+    new Date()
+      .toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })
+      .toUpperCase(),
     W / 2,
-    H / 2 + 32,
+    H - 18,
     { align: "center" },
   );
-  pie(1);
 
-  // Cuadrícula 2×2
-  const cols = 2;
-  const filas = 2;
-  const gap = 8;
-  const cardW = (W - margen * 2 - gap) / cols;
-  const cardH = (H - margen * 2 - 16 - gap) / filas;
-  const porPagina = cols * filas;
+  // ── Páginas por categoría, 2 piezas por página ─────────────
+  const categorias = [...new Set(piezas.map((p) => p.categoria))];
+  let pagina = 2;
 
-  piezas.forEach((p, i) => {
-    const idx = i % porPagina;
-    if (idx === 0) {
+  const cardGap = 8;
+  const cardW = (W - margen * 2 - cardGap) / 2;
+  const cardH = 150;
+  const cardY = 78;
+
+  for (const cat of categorias) {
+    const lista = piezas.filter((p) => p.categoria === cat);
+    const titulo = TITULOS[cat] ?? cat.toUpperCase();
+
+    for (let i = 0; i < lista.length; i += 2) {
       doc.addPage();
       fondo();
-      pie(Math.floor(i / porPagina) + 2);
+
+      // Encabezado de categoría
+      doc.setDrawColor(55, 55, 55);
+      doc.rect(margen - 6, margen - 6, W - (margen - 6) * 2, H - (margen - 6) * 2);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(20);
+      doc.text(titulo, margen, 48);
+      doc.setFontSize(9);
+      doc.setTextColor(200, 200, 200);
+      doc.text("PLATA .925", W - margen, 46, { align: "right" });
+
+      lista.slice(i, i + 2).forEach((p, j) => {
+        const x = margen + j * (cardW + cardGap);
+        doc.setDrawColor(60, 60, 60);
+        doc.setFillColor(12, 12, 12);
+        doc.rect(x, cardY, cardW, cardH, "FD");
+
+        // Imagen
+        const boxH = 78;
+        const img = imagenes.get(p.sku);
+        if (img) {
+          const pad = 6;
+          const ratio = Math.min((cardW - pad * 2) / img.w, (boxH - pad * 2) / img.h);
+          const iw = img.w * ratio;
+          const ih = img.h * ratio;
+          doc.addImage(
+            img.data,
+            "JPEG",
+            x + (cardW - iw) / 2,
+            cardY + (boxH - ih) / 2,
+            iw,
+            ih,
+            undefined,
+            "FAST",
+          );
+        }
+        doc.setDrawColor(60, 60, 60);
+        doc.line(x, cardY + boxH, x + cardW, cardY + boxH);
+
+        let ty = cardY + boxH + 10;
+        doc.setTextColor(150, 150, 150);
+        doc.setFontSize(7);
+        doc.text(p.sku, x + 7, ty);
+
+        ty += 8;
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.text(p.nombre.toUpperCase().slice(0, 26), x + 7, ty);
+
+        ty += 8;
+        const detalles = [
+          p.medida ? `Largo: ${p.medida}` : null,
+          p.grosor ? `Grosor: ${p.grosor}` : null,
+        ].filter(Boolean) as string[];
+        const detalles2 = [
+          p.peso_gramos ? `Peso: ${p.peso_gramos} g` : null,
+          p.tejido ? `Tejido: ${p.tejido}` : null,
+        ].filter(Boolean) as string[];
+        doc.setTextColor(160, 160, 160);
+        doc.setFontSize(7.5);
+        if (detalles.length) doc.text(detalles.join("   |   "), x + 7, ty);
+        if (detalles2.length) doc.text(detalles2.join("   |   "), x + 7, ty + 6);
+
+        const ly = ty + 12;
+        doc.setDrawColor(55, 55, 55);
+        doc.line(x + 7, ly, x + cardW - 7, ly);
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.text(`${mxn.format(p.precio)} MXN`, x + 7, ly + 10);
+      });
+
+      pie(pagina);
+      pagina += 1;
     }
-    const x = margen + (idx % cols) * (cardW + gap);
-    const y = margen + Math.floor(idx / cols) * (cardH + gap);
-
-    doc.setFillColor(15, 15, 15);
-    doc.setDrawColor(48, 48, 48);
-    doc.roundedRect(x, y, cardW, cardH, 2, 2, "FD");
-
-    // Logo pequeño
-    if (logoImg) {
-      const lw = 15;
-      const lh = (logoImg.h / logoImg.w) * lw;
-      doc.addImage(logoImg.data, "PNG", x + (cardW - lw) / 2, y + 6, lw, lh);
-    }
-
-    // Imagen de la pieza
-    const boxY = y + 26;
-    const boxH = cardH - 60;
-    const boxW = cardW - 16;
-    doc.setFillColor(0, 0, 0);
-    doc.roundedRect(x + 8, boxY, boxW, boxH, 2, 2, "F");
-    const img = imagenes.get(p.sku);
-    if (img) {
-      const ratio = Math.min(boxW / img.w, boxH / img.h);
-      const iw = img.w * ratio;
-      const ih = img.h * ratio;
-      doc.addImage(img.data, "JPEG", x + 8 + (boxW - iw) / 2, boxY + (boxH - ih) / 2, iw, ih, undefined, "FAST");
-    }
-
-    // Datos
-    let ty = boxY + boxH + 8;
-    doc.setTextColor(140, 140, 140);
-    doc.setFontSize(6);
-    doc.text(`${p.sku}`, x + cardW / 2, ty, { align: "center" });
-
-    ty += 5;
-
-    ty += 5;
-    const detalles = [
-      p.medida ? `MEDIDA ${p.medida}` : null,
-      p.grosor ? `GROSOR ${p.grosor}` : null,
-      p.peso_gramos ? `PESO ${p.peso_gramos} G` : null,
-      p.tejido ? p.tejido.toUpperCase() : null,
-    ].filter(Boolean) as string[];
-    doc.setTextColor(130, 130, 130);
-    doc.setFontSize(6);
-    doc.text(detalles.join("  |  "), x + cardW / 2, ty, { align: "center" });
-
-    ty += 8;
-    doc.setTextColor(plata[0], plata[1], plata[2]);
-    doc.setFontSize(12);
-    doc.text(mxn.format(p.precio), x + cardW / 2, ty, { align: "center" });
-  });
+  }
 
   doc.save(`catalogo-caelum-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
