@@ -198,11 +198,6 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
         doc.text(p.sku, x + 7, ty);
 
         ty += 8;
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(10);
-        doc.text(p.nombre.toUpperCase().slice(0, 26), x + 7, ty);
-
-        ty += 8;
         const detalles = [
           p.medida ? `Largo: ${p.medida}` : null,
           p.grosor ? `Grosor: ${p.grosor}` : null,
