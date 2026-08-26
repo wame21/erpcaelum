@@ -4,6 +4,10 @@ export type LineaPedido = {
   producto_id: string;
   sku: string | null;
   nombre: string;
+  /** Precio de lista al momento de la venta; nunca se sobrescribe. */
+  precio_original: number;
+  descuento_linea: number;
+  precio_final: number;
   precio_unitario: number;
   cantidad: number;
   categoria: string | null;
@@ -15,6 +19,7 @@ export type LineaPedido = {
   utilidad_bruta: number;
   margen_porcentual: number;
 };
+
 
 /** Construye las líneas del pedido con precios y costos históricos. */
 export async function construirLineas(
