@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
 import { AdminCaja } from "@/components/admin-caja";
 import { AdminGastos } from "@/components/admin-gastos";
+import { AdminMargenes } from "@/components/admin-margenes";
 
 import { validarImagen } from "@/lib/archivos";
 import { optimizarImagenProducto } from "@/lib/imagenes-cliente";
@@ -19,6 +20,8 @@ import {
   listarProductosAdmin,
   type AdminProducto,
 } from "@/lib/admin.functions";
+import { obtenerConfigPrecios } from "@/lib/margenes.functions";
+import { calcularPrecio, reglaPara } from "@/lib/precios";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -102,6 +105,7 @@ function AdminPage() {
   const guardar = useServerFn(guardarProducto);
   const cambiarEstado = useServerFn(cambiarEstadoProducto);
   const fetchCatalogo = useServerFn(listarCatalogoAdmin);
+  const fetchConfigPrecios = useServerFn(obtenerConfigPrecios);
 
   const [form, setForm] = useState<FormState>(vacio);
   const [subiendo, setSubiendo] = useState(false);
@@ -149,6 +153,13 @@ function AdminPage() {
     mutationFn: (vars: { id: string; activo: boolean }) => cambiarEstado({ data: vars }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "productos"] }),
     onError: (e: Error) => setError(e.message),
+  });
+
+  const configPrecios = useQuery({
+    queryKey: ["admin", "config-precios"],
+    queryFn: () => fetchConfigPrecios(),
+    retry: false,
+    throwOnError: false,
   });
 
   const noAutorizado = productos.isError;
@@ -235,13 +246,17 @@ function AdminPage() {
   const costoCompra = Number(form.costo_compra_total || 0);
   const pesoForm = Number(form.peso_gramos || 0);
   const costoPorGramo = pesoForm > 0 ? costoCompra / pesoForm : 0;
-  const MARGEN_OBJETIVO = 0.525; // 52.5% (rango 50–55%)
-  const precioSugerido =
-    costoCompra > 0 ? Math.round(costoCompra / (1 - MARGEN_OBJETIVO) / 10) * 10 : null;
+  const regla = reglaPara(configPrecios.data, form.categoria, form.tejido);
+  const calculo = calcularPrecio(costoCompra, configPrecios.data, regla);
+  const precioSugerido = calculo.precioSugerido;
+  const margenObjetivoPct = calculo.margenObjetivo * 100;
+  const margenMinimoPct = calculo.margenMinimo * 100;
   const precioVenta = Number(form.precio_venta || 0);
-  const gananciaBruta = precioVenta > costoCompra ? precioVenta - costoCompra : 0;
+  const costoTotalPieza = calculo.base;
+  const gananciaBruta = precioVenta > costoTotalPieza ? precioVenta - costoTotalPieza : 0;
   const margenSobreVenta = precioVenta > 0 ? (gananciaBruta / precioVenta) * 100 : null;
-  const rentabilidadSobreCosto = costoCompra > 0 ? (gananciaBruta / costoCompra) * 100 : null;
+  const rentabilidadSobreCosto =
+    costoTotalPieza > 0 ? (gananciaBruta / costoTotalPieza) * 100 : null;
   const mxnFmt = (n: number) => n.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
 
   const q = busqueda.trim().toLowerCase();
@@ -421,7 +436,12 @@ function AdminPage() {
                 />
                 <div className="flex flex-wrap items-center gap-3 text-[0.6rem] tracking-[0.18em] text-muted-foreground uppercase">
                   <span>
-                    Sugerido {precioSugerido ? mxnFmt(precioSugerido) : "—"} · margen 52.5%
+                    Sugerido {precioSugerido ? mxnFmt(precioSugerido) : "—"} · margen{" "}
+                    {margenObjetivoPct.toFixed(1)}% ({form.categoria}
+                    {form.tejido ? ` · ${form.tejido}` : ""})
+                    {calculo.costoDirecto > 0
+                      ? ` · incluye ${mxnFmt(calculo.costoDirecto)} de empaque`
+                      : ""}
                   </span>
                   {precioSugerido && (
                     <button
@@ -441,7 +461,7 @@ function AdminPage() {
                       </span>
                       <span
                         className={
-                          margenSobreVenta >= 50
+                          margenSobreVenta >= margenMinimoPct
                             ? "text-foreground"
                             : "text-destructive"
                         }
@@ -451,9 +471,9 @@ function AdminPage() {
                           ` · ${rentabilidadSobreCosto.toFixed(1)}% sobre costo`}
                       </span>
                     </p>
-                    {margenSobreVenta < 50 && (
+                    {margenSobreVenta < margenMinimoPct && (
                       <p className="text-[0.6rem] tracking-[0.18em] text-destructive uppercase">
-                        Margen por debajo del rango objetivo (50–55%)
+                        Margen por debajo del mínimo configurado ({margenMinimoPct.toFixed(1)}%)
                       </p>
                     )}
                   </div>
@@ -621,6 +641,13 @@ function AdminPage() {
                 ))}
               </div>
             </section>
+            </details>
+
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Márgenes y precios
+              </summary>
+              <AdminMargenes />
             </details>
 
             <details className="mt-6 rounded-lg border border-hairline p-6">
