@@ -123,8 +123,17 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
 
     const { data: caja, error: errCaja } = await supabase
       .from("movimientos_caja")
-      .select("tipo, monto, fecha");
+      .select("tipo, monto, fecha")
+      .eq("activo", true);
     if (errCaja) throw new Error(errCaja.message);
+
+    // Costo histórico congelado de las compras al proveedor (Fase 1).
+    const { data: lotes, error: errLotes } = await supabase
+      .from("lotes_compra")
+      .select("fecha, costo_total");
+    if (errLotes) throw new Error(errLotes.message);
+
+
 
 
     const pedidoPorId = new Map<string, any>();
