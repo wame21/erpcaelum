@@ -8,6 +8,7 @@ import { AdminPedidos } from "@/components/admin-pedidos";
 import { AdminCaja } from "@/components/admin-caja";
 import { AdminInventario } from "@/components/admin-inventario";
 import { AdminLotes } from "@/components/admin-lotes";
+import { AdminCostos } from "@/components/admin-costos";
 
 import { AdminGastos } from "@/components/admin-gastos";
 import { AdminMargenes } from "@/components/admin-margenes";
@@ -686,6 +687,13 @@ function AdminPage() {
                 Inventario y movimientos
               </summary>
               <AdminInventario />
+            </details>
+
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Costo histórico vs reposición
+              </summary>
+              <AdminCostos />
             </details>
 
 
