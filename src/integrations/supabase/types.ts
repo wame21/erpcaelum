@@ -41,6 +41,42 @@ export type Database = {
         }
         Relationships: []
       }
+      config_margenes: {
+        Row: {
+          categoria: Database["public"]["Enums"]["categoria_joya"]
+          created_at: string
+          id: string
+          incluir_costos_directos: boolean
+          margen_minimo: number
+          margen_objetivo: number
+          redondeo: number
+          tejido: Database["public"]["Enums"]["tipo_tejido"] | null
+          updated_at: string
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["categoria_joya"]
+          created_at?: string
+          id?: string
+          incluir_costos_directos?: boolean
+          margen_minimo?: number
+          margen_objetivo?: number
+          redondeo?: number
+          tejido?: Database["public"]["Enums"]["tipo_tejido"] | null
+          updated_at?: string
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["categoria_joya"]
+          created_at?: string
+          id?: string
+          incluir_costos_directos?: boolean
+          margen_minimo?: number
+          margen_objetivo?: number
+          redondeo?: number
+          tejido?: Database["public"]["Enums"]["tipo_tejido"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cupones: {
         Row: {
           activo: boolean
