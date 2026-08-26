@@ -7,10 +7,14 @@ import { extensionSegura, validarComprobante } from "@/lib/archivos";
 import { mxn } from "@/lib/banco";
 import {
   CATEGORIAS_GASTO,
+  CLASIFICACIONES_GASTO,
+  ETIQUETA_CLASIFICACION,
+  clasificacionSugerida,
   eliminarGasto,
   guardarGasto,
   listarGastos,
   type CategoriaGasto,
+  type ClasificacionGasto,
   type Gasto,
 } from "@/lib/gastos.functions";
 
@@ -22,6 +26,7 @@ type FormState = {
   id?: string;
   concepto: string;
   categoria: CategoriaGasto;
+  clasificacion: ClasificacionGasto;
   monto: string;
   fecha: string;
   proveedor: string;
@@ -35,6 +40,7 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 const vacio = (): FormState => ({
   concepto: "",
   categoria: "empaque",
+  clasificacion: "costo_directo",
   monto: "",
   fecha: hoy(),
   proveedor: "",
@@ -109,6 +115,7 @@ export function AdminGastos() {
       id: g.id,
       concepto: g.concepto,
       categoria: g.categoria,
+      clasificacion: g.clasificacion,
       monto: String(g.monto),
       fecha: g.fecha,
       proveedor: g.proveedor ?? "",
@@ -126,6 +133,7 @@ export function AdminGastos() {
       id: form.id,
       concepto: form.concepto.trim(),
       categoria: form.categoria,
+      clasificacion: form.clasificacion,
       monto: Number(form.monto || 0),
       fecha: form.fecha,
       proveedor: form.proveedor.trim() || null,
@@ -147,6 +155,10 @@ export function AdminGastos() {
     .reduce((s, g) => s + g.monto, 0);
   const totalGlobal = lista.reduce((s, g) => s + g.monto, 0);
   const indirectoPorPieza = lista.reduce((s, g) => s + (g.costo_por_pieza || 0), 0);
+  const porClasificacion = CLASIFICACIONES_GASTO.map((c) => ({
+    clasificacion: c,
+    total: lista.filter((g) => g.clasificacion === c).reduce((s, g) => s + g.monto, 0),
+  }));
 
   if (gastos.isError) return null;
 
@@ -181,7 +193,10 @@ export function AdminGastos() {
             className={`${field} [&>option]:bg-background`}
             value={form.categoria}
             onChange={(e) =>
-              setForm((f) => ({ ...f, categoria: e.target.value as CategoriaGasto }))
+              setForm((f) => {
+                const categoria = e.target.value as CategoriaGasto;
+                return { ...f, categoria, clasificacion: clasificacionSugerida(categoria) };
+              })
             }
           >
             {CATEGORIAS_GASTO.map((c) => (
@@ -190,6 +205,26 @@ export function AdminGastos() {
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className={label}>Clasificación financiera</label>
+          <select
+            className={`${field} [&>option]:bg-background`}
+            value={form.clasificacion}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, clasificacion: e.target.value as ClasificacionGasto }))
+            }
+          >
+            {CLASIFICACIONES_GASTO.map((c) => (
+              <option key={c} value={c}>
+                {ETIQUETA_CLASIFICACION[c]}
+              </option>
+            ))}
+          </select>
+          <p className="mt-2 text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
+            Mercancía = compra de piezas · Costo directo = se resta antes del margen
+          </p>
         </div>
 
         <div>
@@ -312,6 +347,15 @@ export function AdminGastos() {
         </div>
       </div>
 
+      <div className="mt-4 grid gap-4 sm:grid-cols-4">
+        {porClasificacion.map((c) => (
+          <div key={c.clasificacion} className="rounded-lg border border-hairline p-5">
+            <p className={label}>{ETIQUETA_CLASIFICACION[c.clasificacion]}</p>
+            <p className="mt-2 text-lg">{mxn.format(c.total)}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="mt-8 divide-y divide-hairline rounded-lg border border-hairline px-5">
         {gastos.isLoading && (
           <p className="py-5 text-sm text-muted-foreground">Cargando…</p>
@@ -324,7 +368,7 @@ export function AdminGastos() {
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm">{g.concepto}</p>
               <p className="mt-1 text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
-                {g.fecha} · {g.categoria}
+                {g.fecha} · {g.categoria} · {ETIQUETA_CLASIFICACION[g.clasificacion]}
                 {g.proveedor ? ` · ${g.proveedor}` : ""}
                 {g.piezas_cubiertas
                   ? ` · ${g.piezas_cubiertas} pzas · ${mxn.format(g.costo_por_pieza)}/pza`
