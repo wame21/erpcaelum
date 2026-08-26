@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      auditoria: {
+        Row: {
+          accion: string
+          created_at: string
+          id: string
+          registro_id: string | null
+          tabla: string
+          usuario_id: string | null
+          valor_anterior: Json | null
+          valor_nuevo: Json | null
+        }
+        Insert: {
+          accion: string
+          created_at?: string
+          id?: string
+          registro_id?: string | null
+          tabla: string
+          usuario_id?: string | null
+          valor_anterior?: Json | null
+          valor_nuevo?: Json | null
+        }
+        Update: {
+          accion?: string
+          created_at?: string
+          id?: string
+          registro_id?: string | null
+          tabla?: string
+          usuario_id?: string | null
+          valor_anterior?: Json | null
+          valor_nuevo?: Json | null
+        }
+        Relationships: []
+      }
       codigos_proveedor: {
         Row: {
           codigo: string
@@ -188,8 +221,66 @@ export type Database = {
         }
         Relationships: []
       }
+      lotes_compra: {
+        Row: {
+          cantidad: number
+          costo_total: number | null
+          costo_unitario: number
+          created_at: string
+          fecha: string
+          id: string
+          notas: string | null
+          producto_id: string
+          proveedor: string | null
+          updated_at: string
+          usuario_id: string | null
+        }
+        Insert: {
+          cantidad: number
+          costo_total?: number | null
+          costo_unitario: number
+          created_at?: string
+          fecha?: string
+          id?: string
+          notas?: string | null
+          producto_id: string
+          proveedor?: string | null
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Update: {
+          cantidad?: number
+          costo_total?: number | null
+          costo_unitario?: number
+          created_at?: string
+          fecha?: string
+          id?: string
+          notas?: string | null
+          producto_id?: string
+          proveedor?: string | null
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lotes_compra_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lotes_compra_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos_con_precio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movimientos_caja: {
         Row: {
+          activo: boolean
           concepto: string
           created_at: string
           fecha: string
@@ -200,6 +291,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          activo?: boolean
           concepto: string
           created_at?: string
           fecha?: string
@@ -210,6 +302,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          activo?: boolean
           concepto?: string
           created_at?: string
           fecha?: string
@@ -328,11 +421,14 @@ export type Database = {
           costo_por_gramo_historico: number
           costo_unitario: number
           created_at: string
+          descuento_linea: number
           id: string
           margen_porcentual: number
           nombre: string
           pedido_id: string
           peso_gramos: number
+          precio_final: number
+          precio_original: number
           precio_unitario: number
           precio_venta_gramo_historico: number
           producto_id: string | null
@@ -346,11 +442,14 @@ export type Database = {
           costo_por_gramo_historico?: number
           costo_unitario?: number
           created_at?: string
+          descuento_linea?: number
           id?: string
           margen_porcentual?: number
           nombre: string
           pedido_id: string
           peso_gramos?: number
+          precio_final?: number
+          precio_original?: number
           precio_unitario?: number
           precio_venta_gramo_historico?: number
           producto_id?: string | null
@@ -364,11 +463,14 @@ export type Database = {
           costo_por_gramo_historico?: number
           costo_unitario?: number
           created_at?: string
+          descuento_linea?: number
           id?: string
           margen_porcentual?: number
           nombre?: string
           pedido_id?: string
           peso_gramos?: number
+          precio_final?: number
+          precio_original?: number
           precio_unitario?: number
           precio_venta_gramo_historico?: number
           producto_id?: string | null
