@@ -2,6 +2,7 @@ import type { ConfigMargen, ConfigPrecios } from "@/lib/margenes.functions";
 
 export const MARGEN_FALLBACK = 0.525;
 export const MARGEN_MINIMO_FALLBACK = 0.5;
+export const PISO_GRAMO_FALLBACK = 130;
 
 /** Regla vigente para la categoría + tejido; si no hay tejido usa la config general de la categoría. */
 export function reglaPara(
