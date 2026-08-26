@@ -744,6 +744,15 @@ export type Database = {
       }
     }
     Functions: {
+      ajustar_inventario: {
+        Args: {
+          p_cantidad: number
+          p_motivo?: string
+          p_producto_id: string
+          p_tipo: Database["public"]["Enums"]["tipo_movimiento_inventario"]
+        }
+        Returns: number
+      }
       cambiar_estado_pedido: {
         Args: {
           p_estado: Database["public"]["Enums"]["estado_pedido"]
