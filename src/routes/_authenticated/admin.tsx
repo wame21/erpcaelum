@@ -688,6 +688,13 @@ function AdminPage() {
               <AdminInventario />
             </details>
 
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Costo histórico vs reposición
+              </summary>
+              <AdminCostos />
+            </details>
+
 
 
           </>
