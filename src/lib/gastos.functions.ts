@@ -105,6 +105,7 @@ export const guardarGasto = createServerFn({ method: "POST" })
     return { id: row.id as string };
   });
 
+/** Baja lógica: el gasto se conserva para la trazabilidad histórica. */
 export const eliminarGasto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
@@ -112,8 +113,9 @@ export const eliminarGasto = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const { error } = await (context as any).supabase
       .from("gastos")
-      .delete()
+      .update({ activo: false })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+

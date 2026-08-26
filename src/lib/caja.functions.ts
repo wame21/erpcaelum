@@ -32,6 +32,7 @@ export const listarMovimientosCaja = createServerFn({ method: "GET" })
     const { data, error } = await (context as any).supabase
       .from("movimientos_caja")
       .select("id, tipo, concepto, monto, fecha, notas")
+      .eq("activo", true)
       .order("fecha", { ascending: false })
       .limit(500);
     if (error) throw new Error(error.message);
@@ -60,6 +61,7 @@ export const guardarMovimientoCaja = createServerFn({ method: "POST" })
     return { id: row.id as string };
   });
 
+/** Baja lógica: el movimiento se conserva para la trazabilidad histórica. */
 export const eliminarMovimientoCaja = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
@@ -67,8 +69,9 @@ export const eliminarMovimientoCaja = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const { error } = await (context as any).supabase
       .from("movimientos_caja")
-      .delete()
+      .update({ activo: false })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+

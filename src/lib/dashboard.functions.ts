@@ -123,8 +123,17 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
 
     const { data: caja, error: errCaja } = await supabase
       .from("movimientos_caja")
-      .select("tipo, monto, fecha");
+      .select("tipo, monto, fecha")
+      .eq("activo", true);
     if (errCaja) throw new Error(errCaja.message);
+
+    // Costo histórico congelado de las compras al proveedor (Fase 1).
+    const { data: lotes, error: errLotes } = await supabase
+      .from("lotes_compra")
+      .select("fecha, costo_total");
+    if (errLotes) throw new Error(errLotes.message);
+
+
 
 
     const pedidoPorId = new Map<string, any>();
@@ -305,12 +314,16 @@ export const obtenerDashboard = createServerFn({ method: "GET" })
       inventarioPiezas += stock;
       inventarioCosto += stock * peso * Number(pr.costo_por_gramo_historico ?? 0);
       inventarioVenta += stock * peso * Number(pr.precio_venta_gramo_historico ?? 0);
-      // Salida de caja real: costo unitario × unidades compradas (stock actual + ya vendidas)
-      const unidades = stock + (unidadesVendidas.get(pr.id) ?? 0);
-      const compra = Number(pr.costo_compra_total ?? 0) * unidades;
-      comprasInventario += compra;
-      sumarSalida(String(pr.created_at ?? "").slice(0, 7) || mesActual, compra);
     }
+
+    // La salida de caja por mercancía proviene de los lotes de compra:
+    // costo histórico congelado, no del costo editable de la pieza.
+    for (const l of lotes ?? []) {
+      const compra = Number(l.costo_total ?? 0);
+      comprasInventario += compra;
+      sumarSalida(String(l.fecha ?? "").slice(0, 7) || mesActual, compra);
+    }
+
 
     let aportaciones = 0,
       retiros = 0;
