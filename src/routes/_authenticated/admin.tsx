@@ -251,7 +251,7 @@ function AdminPage() {
   const pesoForm = Number(form.peso_gramos || 0);
   const costoPorGramo = pesoForm > 0 ? costoCompra / pesoForm : 0;
   const regla = reglaPara(configPrecios.data, form.categoria, form.tejido);
-  const calculo = calcularPrecio(costoCompra, configPrecios.data, regla);
+  const calculo = calcularPrecio(costoCompra, configPrecios.data, regla, pesoForm);
   const precioSugerido = calculo.precioSugerido;
   const margenObjetivoPct = calculo.margenObjetivo * 100;
   const margenMinimoPct = calculo.margenMinimo * 100;

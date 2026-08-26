@@ -74,6 +74,30 @@ export type Database = {
         }
         Relationships: []
       }
+      config_global: {
+        Row: {
+          clave: string
+          created_at: string
+          descripcion: string | null
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          clave: string
+          created_at?: string
+          descripcion?: string | null
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          clave?: string
+          created_at?: string
+          descripcion?: string | null
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       config_margenes: {
         Row: {
           categoria: Database["public"]["Enums"]["categoria_joya"]
@@ -145,6 +169,63 @@ export type Database = {
           valor?: number
         }
         Relationships: []
+      }
+      excepciones_precio: {
+        Row: {
+          activo: boolean
+          autorizado_por: string | null
+          created_at: string
+          id: string
+          motivo: string
+          precio_autorizado: number
+          precio_politica: number
+          precio_por_gramo: number
+          producto_id: string | null
+          sku: string | null
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          autorizado_por?: string | null
+          created_at?: string
+          id?: string
+          motivo: string
+          precio_autorizado?: number
+          precio_politica?: number
+          precio_por_gramo?: number
+          producto_id?: string | null
+          sku?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          autorizado_por?: string | null
+          created_at?: string
+          id?: string
+          motivo?: string
+          precio_autorizado?: number
+          precio_politica?: number
+          precio_por_gramo?: number
+          producto_id?: string | null
+          sku?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "excepciones_precio_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "excepciones_precio_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos_con_precio"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gastos: {
         Row: {
