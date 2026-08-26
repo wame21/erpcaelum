@@ -8,6 +8,7 @@ import { AdminPedidos } from "@/components/admin-pedidos";
 import { AdminCaja } from "@/components/admin-caja";
 import { AdminInventario } from "@/components/admin-inventario";
 import { AdminLotes } from "@/components/admin-lotes";
+import { AdminCostos } from "@/components/admin-costos";
 
 import { AdminGastos } from "@/components/admin-gastos";
 import { AdminMargenes } from "@/components/admin-margenes";
