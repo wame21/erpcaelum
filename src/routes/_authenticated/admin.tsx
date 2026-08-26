@@ -6,6 +6,7 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
 import { AdminCaja } from "@/components/admin-caja";
+import { AdminInventario } from "@/components/admin-inventario";
 import { AdminLotes } from "@/components/admin-lotes";
 
 import { AdminGastos } from "@/components/admin-gastos";
