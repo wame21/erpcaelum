@@ -67,8 +67,12 @@ export async function construirLineas(
         producto_id: item.producto_id,
         sku: m.sku ?? null,
         nombre: pieza.nombre as string,
+        precio_original: precioUnitario,
+        descuento_linea: 0,
+        precio_final: precioUnitario,
         precio_unitario: precioUnitario,
         cantidad: item.cantidad,
+
         categoria: m.categoria ?? null,
         codigo_proveedor: m.codigo_proveedor ?? null,
         peso_gramos: peso,
