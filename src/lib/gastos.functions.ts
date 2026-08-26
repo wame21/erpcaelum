@@ -18,10 +18,36 @@ export const CATEGORIAS_GASTO = [
 
 export type CategoriaGasto = (typeof CATEGORIAS_GASTO)[number];
 
+/** Fase 5: separación financiera de los egresos. */
+export const CLASIFICACIONES_GASTO = [
+  "mercancia",
+  "costo_directo",
+  "operativo",
+  "financiero",
+] as const;
+
+export type ClasificacionGasto = (typeof CLASIFICACIONES_GASTO)[number];
+
+export const ETIQUETA_CLASIFICACION: Record<ClasificacionGasto, string> = {
+  mercancia: "Mercancía",
+  costo_directo: "Costo directo de venta",
+  operativo: "Gasto operativo",
+  financiero: "Gasto financiero",
+};
+
+/** Clasificación sugerida a partir de la categoría del gasto. */
+export function clasificacionSugerida(categoria: CategoriaGasto): ClasificacionGasto {
+  if (categoria === "empaque" || categoria === "materiales" || categoria === "transporte") {
+    return "costo_directo";
+  }
+  return "operativo";
+}
+
 export type Gasto = {
   id: string;
   concepto: string;
   categoria: CategoriaGasto;
+  clasificacion: ClasificacionGasto;
   monto: number;
   fecha: string;
   proveedor: string | null;
@@ -37,6 +63,7 @@ const gastoSchema = z.object({
   id: z.string().uuid().optional(),
   concepto: z.string().trim().min(1).max(160),
   categoria: z.enum(CATEGORIAS_GASTO),
+  clasificacion: z.enum(CLASIFICACIONES_GASTO),
   monto: z.number().min(0).max(10_000_000),
   fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   proveedor: z.string().trim().max(120).optional().nullable(),
@@ -55,7 +82,7 @@ export const listarGastos = createServerFn({ method: "GET" })
     const { data, error } = await supabase
       .from("gastos")
       .select(
-        "id, concepto, categoria, monto, fecha, proveedor, piezas_cubiertas, costo_por_pieza, notas, comprobante_path, activo",
+        "id, concepto, categoria, clasificacion, monto, fecha, proveedor, piezas_cubiertas, costo_por_pieza, notas, comprobante_path, activo",
       )
       .order("fecha", { ascending: false })
       .limit(500);

@@ -231,6 +231,7 @@ export type Database = {
         Row: {
           activo: boolean
           categoria: Database["public"]["Enums"]["categoria_gasto"]
+          clasificacion: Database["public"]["Enums"]["clasificacion_gasto"]
           comprobante_path: string | null
           concepto: string
           costo_por_pieza: number | null
@@ -246,6 +247,7 @@ export type Database = {
         Insert: {
           activo?: boolean
           categoria?: Database["public"]["Enums"]["categoria_gasto"]
+          clasificacion?: Database["public"]["Enums"]["clasificacion_gasto"]
           comprobante_path?: string | null
           concepto: string
           costo_por_pieza?: number | null
@@ -261,6 +263,7 @@ export type Database = {
         Update: {
           activo?: boolean
           categoria?: Database["public"]["Enums"]["categoria_gasto"]
+          clasificacion?: Database["public"]["Enums"]["clasificacion_gasto"]
           comprobante_path?: string | null
           concepto?: string
           costo_por_pieza?: number | null
@@ -853,6 +856,11 @@ export type Database = {
         | "herramientas"
         | "otros"
       categoria_joya: "cadenas" | "pulsos"
+      clasificacion_gasto:
+        | "mercancia"
+        | "costo_directo"
+        | "operativo"
+        | "financiero"
       estado_pedido: "en_progreso" | "confirmado" | "cancelado" | "completado"
       tipo_movimiento_caja: "aportacion" | "retiro"
       tipo_movimiento_inventario:
@@ -1000,6 +1008,12 @@ export const Constants = {
         "otros",
       ],
       categoria_joya: ["cadenas", "pulsos"],
+      clasificacion_gasto: [
+        "mercancia",
+        "costo_directo",
+        "operativo",
+        "financiero",
+      ],
       estado_pedido: ["en_progreso", "confirmado", "cancelado", "completado"],
       tipo_movimiento_caja: ["aportacion", "retiro"],
       tipo_movimiento_inventario: [
