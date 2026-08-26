@@ -6,6 +6,7 @@ import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { AdminPedidos } from "@/components/admin-pedidos";
 import { AdminCaja } from "@/components/admin-caja";
+import { AdminInventario } from "@/components/admin-inventario";
 import { AdminLotes } from "@/components/admin-lotes";
 
 import { AdminGastos } from "@/components/admin-gastos";
@@ -679,6 +680,15 @@ function AdminPage() {
               </summary>
               <AdminLotes />
             </details>
+
+            <details className="mt-6 rounded-lg border border-hairline p-6">
+              <summary className="cursor-pointer list-none text-[0.65rem] tracking-[0.24em] text-muted-foreground uppercase">
+                Inventario y movimientos
+              </summary>
+              <AdminInventario />
+            </details>
+
+
 
           </>
 
