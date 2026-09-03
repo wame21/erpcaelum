@@ -134,6 +134,210 @@ export type Database = {
         }
         Relationships: []
       }
+      consignacion_items: {
+        Row: {
+          cantidad_devuelta: number
+          cantidad_entregada: number
+          cantidad_vendida: number
+          consignacion_id: string
+          costo_empaque: number
+          costo_unitario_historico: number
+          created_at: string
+          id: string
+          nombre: string
+          peso_gramos: number
+          precio_minimo: number
+          precio_negociacion: number
+          precio_publico: number
+          producto_id: string
+          sku: string | null
+          updated_at: string
+        }
+        Insert: {
+          cantidad_devuelta?: number
+          cantidad_entregada: number
+          cantidad_vendida?: number
+          consignacion_id: string
+          costo_empaque?: number
+          costo_unitario_historico?: number
+          created_at?: string
+          id?: string
+          nombre: string
+          peso_gramos?: number
+          precio_minimo?: number
+          precio_negociacion?: number
+          precio_publico?: number
+          producto_id: string
+          sku?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cantidad_devuelta?: number
+          cantidad_entregada?: number
+          cantidad_vendida?: number
+          consignacion_id?: string
+          costo_empaque?: number
+          costo_unitario_historico?: number
+          created_at?: string
+          id?: string
+          nombre?: string
+          peso_gramos?: number
+          precio_minimo?: number
+          precio_negociacion?: number
+          precio_publico?: number
+          producto_id?: string
+          sku?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consignacion_items_consignacion_id_fkey"
+            columns: ["consignacion_id"]
+            isOneToOne: false
+            referencedRelation: "consignaciones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consignacion_items_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consignacion_items_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos_con_precio"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consignacion_ventas: {
+        Row: {
+          cantidad: number
+          comision: number
+          consignacion_id: string
+          costo_empaque: number
+          costo_historico: number
+          created_at: string
+          fecha: string
+          id: string
+          importe_caelum: number
+          item_id: string
+          notas: string | null
+          precio_real_venta: number
+          usuario_id: string | null
+          utilidad_bruta: number
+        }
+        Insert: {
+          cantidad: number
+          comision?: number
+          consignacion_id: string
+          costo_empaque?: number
+          costo_historico?: number
+          created_at?: string
+          fecha?: string
+          id?: string
+          importe_caelum?: number
+          item_id: string
+          notas?: string | null
+          precio_real_venta: number
+          usuario_id?: string | null
+          utilidad_bruta?: number
+        }
+        Update: {
+          cantidad?: number
+          comision?: number
+          consignacion_id?: string
+          costo_empaque?: number
+          costo_historico?: number
+          created_at?: string
+          fecha?: string
+          id?: string
+          importe_caelum?: number
+          item_id?: string
+          notas?: string | null
+          precio_real_venta?: number
+          usuario_id?: string | null
+          utilidad_bruta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consignacion_ventas_consignacion_id_fkey"
+            columns: ["consignacion_id"]
+            isOneToOne: false
+            referencedRelation: "consignaciones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consignacion_ventas_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "consignacion_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consignaciones: {
+        Row: {
+          comision_porcentaje: number
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_consignacion"]
+          fecha_entrega: string
+          folio: string
+          id: string
+          liquidada_en: string | null
+          notas: string | null
+          total_caelum: number
+          total_comision: number
+          total_vendido: number
+          updated_at: string
+          usuario_id: string | null
+          vendedor_id: string
+        }
+        Insert: {
+          comision_porcentaje?: number
+          created_at?: string
+          estado?: Database["public"]["Enums"]["estado_consignacion"]
+          fecha_entrega?: string
+          folio?: string
+          id?: string
+          liquidada_en?: string | null
+          notas?: string | null
+          total_caelum?: number
+          total_comision?: number
+          total_vendido?: number
+          updated_at?: string
+          usuario_id?: string | null
+          vendedor_id: string
+        }
+        Update: {
+          comision_porcentaje?: number
+          created_at?: string
+          estado?: Database["public"]["Enums"]["estado_consignacion"]
+          fecha_entrega?: string
+          folio?: string
+          id?: string
+          liquidada_en?: string | null
+          notas?: string | null
+          total_caelum?: number
+          total_comision?: number
+          total_vendido?: number
+          updated_at?: string
+          usuario_id?: string | null
+          vendedor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consignaciones_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores_externos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cupones: {
         Row: {
           activo: boolean
@@ -767,6 +971,39 @@ export type Database = {
         }
         Relationships: []
       }
+      vendedores_externos: {
+        Row: {
+          activo: boolean
+          comision_default: number
+          created_at: string
+          id: string
+          nombre: string
+          notas: string | null
+          telefono: string | null
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          comision_default?: number
+          created_at?: string
+          id?: string
+          nombre: string
+          notas?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          comision_default?: number
+          created_at?: string
+          id?: string
+          nombre?: string
+          notas?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       productos_con_precio: {
@@ -844,6 +1081,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      entregar_consignacion: { Args: { p_id: string }; Returns: undefined }
+      liquidar_consignacion: { Args: { p_id: string }; Returns: undefined }
+      recalcular_consignacion: { Args: { p_id: string }; Returns: undefined }
+      registrar_devolucion_consignacion: {
+        Args: { p_cantidad: number; p_item_id: string }
+        Returns: undefined
+      }
+      registrar_venta_consignacion: {
+        Args: {
+          p_cantidad: number
+          p_item_id: string
+          p_notas?: string
+          p_precio: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -861,6 +1114,14 @@ export type Database = {
         | "costo_directo"
         | "operativo"
         | "financiero"
+      estado_consignacion:
+        | "preparada"
+        | "entregada"
+        | "parcialmente_vendida"
+        | "vendida"
+        | "parcialmente_devuelta"
+        | "devuelta"
+        | "cerrada"
       estado_pedido: "en_progreso" | "confirmado" | "cancelado" | "completado"
       tipo_movimiento_caja: "aportacion" | "retiro"
       tipo_movimiento_inventario:
@@ -1013,6 +1274,15 @@ export const Constants = {
         "costo_directo",
         "operativo",
         "financiero",
+      ],
+      estado_consignacion: [
+        "preparada",
+        "entregada",
+        "parcialmente_vendida",
+        "vendida",
+        "parcialmente_devuelta",
+        "devuelta",
+        "cerrada",
       ],
       estado_pedido: ["en_progreso", "confirmado", "cancelado", "completado"],
       tipo_movimiento_caja: ["aportacion", "retiro"],
