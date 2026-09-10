@@ -15,7 +15,7 @@ export type AdminProducto = {
   codigo_proveedor: string | null;
   medida: string | null;
   grosor: string | null;
-  tejido: "barbado" | "figaro" | "chino" | null;
+  tejido: string | null;
   peso_gramos: number;
   costo_compra_total: number;
   precio_venta: number;
@@ -43,7 +43,7 @@ const productoSchema = z.object({
   codigo_proveedor: z.string().trim().max(30).optional().nullable(),
   medida: z.string().trim().max(60).optional().nullable(),
   grosor: z.string().trim().max(60).optional().nullable(),
-  tejido: z.enum(["barbado", "figaro", "chino"]).optional().nullable(),
+  tejido: z.string().trim().min(1).max(40).optional().nullable(),
   peso_gramos: z.number().min(0).max(10000),
   costo_compra_total: z.number().min(0).max(1000000),
   precio_venta: z.number().min(0).max(1000000),

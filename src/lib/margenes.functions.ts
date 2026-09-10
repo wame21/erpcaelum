@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertAdmin } from "@/lib/admin-guard";
 
 export type CategoriaJoya = "cadenas" | "pulsos";
-export type TipoTejido = "barbado" | "figaro" | "chino";
+export type TipoTejido = string;
 
 export type ConfigMargen = {
   id: string;
