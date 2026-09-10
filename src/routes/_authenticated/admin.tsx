@@ -13,6 +13,8 @@ import { AdminConsignaciones } from "@/components/admin-consignaciones";
 
 import { AdminGastos } from "@/components/admin-gastos";
 import { AdminMargenes } from "@/components/admin-margenes";
+import { AdminTejidos } from "@/components/admin-tejidos";
+import { listarTejidosAdmin } from "@/lib/tejidos.functions";
 
 import { validarImagen } from "@/lib/archivos";
 import { optimizarImagenProducto } from "@/lib/imagenes-cliente";
@@ -53,7 +55,7 @@ type ProductoPayload = {
   codigo_proveedor: string | null;
   medida: string | null;
   grosor: string | null;
-  tejido: "barbado" | "figaro" | "chino" | null;
+  tejido: string | null;
   peso_gramos: number;
   costo_compra_total: number;
   precio_venta: number;
@@ -72,7 +74,7 @@ type FormState = {
   codigo_proveedor: string;
   medida: string;
   grosor: string;
-  tejido: "" | "barbado" | "figaro" | "chino";
+  tejido: string;
   peso_gramos: string;
   costo_compra_total: string;
   precio_venta: string;
@@ -389,14 +391,16 @@ function AdminPage() {
                 <select
                   className={`${field} [&>option]:bg-background`}
                   value={form.tejido}
-                  onChange={(e) =>
-                    setForm({ ...form, tejido: e.target.value as FormState["tejido"] })
-                  }
+                  onChange={(e) => setForm({ ...form, tejido: e.target.value })}
                 >
                   <option value="">Sin especificar</option>
-                  <option value="barbado">Barbado</option>
-                  <option value="figaro">Fígaro</option>
-                  <option value="chino">Chino</option>
+                  {(tejidos.data ?? [])
+                    .filter((t) => t.activo || t.nombre === form.tejido)
+                    .map((t) => (
+                      <option key={t.id} value={t.nombre} className="capitalize">
+                        {t.nombre}
+                      </option>
+                    ))}
                 </select>
               </div>
 
