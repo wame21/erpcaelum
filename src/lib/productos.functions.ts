@@ -11,7 +11,7 @@ export type Producto = {
   categoria: "cadenas" | "pulsos";
   medida: string | null;
   grosor: string | null;
-  tejido: "barbado" | "figaro" | "chino" | null;
+  tejido: string | null;
   peso_gramos: number;
   stock: number;
   precio_final: number;
@@ -83,7 +83,7 @@ export const listarProductos = createServerFn({ method: "GET" })
       categoria: (r.categoria ?? "cadenas") as "cadenas" | "pulsos",
       medida: r.medida ?? null,
       grosor: r.grosor ?? null,
-      tejido: (r.tejido ?? null) as "barbado" | "figaro" | "chino" | null,
+      tejido: (r.tejido ?? null) as string | null,
       peso_gramos: Number(r.peso_gramos ?? 0),
       stock: Number(r.stock ?? 0),
       precio_final: Number(r.precio_final ?? 0),

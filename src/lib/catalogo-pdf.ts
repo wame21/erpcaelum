@@ -146,23 +146,33 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
   const cardY = 78;
 
   for (const cat of categorias) {
-    const lista = piezas.filter((p) => p.categoria === cat);
+    const delCat = piezas.filter((p) => p.categoria === cat);
     const titulo = TITULOS[cat] ?? cat.toUpperCase();
+    const tejidos = [...new Set(delCat.map((p) => p.tejido ?? ""))].sort();
 
-    for (let i = 0; i < lista.length; i += 2) {
-      doc.addPage();
-      fondo();
+    for (const tej of tejidos) {
+      const lista = delCat.filter((p) => (p.tejido ?? "") === tej);
 
-      // Encabezado de categoría
-      doc.setDrawColor(55, 55, 55);
-      doc.rect(margen - 6, margen - 6, W - (margen - 6) * 2, H - (margen - 6) * 2);
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(20);
-      doc.text(titulo, margen, 48);
-      doc.setFontSize(9);
-      doc.setTextColor(200, 200, 200);
-      doc.text("PLATA .925", W - margen, 46, { align: "right" });
+      for (let i = 0; i < lista.length; i += 2) {
+        doc.addPage();
+        fondo();
+
+        // Encabezado de categoría y tejido
+        doc.setDrawColor(55, 55, 55);
+        doc.rect(margen - 6, margen - 6, W - (margen - 6) * 2, H - (margen - 6) * 2);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(20);
+        doc.text(titulo, margen, 48);
+        doc.setFontSize(9);
+        doc.setTextColor(200, 200, 200);
+        doc.text("PLATA .925", W - margen, 46, { align: "right" });
+        if (tej) {
+          doc.setFontSize(8.5);
+          doc.setTextColor(170, 170, 170);
+          doc.text(`TEJIDO ${tej.toUpperCase()}`, margen, 57);
+        }
+
 
       lista.slice(i, i + 2).forEach((p, j) => {
         const x = margen + j * (cardW + cardGap);

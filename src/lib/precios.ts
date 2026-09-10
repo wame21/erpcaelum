@@ -8,7 +8,7 @@ export const PISO_GRAMO_FALLBACK = 130;
 export function reglaPara(
   config: ConfigPrecios | undefined,
   categoria: "cadenas" | "pulsos",
-  tejido: "" | "barbado" | "figaro" | "chino" | null,
+  tejido: string | null,
 ): ConfigMargen | null {
   if (!config) return null;
   const t = tejido || null;
