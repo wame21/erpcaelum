@@ -107,7 +107,7 @@ export type Database = {
           margen_minimo: number
           margen_objetivo: number
           redondeo: number
-          tejido: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido: string | null
           updated_at: string
         }
         Insert: {
@@ -118,7 +118,7 @@ export type Database = {
           margen_minimo?: number
           margen_objetivo?: number
           redondeo?: number
-          tejido?: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido?: string | null
           updated_at?: string
         }
         Update: {
@@ -129,7 +129,7 @@ export type Database = {
           margen_minimo?: number
           margen_objetivo?: number
           redondeo?: number
-          tejido?: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -893,7 +893,7 @@ export type Database = {
           precio_venta_gramo_historico: number
           sku: string
           stock: number
-          tejido: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido: string | null
           updated_at: string
         }
         Insert: {
@@ -915,7 +915,7 @@ export type Database = {
           precio_venta_gramo_historico?: number
           sku?: string
           stock?: number
-          tejido?: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido?: string | null
           updated_at?: string
         }
         Update: {
@@ -937,7 +937,7 @@ export type Database = {
           precio_venta_gramo_historico?: number
           sku?: string
           stock?: number
-          tejido?: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -949,6 +949,30 @@ export type Database = {
             referencedColumns: ["codigo"]
           },
         ]
+      }
+      tejidos: {
+        Row: {
+          activo: boolean
+          created_at: string
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          nombre?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -1022,7 +1046,7 @@ export type Database = {
           precio_final: number | null
           sku: string | null
           stock: number | null
-          tejido: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1040,7 +1064,7 @@ export type Database = {
           precio_final?: never
           sku?: string | null
           stock?: number | null
-          tejido?: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1058,7 +1082,7 @@ export type Database = {
           precio_final?: never
           sku?: string | null
           stock?: number | null
-          tejido?: Database["public"]["Enums"]["tipo_tejido"] | null
+          tejido?: string | null
           updated_at?: string | null
         }
         Relationships: []
