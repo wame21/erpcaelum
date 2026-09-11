@@ -230,8 +230,9 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
         doc.text(`${mxn.format(p.precio)} MXN`, x + 7, ly + 10);
       });
 
-      pie(pagina);
-      pagina += 1;
+        pie(pagina);
+        pagina += 1;
+      }
     }
   }
 
