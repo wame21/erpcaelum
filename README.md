@@ -1,46 +1,150 @@
-# Caelum Jewelry Showcase
+# CAELUM — Joyería de plata .925 · Tienda + ERP
 
-toma como inspiracion ese tipo de diseño para la pagina, en contexto, mi pagina sera para dar a conocermi inventario de joyeria llamada Caelum, te adjunto mi logo, como podras darte cuenta la pagina principal tendra un encabezado, el cual sera el mismo para todas las paginas que llegues a crear (excepto para el admin, que hablaremos mas adelante de eso), tambien tendra un footer, ahora los datos de las piezas de joyeria la tomaras de Supabase, lo cual tendras que crear un backend solido y seguro para hacer peticiones a mi BD para consultar inventario.
+> **Silentium est potentia** — El lujo real se lleva en silencio.
 
-Crea una landing page responsiva (mobile-first) para una marca de joyería de autor y lujo minimalista llamada CAELUM. Utiliza la imagen adjunta como referencia exacta de diseño y maquetación.
+Sistema completo para **CAELUM**, marca de joyería de autor en plata .925: una tienda en línea pública (catálogo, carrito y pedidos) y un ERP interno para gestionar inventario, costos históricos, márgenes, gastos, caja, catálogos PDF y consignaciones con vendedores externos.
 
-Detalles clave:
+**Sitio público:** [caelumjoyeria.lovable.app](https://caelumjoyeria.lovable.app)
 
-Estética: Fondo negro profundo / oscuro mate, textos en blanco puro y tonos gris plomo, botones elegantes sin bordes pesados.
+---
 
-Header: Logo de CAELUM centrado con la leyenda 'Silentium est potentia'.
+## ✨ Módulos
 
-Hero Section: Cuadrícula de 2 columnas mostrando imágenes destacadas de uso de joyería.
+### Tienda pública
 
-Banner de Marca: Bloque destacado con el texto: 'El lujo real se lleva en silencio. Piezas atemporales de plata .925 que imponen respeto sin decir una sola palabra.'
+- **Landing** mobile-first con estética oscura, minimalista y de lujo.
+- **Catálogo en línea** con categorías (cadenas / pulsos) y **filtros dinámicos por tejido**.
+- **Carrito y pedidos** con precios calculados por margen y empaque.
+- Páginas legales (privacidad y términos).
 
-Sección de Categorías: Tarjetas interactivas para 'Cadenas' y 'Pulsos'.
+### ERP interno (`/admin`, protegido por autenticación y rol admin)
 
-Footer: Fondo negro con textos de autenticidad ('Auténtica Plata Sólida .925'), cobertura ('Entregas personales en Guasave, Sin. Envíos seguros a todo México') y el eslogan final.*
+- **Productos**: SKUs, código de proveedor, medida, grosor, tejido, peso y costo por gramo histórico.
+- **Lotes de compra**: costos congelados por lote — el costo histórico nunca se recalcula.
+- **Inventario trazable**: movimientos, ajustes autorizados y estado en consignación.
+- **Tejidos dinámicos**: alta de tejidos desde panel; crean sus reglas de margen automáticamente y sirven como filtro en el catálogo y el PDF.
+- **Márgenes y precios**: margen por categoría/tejido, piso global por gramo, sugerencias con advertencias y excepciones por pieza.
+- **Costos**: comparativo costo histórico vs. costo de reposición.
+- **Gastos clasificados**: mercancía, costo directo (empaque), operativo y financiero.
+- **Caja** y flujo de efectivo, **pedidos** y **dashboard** de métricas.
+- **Catálogo PDF** premium agrupado por categoría y tejido.
+- **Consignaciones**: vendedores externos con folio único, comisión sobre precio real, precios de negociación/mínimo autorizado, estados (preparada → entregada → vendida/devuelta → cerrada), registro de ventas y devoluciones, liquidación, **PDF para el vendedor** (sin información financiera interna) y **reporte interno** con utilidad y márgenes.
 
-Asegúrate de incluir efectos hover sutiles en los botones y transiciones suaves al hacer scroll.
+### Integridad financiera
 
-para el apartado del Backend, toma supabase y crea una tabla de productos, donde en esa tabla tengas codigo_proveedor (el cual se utilizara ya que mi proveedor maneja por codigos para darme precios por gramo de plata, por ejemplo el PNM09 me lo da a 58 pesos el gramo y el PNM16 a 70 pesos el gramo, esto lo utilizare para multiplicar por el peso de la joya para obtener el precio final de venta, aun que yo estandarizare los precios del PNM06 a 98 pesos por gramo y para el PNM16 a 110 pesos, quiero tener el contro)tambien tendras campos para poder registrar la medida de la joya, el grosor, el peso de la joya, tambien configuraremos un buckeet en supabase para poder subir imagenes de cada pieza de joyeria para que puedas agregarla a la pagina. el bucket lo llame caelum_imagenes
+- Precios sugeridos con `(costo histórico + empaque) / (1 − margen objetivo)`.
+- Comisión sobre el **precio real de venta**: `importe_caelum = precio_real − comisión`.
+- Costos históricos y ventas registradas son inmutables (integridad histórica).
 
-This project was built with [Lovable](https://lovable.dev).
+---
 
-**Live app**: https://caelumjoyeria.lovable.app
+## 🛠 Stack
 
-## Build with Lovable
+| Capa | Tecnología |
+| --- | --- |
+| Frontend | React 19 + TanStack Start v1 (SSR, file-based routing) |
+| Build | Vite 8 · TypeScript 5.8 |
+| Estilos | Tailwind CSS v4 + shadcn/ui (tema oscuro semántico) |
+| Estado/datos | TanStack Query + server functions (`createServerFn`) |
+| Backend/DB | Supabase (Postgres, RLS, RPC, Storage) |
+| PDFs | jsPDF (catálogo, consignaciones) |
+| Hosting | Lovable (Cloudflare Workers) |
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/f7a28b35-147d-4664-8446-d95e9d881bd4).
+---
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+## 🗄 Base de datos (Supabase)
 
-## Development
+Tablas principales del esquema `public`:
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+| Tabla | Propósito |
+| --- | --- |
+| `productos` | Catálogo con costo por gramo histórico, precios e imagen (`imagen_path`) |
+| `lotes_compra` | Compras con costos congelados |
+| `movimientos_inventario` | Trazabilidad de inventario |
+| `codigos_proveedor` | Costos por gramo por código |
+| `tejidos` | Tejidos dinámicos con márgenes |
+| `config_margenes` | Margen por `(categoría, tejido)` |
+| `gastos` | Gastos con clasificación (empaque = costo directo) |
+| `pedidos` | Pedidos de la tienda |
+| `caja_movimientos` | Flujo de efectivo |
+| `consignaciones`, `consignacion_items`, `consignacion_ventas` | Módulo de consignaciones |
+| `vendedores_externos` | Vendedores de consignación |
+| `user_roles` | Roles (admin) — nunca en la tabla de perfiles |
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+- Bucket de imágenes: **`caelum_imagenes`** (URLs firmadas).
+- Vista `productos_con_precio` para precios finales.
+- Operaciones críticas (entregar, vender, devolver, liquidar consignación) mediante **funciones RPC** transaccionales.
+- RLS habilitado: lectura pública solo para productos/tejidos activos; el ERP requiere sesión + rol admin.
+
+---
+
+## 🚀 Puesta en marcha
+
+### Requisitos
+
+- Node 20+ (o Bun) y acceso a un proyecto de Supabase.
+
+### Variables de entorno
+
+Copia `.env.example` (o crea `.env`):
+
+```env
+VITE_SUPABASE_URL=https://<proyecto>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon-key>
 ```
+
+> En Lovable estas llaves se inyectan automáticamente (Lovable Cloud); solo son necesarias si ejecutas el proyecto fuera de Lovable.
+
+### Desarrollo
+
+```bash
+bun install        # o npm install
+bun run dev        # http://localhost:8080
+```
+
+### Scripts
+
+| Comando | Descripción |
+| --- | --- |
+| `bun run dev` | Servidor de desarrollo |
+| `bun run build` | Build de producción |
+| `bun run lint` | ESLint |
+| `bun run format` | Prettier |
+
+### Estructura
+
+```text
+src/
+├─ components/        # UI (tienda + paneles admin)
+├─ lib/
+│  ├─ *.functions.ts  # Server functions (seguras para el cliente)
+│  ├─ *.server.ts     # Helpers solo-servidor
+│  └─ precios.ts      # Motor de precios y márgenes
+├─ routes/
+│  ├─ index.tsx       # Landing
+│  ├─ carrito.tsx     # Carrito y checkout
+│  ├─ _authenticated/ # /admin, /dashboard (protegido)
+│  └─ api/            # Endpoints HTTP
+└─ integrations/supabase/
+```
+
+---
+
+## 📦 Despliegue
+
+El proyecto se despliega con **Lovable** (publish → `caelumjoyeria.lovable.app`). Para hosting propio: `bun run build` genera el output desplegable; configura las variables de entorno y tu proyecto de Supabase en la plataforma destino.
+
+### Sincronización con GitHub
+
+El repositorio tiene sincronización bidireccional con GitHub: los cambios en Lovable se empujan automáticamente, y los `push` desde local se sincronizan de vuelta. Las migraciones de base de datos **no** viajan por Git — se gestionan desde Lovable Cloud.
+
+---
+
+## 🔐 Seguridad
+
+- Autenticación por Supabase; roles almacenados en `user_roles` con verificación `security definer` (nunca en perfiles ni en el cliente).
+- Toda la información financiera interna (costos, utilidades, márgenes) está restringida al ERP; el PDF del vendedor solo muestra precios públicos, de negociación y el mínimo autorizado.
+
+---
+
+*CAELUM · Joyería de plata .925 — Guasave, Sinaloa, México.*
