@@ -18,6 +18,7 @@ import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as CatalogoIndexRouteImport } from './routes/catalogo.index'
 import { Route as CatalogoCategoriaRouteImport } from './routes/catalogo.$categoria'
 
 const IndexRoute = IndexRouteImport.update({
@@ -64,6 +65,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const CatalogoIndexRoute = CatalogoIndexRouteImport.update({
+  id: '/catalogo/',
+  path: '/catalogo/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CatalogoCategoriaRoute = CatalogoCategoriaRouteImport.update({
   id: '/catalogo/$categoria',
   path: '/catalogo/$categoria',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
+  '/catalogo/': typeof CatalogoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
+  '/catalogo': typeof CatalogoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/catalogo/$categoria': typeof CatalogoCategoriaRoute
+  '/catalogo/': typeof CatalogoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/catalogo/$categoria'
+    | '/catalogo/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/catalogo/$categoria'
+    | '/catalogo'
   id:
     | '__root__'
     | '/'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/catalogo/$categoria'
+    | '/catalogo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -151,6 +163,7 @@ export interface RootRouteChildren {
   PrivacidadRoute: typeof PrivacidadRoute
   TerminosRoute: typeof TerminosRoute
   CatalogoCategoriaRoute: typeof CatalogoCategoriaRoute
+  CatalogoIndexRoute: typeof CatalogoIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/catalogo/': {
+      id: '/catalogo/'
+      path: '/catalogo'
+      fullPath: '/catalogo/'
+      preLoaderRoute: typeof CatalogoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/catalogo/$categoria': {
       id: '/catalogo/$categoria'
       path: '/catalogo/$categoria'
@@ -250,6 +270,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadRoute: PrivacidadRoute,
   TerminosRoute: TerminosRoute,
   CatalogoCategoriaRoute: CatalogoCategoriaRoute,
+  CatalogoIndexRoute: CatalogoIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
