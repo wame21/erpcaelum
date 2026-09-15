@@ -1,5 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 
@@ -7,16 +7,11 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/reveal";
 import { ProductoCard } from "@/components/producto-card";
-import { listarProductos } from "@/lib/productos.functions";
-
-const CATEGORIAS = ["cadenas", "pulsos"] as const;
-type Categoria = (typeof CATEGORIAS)[number];
-
-const catalogoQuery = (categoria: Categoria) =>
-  queryOptions({
-    queryKey: ["productos", categoria],
-    queryFn: () => listarProductos({ data: { categoria, limite: 60 } }),
-  });
+import {
+  CATEGORIAS,
+  catalogoQuery,
+  type Categoria,
+} from "@/lib/catalogo-query";
 
 export const Route = createFileRoute("/catalogo/$categoria")({
   head: ({ params }) => {
