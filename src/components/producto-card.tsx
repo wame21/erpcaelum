@@ -69,13 +69,13 @@ export function ProductoCard({ producto }: { producto: Producto }) {
           )}
         </button>
         <div className="space-y-2 p-5">
-          <p className="text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
+          <p className="text-[0.75rem] tracking-[0.18em] text-muted-foreground uppercase">
             {detalle}
           </p>
-          <p className="pt-1 text-sm tracking-[0.1em] text-silver">
+          <p className="pt-1 text-xl tracking-[0.1em] text-silver">
             {mxn.format(producto.precio_final)}
           </p>
-          <p className="text-[0.6rem] tracking-[0.22em] text-muted-foreground uppercase">
+          <p className="text-[0.7rem] tracking-[0.22em] text-muted-foreground uppercase">
             {disponibilidad}
           </p>
           <button
@@ -107,10 +107,8 @@ export function ProductoCard({ producto }: { producto: Producto }) {
             )}
           </div>
           <div className="space-y-2 p-6">
-            <DialogTitle className="font-display text-base tracking-[0.2em] uppercase">
-              {producto.nombre}
-            </DialogTitle>
-            <DialogDescription className="text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase">
+            <DialogTitle className="sr-only">{producto.nombre}</DialogTitle>
+            <DialogDescription className="text-[0.75rem] tracking-[0.18em] text-muted-foreground uppercase">
               {detalle}
             </DialogDescription>
             {producto.descripcion && (
@@ -118,10 +116,10 @@ export function ProductoCard({ producto }: { producto: Producto }) {
                 {producto.descripcion}
               </p>
             )}
-            <p className="pt-2 text-base tracking-[0.1em] text-silver">
+            <p className="pt-2 text-xl tracking-[0.1em] text-silver">
               {mxn.format(producto.precio_final)}
             </p>
-            <p className="text-[0.6rem] tracking-[0.22em] text-muted-foreground uppercase">
+            <p className="text-[0.7rem] tracking-[0.22em] text-muted-foreground uppercase">
               {disponibilidad}
             </p>
             <button
