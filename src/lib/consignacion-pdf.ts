@@ -1,4 +1,4 @@
-import logo from "@/assets/caelum-logo.png.asset.json";
+import logo from "@/assets/caelum-logo.png";
 import { mxn } from "@/lib/banco";
 import type { Consignacion } from "@/lib/consignaciones.functions";
 
@@ -57,7 +57,7 @@ export async function generarCatalogoConsignacion(c: Consignacion) {
   const H = 297;
   const margen = 16;
 
-  const logoImg = await aDataUrl(logo.url);
+  const logoImg = await aDataUrl(logo);
   const imagenes = new Map<string, { data: string; w: number; h: number }>();
   await Promise.all(
     c.items.map(async (i) => {

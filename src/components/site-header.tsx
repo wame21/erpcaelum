@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut, ShoppingBag, User } from "lucide-react";
 
-import logo from "@/assets/caelum-logo.png.asset.json";
+import logo from "@/assets/caelum-logo.png";
 import { useCarrito } from "@/lib/carrito";
 import { useSesion } from "@/hooks/use-sesion";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,10 +27,10 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 py-6 sm:py-8">
         <Link to="/" className="group flex flex-col items-center gap-3">
           <img
-            src={logo.url}
+            src={logo}
             alt="CAELUM"
-            width={733}
-            height={808}
+            width={1920}
+            height={1276}
             className="h-16 w-auto transition-opacity duration-500 group-hover:opacity-80 sm:h-20"
           />
           <span className="font-display text-[0.65rem] tracking-[0.42em] text-muted-foreground uppercase sm:text-xs">

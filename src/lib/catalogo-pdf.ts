@@ -1,4 +1,4 @@
-import logo from "@/assets/caelum-logo.png.asset.json";
+import logo from "@/assets/caelum-logo.png";
 import portada from "@/assets/hero-1.jpg";
 import { mxn } from "@/lib/banco";
 
@@ -68,7 +68,7 @@ export async function generarCatalogoPdf(piezas: PiezaCatalogo[]) {
   const negro = [8, 8, 8] as const;
 
   const [logoImg, portadaImg] = await Promise.all([
-    aDataUrl(logo.url),
+    aDataUrl(logo),
     aDataUrl(portada, true),
   ]);
   const imagenes = new Map<string, { data: string; w: number; h: number }>();
